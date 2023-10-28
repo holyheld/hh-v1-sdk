@@ -17,7 +17,7 @@ Holyheld SDK provides methods to off-ramp crypto to Holyheld account via $holyta
 
 #### 🔔 Web3 Provider note
 
-> By default, a [viem](https://github.com/wagmi-dev/viem) provider is used for EVM-compatible JSON-RPC interaction, but [Web3.js](https://github.com/web3/web3.js) and [ethers.js](https://github.com/ethers-io/ethers.js) are also supported, please see [examples](#examples-of-creating-clients).
+> By default, a [viem](https://github.com/wagmi-dev/viem) provider is used for EVM-compatible JSON-RPC interaction, but [Web3.js](https://github.com/web3/web3.js) and [ethers.js](https://github.com/ethers-io/ethers.js) are also supported, please see [examples](#working-with-different-web3-providers).
 
 ## Installation
 
