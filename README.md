@@ -321,6 +321,7 @@ const chainId; // token chain id
 
 ```js
 import { providers } from 'ethers';
+import { createPublicClient, createWalletClient, custom, http } from 'viem';
 
 const chain; // chain entity from viem
 
@@ -341,6 +342,7 @@ const walletClient = createWalletClient({
 
 ```js
 import Web3 from 'web3';
+import { createPublicClient, createWalletClient, custom, http } from 'viem';
 
 const chain; // chain entity from viem
 
