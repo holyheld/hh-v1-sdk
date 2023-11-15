@@ -32,6 +32,7 @@ import {
   TOP_UP_EXCHANGE_PROXY_ADDRESS_KEY,
   TEST_HOLYTAG,
 } from './constants';
+import { createWalletClientAdapter } from './helpers';
 import { LogLevel, createDefaultLogger } from './logger';
 import type { Logger } from './logger';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
@@ -335,7 +336,7 @@ export default class HolyheldSDK {
       await this.topupService.topUpCompound(
         senderAddress,
         publicClient,
-        walletClient,
+        createWalletClientAdapter(walletClient),
         inputAsset,
         tokenAmount,
         inputAsset.priceUSD,

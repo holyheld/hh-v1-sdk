@@ -183,10 +183,10 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.51.0.tgz#6d419c240cfb2b66da37df230f7e7eef801c32fa"
   integrity sha512-HxjQ8Qn+4SI3/AFv6sOrDB+g6PpUTDwSJiQqOrnneEk8L71161srI9gjzzZvYVbzHiVg/BvcH95+cK/zfIt4pg==
 
-"@holyheld/web-app-shared@^2.1.7":
-  version "2.1.7"
-  resolved "https://npm.pkg.github.com/download/@holyheld/web-app-shared/2.1.7/064a2df425f2151fb18865204c235cf77c1aeb58#064a2df425f2151fb18865204c235cf77c1aeb58"
-  integrity sha512-0wUEu6DA4Jnyg7pBn/tAzdXkKcX1MFgfDh2CPh5oBAg4FrtimVvqTySGWXAbIVPLLft0NLgo4C7ONQs+f9NMhg==
+"@holyheld/web-app-shared@^2.1.10":
+  version "2.1.10"
+  resolved "https://npm.pkg.github.com/download/@holyheld/web-app-shared/2.1.10/ef958976d67e008a46f65d0a02a3259757e79610#ef958976d67e008a46f65d0a02a3259757e79610"
+  integrity sha512-q600KD4rvJk2i6Z7lAZPYU1nF9d2Q52XAUig0im+bRt7YaQFPAyOv/yOPEHVjly39ZS2JxzCQ8d9KQYnMwTZuA==
   dependencies:
     axios-retry "^3.3.1"
     dayjs "^1.11.4"
