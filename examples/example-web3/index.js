@@ -188,7 +188,7 @@ setAmountButton.addEventListener('click', async () => {
   const isMoreThanMaximum = Number(amountInEUR) > Number(settings.external.maxTopUpAmountInEUR);
   const isTestHolytag = holytag.toUpperCase() === 'SDKTEST';
 
-  if (!isTestHolytag && (isLessThanMinimum || isMoreThanMaximum)) {
+  if ((!isTestHolytag && isLessThanMinimum) || isMoreThanMaximum) {
     parentElement.innerHTML = getTokenInfoHTML(
       selectedToken.name,
       selectedToken.address,
@@ -204,7 +204,7 @@ setAmountButton.addEventListener('click', async () => {
     return;
   }
 
-  if (!isTestHolytag && isMoreThanMaximum) {
+  if (isMoreThanMaximum) {
     alert(`Maximum allowed amount is ${settings.external.minTopUpAmountInEUR} EUR`);
     return;
   }
