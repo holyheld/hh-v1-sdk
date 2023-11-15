@@ -3,7 +3,7 @@ import './index.css';
 import Web3 from 'web3';
 import { createPublicClient, createWalletClient, custom, http } from 'viem';
 import * as chains from 'viem/chains';
-import HolyheldSDK, { getNetworkChainId } from '@holyheld/sdk';
+import HolyheldSDK, { getNetworkChainId, getNetwork } from '@holyheld/sdk';
 import { getSpinnerHTML, getSettingsHTML, getRadioItemHTML, getTokenInfoHTML, getDataHTML } from './templates';
 
 const parentElement = document.querySelector('section');
@@ -239,10 +239,38 @@ submitButton.addEventListener('click', async () => {
 
   // switch to the correct chain (network) in the wallet
   if (chainId !== tokenNetworkId) {
-    await web3.currentProvider.request({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: Web3.utils.toHex(tokenNetworkId) }],
-    });
+    try {
+      await web3.currentProvider.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: Web3.utils.toHex(tokenNetworkId) }]
+      })
+    } catch (error) {
+      if (error instanceof Object && error.code === 4902) {
+        const networkInfo = getNetwork(selectedToken.network);
+        await web3.currentProvider.request({
+          method: 'wallet_addEthereumChain',
+          params: [
+            {
+              chainId: Web3.utils.toHex(tokenNetworkId),
+              chainName: networkInfo.name,
+              rpcUrls: networkInfo.rpcUrl(),
+              nativeCurrency: {
+                name: networkInfo.baseAsset.name,
+                symbol: networkInfo.baseAsset.symbol,
+                decimals: networkInfo.baseAsset.decimals
+              },
+              blockExplorerUrls: [networkInfo.explorer]
+            }
+          ]
+        });
+        await web3.currentProvider.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: Web3.utils.toHex(tokenNetworkId) }]
+        });
+      } else {
+        throw error;
+      }
+    }
   }
 
   const chain = Object.values(chains).find((item) => item.id === tokenNetworkId);

@@ -3,7 +3,7 @@ import './index.css';
 import { ethers } from 'ethers';
 import { createPublicClient, createWalletClient, custom, http } from 'viem';
 import * as chains from 'viem/chains';
-import HolyheldSDK, { getNetworkChainId } from '@holyheld/sdk';
+import HolyheldSDK, { getNetworkChainId, getNetwork } from '@holyheld/sdk';
 import { getSpinnerHTML, getSettingsHTML, getRadioItemHTML, getTokenInfoHTML, getDataHTML } from './templates';
 
 const parentElement = document.querySelector('section');
@@ -238,10 +238,38 @@ submitButton.addEventListener('click', async () => {
 
   // switch to the correct chain (network) in the wallet
   if (chainId !== tokenNetworkId) {
-    await provider.provider.request({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: ethers.utils.hexValue(tokenNetworkId) }]
-    })
+    try {
+      await provider.provider.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: ethers.utils.hexValue(tokenNetworkId) }]
+      })
+    } catch (error) {
+      if (error instanceof Object && error.code === 4902) {
+        const networkInfo = getNetwork(selectedToken.network);
+        await provider.provider.request({
+          method: 'wallet_addEthereumChain',
+          params: [
+            {
+              chainId: ethers.utils.hexValue(tokenNetworkId),
+              chainName: networkInfo.name,
+              rpcUrls: networkInfo.rpcUrl(),
+              nativeCurrency: {
+                name: networkInfo.baseAsset.name,
+                symbol: networkInfo.baseAsset.symbol,
+                decimals: networkInfo.baseAsset.decimals
+              },
+              blockExplorerUrls: [networkInfo.explorer]
+            }
+          ]
+        });
+        await provider.provider.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: ethers.utils.hexValue(tokenNetworkId) }]
+        });
+      } else {
+        throw error;
+      }
+    }
   }
 
   const chain = Object.values(chains).find((item) => item.id === tokenNetworkId);
