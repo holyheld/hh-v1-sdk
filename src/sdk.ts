@@ -30,6 +30,7 @@ import {
   ASSET_SERVICE_BASE_URL,
   API_VIEW_BASE_URL,
   TOP_UP_EXCHANGE_PROXY_ADDRESS_KEY,
+  TEST_HOLYTAG,
 } from './constants';
 import { LogLevel, createDefaultLogger } from './logger';
 import type { Logger } from './logger';
@@ -298,6 +299,7 @@ export default class HolyheldSDK {
       const settings = await this.getServerSettings();
 
       if (
+        tag.toLowerCase() !== TEST_HOLYTAG.toLowerCase() &&
         new BigNumber(convertData.EURAmount).lt(
           new BigNumber(settings.external.minTopUpAmountInEUR).multipliedBy(new BigNumber(0.99)),
         )

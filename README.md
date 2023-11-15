@@ -99,10 +99,14 @@ When displaying $holytag usually is prepended with a `$` prefix, for example: $J
 
 Tags are stored case-sensitive for display, but not case-sensitive for search, and are not allowed to have multiple case variants registered, meaning if there is a tag `$ToTheMoon` registered, there couldn't be tag `$toTHEmoon` created afterwards.
 
+#### 🔔 Test $holytag
+
+> You can use `TESTSDK` as a test $holytag. All transactions to this $holytag will NOT trigger an actual fiat transaction, but will return a fully valid response. There is no minimum amount set for the test $holytag. Funds can be retrieved back. This test $holytag works across all supported networks an tokens.
+
 ```js
 (async () => {
   // a tag name could be pre-set or have to be input by user, depends on the application
-  const data = await holyheldSDK.getTagInfoForTopUp(tagName);
+  const data = await holyheldSDK.getTagInfoForTopUp('TESTSDK');
 })();
 ```
 
