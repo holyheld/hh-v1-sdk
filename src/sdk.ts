@@ -30,7 +30,9 @@ import {
   ASSET_SERVICE_BASE_URL,
   API_VIEW_BASE_URL,
   TOP_UP_EXCHANGE_PROXY_ADDRESS_KEY,
+  TEST_HOLYTAG,
 } from './constants';
+import { createWalletClientAdapter } from './helpers';
 import { LogLevel, createDefaultLogger } from './logger';
 import type { Logger } from './logger';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
@@ -298,6 +300,7 @@ export default class HolyheldSDK {
       const settings = await this.getServerSettings();
 
       if (
+        tag.toLowerCase() !== TEST_HOLYTAG.toLowerCase() &&
         new BigNumber(convertData.EURAmount).lt(
           new BigNumber(settings.external.minTopUpAmountInEUR).multipliedBy(new BigNumber(0.99)),
         )
@@ -333,7 +336,7 @@ export default class HolyheldSDK {
       await this.topupService.topUpCompound(
         senderAddress,
         publicClient,
-        walletClient,
+        createWalletClientAdapter(walletClient),
         inputAsset,
         tokenAmount,
         inputAsset.priceUSD,

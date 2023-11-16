@@ -1,0 +1,17 @@
+{
+  "name": "example-ethers-v5",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^4.4.5"
+  },
+  "dependencies": {
+    "@holyheld/sdk": "^1.1.0",
+    "ethers": "^5.7.2"
+  }
+}

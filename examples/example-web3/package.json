@@ -1,0 +1,18 @@
+{
+  "name": "example-web3",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^4.4.5",
+    "vite-plugin-node-polyfills": "^0.16.0"
+  },
+  "dependencies": {
+    "@holyheld/sdk": "^1.1.0",
+    "web3": "^4.2.2"
+  }
+}

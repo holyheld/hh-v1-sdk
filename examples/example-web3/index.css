@@ -1,0 +1,31 @@
+:root {
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: var(--font-family);
+}
+
+[hidden] {
+  display: none;
+}
+
+h1, section {
+  margin: 0 0 40px;
+}
+
+dl {
+  margin: 0;
+}
+
+dd {
+  margin: 0 0 12px;
+  font-weight: bold;
+}
+
+img {
+  display: block;
+  margin: 0 0 24px;
+}
