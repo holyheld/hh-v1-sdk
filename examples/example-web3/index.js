@@ -283,6 +283,7 @@ submitButton.addEventListener('click', async () => {
   const walletClient = createWalletClient({
     chain,
     transport: custom(web3.currentProvider),
+    account: address
   });
 
   try {

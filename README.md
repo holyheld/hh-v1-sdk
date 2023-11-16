@@ -271,6 +271,7 @@ const publicClient = createPublicClient({
 const walletClient = createWalletClient({
   chain,
   transport: custom(provider), // current provider in your app (see examples below)
+  account: '0x...', // wallet address
 });
 
 (async () => {
@@ -339,6 +340,7 @@ const publicClient = createPublicClient({
 const walletClient = createWalletClient({
   chain,
   transport: custom(provider.provider),
+  account: '0x...', // wallet address
 });
 ```
 
@@ -360,6 +362,7 @@ const publicClient = createPublicClient({
 const walletClient = createWalletClient({
   chain,
   transport: custom(provider),
+  account: '0x...', // wallet address
 });
 ```
 
