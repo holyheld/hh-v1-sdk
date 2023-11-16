@@ -11,7 +11,7 @@
     "vite": "^4.4.5"
   },
   "dependencies": {
-    "@holyheld/sdk": "^1.0.7",
+    "@holyheld/sdk": "^1.1.0",
     "viem": "^1.19.1",
     "wagmi": "^1.4.6"
   }
