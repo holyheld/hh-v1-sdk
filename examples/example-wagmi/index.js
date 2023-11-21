@@ -31,6 +31,11 @@ let holytag;
 
 // 0. Connect wallet
 connectButton.addEventListener('click', async () => {
+  if (!window.ethereum) {
+    alert('Enable injected provider, for example MetaMask.');
+    return;
+  }
+
   connectButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 

@@ -117,7 +117,7 @@ type Response = {
   // if the tag exists and active
   found: boolean;
   // tag name (with writing preserving capital case, as registered)
-  tag?: string; // example: 'ThisIsStefano'
+  tag?: string; // example: 'TESTSDK'
   // if created, a link to avatar image (tag can have avatar picture set)
   avatarSrc?: string; // example: 'https://holyheld.com/static/avatar.png'
 }
@@ -283,7 +283,7 @@ const walletClient = createWalletClient({
     Network.ethereum, // token network
     '5.25', // token amount
     transferData, // if was provided by 'convertTokenToEUR' and/or 'convertEURToToken'
-    'LordSatoshi', // funds recipient tag
+    'TESTSDK', // funds recipient tag
     true, // true if connected wallet supportsSignTypedDataV4 (for more human friendly signature request)
     callbackConfig, // callbacks (see below)
   );
