@@ -14,6 +14,8 @@ Holyheld SDK provides methods to off-ramp crypto to Holyheld account via $holyta
 - [Utilities](#utilities)
 - [Error handling](#error-handling)
 - [Logging](#logging)
+- [Examples](#examples)
+- [Testing](#testing)
 
 #### 🔔 Web3 Provider note
 
@@ -509,6 +511,21 @@ type Logger = (
   data?: { [key: string]: any },
 ) => void;
 ```
+
+## Examples
+
+Source code for several Web3 providers can be found in the examples directory, as well as deployed versions are available at:
+
+* for ethers.js: https://sdk-example-ethers-v5.holyheld.com/
+* for Web3.js: https://sdk-example-web3.holyheld.com/
+* for viem: https://sdk-example-wagmi.holyheld.com/
+
+These are minimal html/javascript applications to illustrate the flow described in the document above.
+
+## Testing
+
+A test $holytag is defined to provide test capabilities: `$SDKTEST`. It can be used as recipient tag for any amount on any supported network. This means no minimal amount restriction and that no real debit card cashout would take place, but the application, backend and smart contract interactions would be executed as they would during the regular flow.
+It is advised to use the test tag `$SDKTEST` with small amounts of tokens (less than $0.1) on L2 chains (Arbitrum, Polygon, Avalanche, etc.) to avoid gas costs while performing the tests, ensuring correct live execution of tag card cashout.
 
 ## License
 
