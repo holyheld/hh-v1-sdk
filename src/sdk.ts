@@ -3,6 +3,7 @@ import type { Address, PublicClient, WalletClient } from 'viem';
 import Core, {
   CardTopUpOnChainService,
   PermitOnChainService,
+  Permit2OnChainService,
   HHAPIApprovalService,
   HHAPIAssetsService,
   HHAPITagService,
@@ -65,9 +66,10 @@ export default class HolyheldSDK {
 
   constructor(protected readonly options: HolyheldSDKOptions) {
     const permitService = new PermitOnChainService();
+    const permit2Service = new Permit2OnChainService();
     const approvalService = new HHAPIApprovalService(API_VIEW_BASE_URL, '');
 
-    this.topupService = new CardTopUpOnChainService(permitService, approvalService);
+    this.topupService = new CardTopUpOnChainService(permitService, approvalService, permit2Service);
     this.assetService = new HHAPIAssetsService(ASSET_SERVICE_BASE_URL);
     this.tagService = new HHAPITagService(CORE_SERVICE_BASE_URL);
     this.swapService = new HHAPISwapService(ASSET_SERVICE_BASE_URL);
