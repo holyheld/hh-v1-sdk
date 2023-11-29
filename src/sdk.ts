@@ -92,7 +92,7 @@ export default class HolyheldSDK {
 
   async getServerSettings(): Promise<ServerExternalSettings> {
     try {
-      return this.settingsService.getServerSettingsExternal(this.options.apiKey);
+      return await this.settingsService.getServerSettingsExternal(this.options.apiKey);
     } catch (error) {
       if (error instanceof HHError) {
         throw new HolyheldSDKError(
@@ -108,7 +108,7 @@ export default class HolyheldSDK {
 
   async getTagInfoForTopUp(tag: string): Promise<GetTagDataForTopUpExternalResponse> {
     try {
-      return this.tagService.getTagDataForTopUpExternal(tag, this.options.apiKey);
+      return await this.tagService.getTagDataForTopUpExternal(tag, this.options.apiKey);
     } catch (error) {
       if (error instanceof HHError) {
         throw new HolyheldSDKError(
@@ -155,7 +155,7 @@ export default class HolyheldSDK {
     const usdc = Core.getUSDCAssetData(network);
 
     try {
-      return this.swapService.convertTokenToEURForTopUpExternal(
+      return await this.swapService.convertTokenToEURForTopUpExternal(
         usdc.address,
         usdc.decimals,
         sellTokenAddress,
@@ -190,7 +190,7 @@ export default class HolyheldSDK {
     const usdc = Core.getUSDCAssetData(network);
 
     try {
-      return this.swapService.convertEURToTokenForTopUpExternal(
+      return await this.swapService.convertEURToTokenForTopUpExternal(
         usdc.address,
         usdc.decimals,
         sellTokenAddress,
