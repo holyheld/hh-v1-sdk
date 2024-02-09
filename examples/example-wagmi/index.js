@@ -5,7 +5,7 @@ import { configureChains, connect, createConfig, switchNetwork } from '@wagmi/co
 import { arbitrum, avalanche, base, gnosis, mainnet, optimism, polygon, polygonZkEvm, zkSync } from '@wagmi/core/chains';
 import { InjectedConnector } from '@wagmi/connectors/injected';
 import { getPublicClient, getWalletClient, getNetwork } from '@wagmi/core';
-import HolyheldSDK, { getNetworkChainId } from '@holyheld/sdk';
+import HolyheldSDK from '@holyheld/sdk';
 import { getSpinnerHTML, getSettingsHTML, getRadioItemHTML, getTokenInfoHTML, getDataHTML } from './templates';
 
 const parentElement = document.querySelector('section');
@@ -53,7 +53,7 @@ connectButton.addEventListener('click', async () => {
 });
 
 // 1. Initialize SDK
-initializeButton.addEventListener('click', () => {
+initializeButton.addEventListener('click', async () => {
   initializeButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 
@@ -66,6 +66,7 @@ initializeButton.addEventListener('click', () => {
   }
 
   sdk = new HolyheldSDK({ apiKey, logger: true });
+  await sdk.init();
 
   getSettingsButton.removeAttribute('hidden');
   parentElement.innerHTML = '';
@@ -134,6 +135,7 @@ getTokensButton.addEventListener('click', async () => {
         acc === '',
         current.address,
         current.network,
+        sdk.getNetwork(current.network).displayedName,
         current.name,
         current.balance,
         current.symbol
@@ -157,7 +159,7 @@ selectTokenButton.addEventListener('click', () => {
   parentElement.innerHTML = getTokenInfoHTML(
     selectedToken.name,
     selectedToken.address,
-    selectedToken.network,
+    sdk.getNetwork(selectedToken.network).displayedName,
     selectedToken.balance,
     selectedToken.symbol
   );
@@ -199,7 +201,7 @@ setAmountButton.addEventListener('click', async () => {
     parentElement.innerHTML = getTokenInfoHTML(
       selectedToken.name,
       selectedToken.address,
-      selectedToken.network,
+      sdk.getNetwork(selectedToken.network).displayedName,
       selectedToken.balance,
       selectedToken.symbol
     );
@@ -221,7 +223,7 @@ setAmountButton.addEventListener('click', async () => {
   parentElement.innerHTML = getDataHTML(
     selectedToken.name,
     selectedToken.address,
-    selectedToken.network,
+    sdk.getNetwork(selectedToken.network).displayedName,
     selectedToken.symbol,
     amount,
     amountInEUR,
@@ -234,7 +236,7 @@ setAmountButton.addEventListener('click', async () => {
 //    wallet interaction, e.g. sign permit and then send a transaction
 submitButton.addEventListener('click', async () => {
   const chainId = getNetwork().chain.id;
-  const tokenNetworkId = getNetworkChainId(selectedToken.network);
+  const tokenNetworkId = sdk.getNetworkChainId(selectedToken.network);
 
   submitButton.setAttribute('hidden', '');
   parentElement.innerHTML = `

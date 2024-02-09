@@ -3,7 +3,7 @@ import './index.css';
 import Web3 from 'web3';
 import { createPublicClient, createWalletClient, custom, http } from 'viem';
 import * as chains from 'viem/chains';
-import HolyheldSDK, { getNetworkChainId, getNetwork } from '@holyheld/sdk';
+import HolyheldSDK from '@holyheld/sdk';
 import { getSpinnerHTML, getSettingsHTML, getRadioItemHTML, getTokenInfoHTML, getDataHTML } from './templates';
 
 const parentElement = document.querySelector('section');
@@ -48,7 +48,7 @@ connectButton.addEventListener('click', async () => {
 });
 
 // 1. Initialize SDK
-initializeButton.addEventListener('click', () => {
+initializeButton.addEventListener('click', async () => {
   initializeButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 
@@ -61,6 +61,7 @@ initializeButton.addEventListener('click', () => {
   }
 
   sdk = new HolyheldSDK({ apiKey, logger: true });
+  await sdk.init();
 
   getSettingsButton.removeAttribute('hidden');
   parentElement.innerHTML = '';
@@ -127,6 +128,7 @@ getTokensButton.addEventListener('click', async () => {
         acc === '',
         current.address,
         current.network,
+        sdk.getNetwork(current.network).displayedName,
         current.name,
         current.balance,
         current.symbol
@@ -150,7 +152,7 @@ selectTokenButton.addEventListener('click', () => {
   parentElement.innerHTML = getTokenInfoHTML(
     selectedToken.name,
     selectedToken.address,
-    selectedToken.network,
+    sdk.getNetwork(selectedToken.network).displayedName,
     selectedToken.balance,
     selectedToken.symbol
   );
@@ -192,7 +194,7 @@ setAmountButton.addEventListener('click', async () => {
     parentElement.innerHTML = getTokenInfoHTML(
       selectedToken.name,
       selectedToken.address,
-      selectedToken.network,
+      sdk.getNetwork(selectedToken.network).displayedName,
       selectedToken.balance,
       selectedToken.symbol
     );
@@ -214,7 +216,7 @@ setAmountButton.addEventListener('click', async () => {
   parentElement.innerHTML = getDataHTML(
     selectedToken.name,
     selectedToken.address,
-    selectedToken.network,
+    sdk.getNetwork(selectedToken.network).displayedName,
     selectedToken.symbol,
     amount,
     amountInEUR,
@@ -227,7 +229,7 @@ setAmountButton.addEventListener('click', async () => {
 //    wallet interaction, e.g. sign permit and then send a transaction
 submitButton.addEventListener('click', async () => {
   const chainId = Number(await web3.eth.getChainId());
-  const tokenNetworkId = getNetworkChainId(selectedToken.network);
+  const tokenNetworkId = sdk.getNetworkChainId(selectedToken.network);
 
   submitButton.setAttribute('hidden', '');
   parentElement.innerHTML = `
@@ -246,20 +248,20 @@ submitButton.addEventListener('click', async () => {
       })
     } catch (error) {
       if (error instanceof Object && error.code === 4902) {
-        const networkInfo = getNetwork(selectedToken.network);
+        const networkInfo = sdk.getNetwork(selectedToken.network);
         await web3.currentProvider.request({
           method: 'wallet_addEthereumChain',
           params: [
             {
               chainId: Web3.utils.toHex(tokenNetworkId),
               chainName: networkInfo.name,
-              rpcUrls: networkInfo.rpcUrl(),
+              rpcUrls: networkInfo.rpcUrls,
               nativeCurrency: {
                 name: networkInfo.baseAsset.name,
                 symbol: networkInfo.baseAsset.symbol,
                 decimals: networkInfo.baseAsset.decimals
               },
-              blockExplorerUrls: [networkInfo.explorer]
+              blockExplorerUrls: [networkInfo.explorerURL]
             }
           ]
         });

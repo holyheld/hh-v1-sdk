@@ -183,12 +183,11 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.51.0.tgz#6d419c240cfb2b66da37df230f7e7eef801c32fa"
   integrity sha512-HxjQ8Qn+4SI3/AFv6sOrDB+g6PpUTDwSJiQqOrnneEk8L71161srI9gjzzZvYVbzHiVg/BvcH95+cK/zfIt4pg==
 
-"@holyheld/web-app-shared@2.1.23":
-  version "2.1.23"
-  resolved "https://npm.pkg.github.com/download/@holyheld/web-app-shared/2.1.23/7c02e7e664e1c422fef650649c4ad945e39361e7#7c02e7e664e1c422fef650649c4ad945e39361e7"
-  integrity sha512-0pXq9ENJ2ocHW3fuUS3WH099gzv9H1OzaL3mUjiZXpfgIXfs4DPxIlPizirWt1xdvH5J9J7J1J/1752wMx9d4A==
+"@holyheld/web-app-shared@2.2.27":
+  version "2.2.27"
+  resolved "https://npm.pkg.github.com/download/@holyheld/web-app-shared/2.2.27/f9197b6958d6a62274a1e0d385cc83f9db82f86d#f9197b6958d6a62274a1e0d385cc83f9db82f86d"
+  integrity sha512-2FL9OnO6O9HxTgFqwwwhBZJZDvY0xYB5atdxZi1jS6xVQcgjibvBR5p1CCy/roUOIkUP1P7OoXW+jYKqbFG/AQ==
   dependencies:
-    axios-retry "^3.3.1"
     dayjs "^1.11.4"
     qs "^6.11.0"
     ts-custom-error "^3.2.0"
@@ -546,7 +545,7 @@ asynckit@^0.4.0:
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
   integrity sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==
 
-axios-retry@^3.3.1, axios-retry@^3.8.0:
+axios-retry@^3.8.0:
   version "3.8.0"
   resolved "https://registry.yarnpkg.com/axios-retry/-/axios-retry-3.8.0.tgz#a174af633ef143a9f5642b9e4afe65c2017936b5"
   integrity sha512-CfIsQyWNc5/AE7x/UEReRUadiBmQeoBpSEC+4QyGLJMswTsP1tz0GW2YYPnE7w9+ESMef5zOgLDFpHynNyEZ1w==

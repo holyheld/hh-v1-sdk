@@ -1,4 +1,6 @@
 export enum HolyheldSDKErrorCode {
+  NotInitialized = 'HSDK_NI',
+  FailedInitialization = 'HSDK_FI',
   UnsupportedNetwork = 'HSDK_UN',
   InvalidTopUpAmount = 'HSDK_ITUA',
   UnexpectedWalletNetwork = 'HSDK_UWN',

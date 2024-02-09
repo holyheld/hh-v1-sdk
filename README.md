@@ -40,9 +40,12 @@ $ yarn add @holyheld/sdk
 ```js
 import HolyheldSDK from '@holyheld/sdk';
 
-const holyheldSDK = new HolyheldSDK({
-  apiKey: process.env.HOLYHELD_SDK_API_KEY,
-})
+(async () => {
+  const holyheldSDK = new HolyheldSDK({
+    apiKey: process.env.HOLYHELD_SDK_API_KEY,
+  });
+  await holyheldSDK.init();
+})();
 ```
 
 ## Off-ramp Flow
@@ -85,7 +88,7 @@ type Response = {
     minTopUpAmountInEUR: string; // example: '5'
   };
   common: {
-    // fee (in percent) that is deducted when making an off-ramping operation
+    // fee (in percent) that is deducted when making an off-ramping operation on mainnet
     topUpFeePercent: string; // example: '0.75'
   };
 }
@@ -249,7 +252,7 @@ This is the 'main' method to call that executes off-ramping to $holytag. Paramet
 > 🚨 Some wallets like Metamask are single-network handled. It means that while Holyheld can return/accept transaction on any supported network, user **must** switch to the correct network in the wallet, in order for the transaction to be processed.
 
 ```js
-import { Network, getNetworkChainId } from '@holyheld/sdk';
+import { Network } from '@holyheld/sdk';
 import * as chains from 'viem/chains';
 import { createPublicClient, createWalletClient, custom, http } from 'viem';
 
@@ -373,22 +376,25 @@ const walletClient = createWalletClient({
 You can use the utilities to work with networks that the sdk supports:
 
 ```js
-import { Network, getNetwork, getNetworkByChainId, getNetworkChainId } from '@holyheld/sdk';
+import { Network } from '@holyheld/sdk';
 
-getNetwork(Network.ethereum); // NetworkInfo
+holyheldSDK.getAvailableNetworks(); // ['ethereum', 'polygon', ...]
 
-getNetworkByChainId(1); // NetworkInfo
+holyheldSDK.getNetworkChainId(Network.ethereum); // 1
 
-getNetworkChainId(Network.ethereum); // 1
+holyheldSDK.getNetwork(Network.ethereum); // NetworkInfo
+
+holyheldSDK.getNetworkByChainId(1); // NetworkInfo
+
+(async () => {
+  // estimate gas price
+  const value = await holyheldSDK.getTopUpEstimation(Network.ethereum); // '287499997500000' (in WEI)
+})();
 ```
 
 Types:
 
 ```typescript
-type APIKeys = {
-  INFURA_PROJECT_ID: string;
-};
-
 type Token = {
   // smart contract address of the token
   address: string;
@@ -411,17 +417,19 @@ type NetworkInfo = {
   // chainId of the corresponding network
   chainId: number; // example: 137
   // block explorer URL of corresponding network
-  explorer: string; // example: 'https://polygonscan.com'
+  explorerURL: string; // example: 'https://polygonscan.com'
   // block explorer name (e.g. to display user friendly link 'view on X')
   explorerName: string; // example: 'Polygonscan'
   // base asset (native/gas token) of the network
   baseAsset: Token;
   // RPC URLs array (array supported for redundancy purposes)
-  rpcUrl: (apiKeys?: Partial<APIKeys>) => string[]; // example: () => [`https://polygon-rpc.com/`]
+  rpcUrls: string[]; // example: ['https://polygon-rpc.com/'']
   // logo (picture) for the network, displayed near token logo to identify on which network the token is on
   iconURL: string; // example: 'data:image/png;base64,...'
   // name of the network to display
   displayedName: string; // example: 'Polygon'
+  // id for sorting
+  orderIdx: number; // example: 1
 };
 ```
 
@@ -457,6 +465,8 @@ Types:
 
 ```typescript
 enum HolyheldSDKErrorCode {
+  NotInitialized = 'HSDK_NI', // SDK is not initialized
+  FailedInitialization = 'HSDK_FI', // cannot initialize SDK
   UnsupportedNetwork = 'HSDK_UN', // wallet active network is not supported by SDK
   InvalidTopUpAmount = 'HSDK_ITUA', // amount does not meet minimum or maximum allowed criteria
   UnexpectedWalletNetwork = 'HSDK_UWN', // wallet active network is different from the selected network
