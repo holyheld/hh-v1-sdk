@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@holyheld/sdk": "*",
-    "viem": "^1.19.1",
-    "wagmi": "^1.4.6"
+    "viem": "^1.21.4",
+    "wagmi": "^1.4.13"
   }
 }

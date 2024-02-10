@@ -27,7 +27,7 @@
     "axios-retry": "^3.8.0",
     "bignumber.js": "^9.1.2",
     "dayjs": "^1.11.10",
-    "viem": "^1.16.6"
+    "viem": "^1.21.4"
   },
   "devDependencies": {
     "@holyheld/web-app-shared": "2.2.28",
