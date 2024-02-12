@@ -382,7 +382,7 @@ export default class HolyheldSDK {
 
       if (
         new BigNumber(convertData.EURAmount).gt(
-          new BigNumber(settings.external.maxTopUpAmountInEUR).multipliedBy(new BigNumber(1.0001)),
+          new BigNumber(settings.external.maxTopUpAmountInEUR).multipliedBy(new BigNumber(1.01)),
         )
       ) {
         throw new HolyheldSDKError(
