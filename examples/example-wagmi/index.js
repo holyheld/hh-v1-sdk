@@ -1,10 +1,8 @@
 import './index.css';
 
-import { publicProvider } from '@wagmi/core/providers/public'
-import { configureChains, connect, createConfig, switchNetwork } from '@wagmi/core';
+import { connect, createConfig, http, switchChain, getAccount, getPublicClient, getWalletClient } from '@wagmi/core';
 import { arbitrum, avalanche, base, gnosis, mainnet, optimism, polygon, polygonZkEvm, zkSync } from '@wagmi/core/chains';
-import { InjectedConnector } from '@wagmi/connectors/injected';
-import { getPublicClient, getWalletClient, getNetwork } from '@wagmi/core';
+import { injected } from '@wagmi/connectors';
 import HolyheldSDK from '@holyheld/sdk';
 import { getSpinnerHTML, getSettingsHTML, getRadioItemHTML, getTokenInfoHTML, getDataHTML } from './templates';
 
@@ -18,8 +16,7 @@ const selectTokenButton = document.querySelector('#select-token');
 const setAmountButton = document.querySelector('#set-amount');
 const submitButton = document.querySelector('#submit');
 
-const chains = [arbitrum, avalanche, base, gnosis, mainnet, optimism, polygon, polygonZkEvm, zkSync];
-
+let config;
 let sdk;
 let settings;
 let allTokens;
@@ -39,14 +36,25 @@ connectButton.addEventListener('click', async () => {
   connectButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 
-  const { publicClient, webSocketPublicClient } = configureChains(
-    [mainnet, polygon, optimism, polygonZkEvm, gnosis, avalanche, arbitrum, zkSync, base],
-    [publicProvider()]
-  );
+  config = createConfig({
+    chains: [mainnet, polygon, optimism, polygonZkEvm, gnosis, avalanche, arbitrum, zkSync, base],
+    connectors: [
+      injected(),
+    ],
+    transports: {
+      [mainnet.id]: http(),
+      [polygon.id]: http(),
+      [optimism.id]: http(),
+      [polygonZkEvm.id]: http(),
+      [gnosis.id]: http(),
+      [avalanche.id]: http(),
+      [arbitrum.id]: http(),
+      [zkSync.id]: http(),
+      [base.id]: http(),
+    },
+  });
 
-  createConfig({ publicClient, webSocketPublicClient });
-
-  await connect({ connector: new InjectedConnector({ chains }) });
+  await connect( config, { connector: injected() });
 
   initializeButton.removeAttribute('hidden');
   parentElement.innerHTML = '';
@@ -122,7 +130,7 @@ getTokensButton.addEventListener('click', async () => {
   getTokensButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 
-  const walletClient = await getWalletClient();
+  const walletClient = await getWalletClient(config);
 
   const { tokens } = await sdk.getWalletBalances(walletClient.account.address);
 
@@ -235,7 +243,7 @@ setAmountButton.addEventListener('click', async () => {
 // 7. Submit sending of token to recipient's debit card (this could require more than one
 //    wallet interaction, e.g. sign permit and then send a transaction
 submitButton.addEventListener('click', async () => {
-  const chainId = getNetwork().chain.id;
+  const { chainId } = getAccount(config);
   const tokenNetworkId = sdk.getNetworkChainId(selectedToken.network);
 
   submitButton.setAttribute('hidden', '');
@@ -248,12 +256,12 @@ submitButton.addEventListener('click', async () => {
 
   // switch to the correct chain (network) in the wallet
   if (chainId !== tokenNetworkId) {
-    await switchNetwork({ chainId: tokenNetworkId })
+    await switchChain(config, { chainId: tokenNetworkId })
   }
 
-  const publicClient = getPublicClient({ chainId: tokenNetworkId });
+  const publicClient = getPublicClient(config, { chainId: tokenNetworkId });
 
-  const walletClient = await getWalletClient({ chainId: tokenNetworkId });
+  const walletClient = await getWalletClient(config, { chainId: tokenNetworkId });
 
   try {
     await sdk.topup(

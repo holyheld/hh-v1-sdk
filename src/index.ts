@@ -9,5 +9,5 @@ export type {
   WalletToken,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 export { TopUpStep } from './sdk';
-export type { TopUpCallbackConfig } from './sdk';
+export type { TopUpCallbackConfig, HolyheldSDKOptions } from './sdk';
 export { default } from './sdk';
