@@ -361,13 +361,6 @@ export default class HolyheldSDK {
         tokenNetwork,
       );
 
-      if (
-        !Core.isSettlementTokenForTopUp(inputAsset.address, inputAsset.network) &&
-        transferData === undefined
-      ) {
-        transferData = convertData.transferData;
-      }
-
       const settings = await this.getServerSettings();
 
       if (
@@ -420,6 +413,12 @@ export default class HolyheldSDK {
         }
 
         swapTargetPrice = swapTargetPrices[0].price;
+
+        if (transferData === undefined) {
+          transferData = convertData.transferData;
+        }
+      } else {
+        transferData = undefined;
       }
 
       await this.topupService.topUpCompound(
