@@ -256,7 +256,17 @@ submitButton.addEventListener('click', async () => {
 
   // switch to the correct chain (network) in the wallet
   if (chainId !== tokenNetworkId) {
-    await switchChain(config, { chainId: tokenNetworkId })
+    try {
+      await switchChain(config, { chainId: tokenNetworkId });
+    } catch (error) {
+      parentElement.removeChild(parentElement.querySelector('img'));
+      dlElement.innerHTML = `
+        ${dlElement.innerHTML}
+        <dt>Result:</dt>
+        <dd>failed</dd>
+      `;
+      throw error;
+    }
   }
 
   const publicClient = getPublicClient(config, { chainId: tokenNetworkId });

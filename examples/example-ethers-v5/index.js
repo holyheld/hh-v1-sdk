@@ -241,36 +241,46 @@ submitButton.addEventListener('click', async () => {
   // switch to the correct chain (network) in the wallet
   if (chainId !== tokenNetworkId) {
     try {
-      await provider.provider.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: ethers.utils.hexValue(tokenNetworkId) }]
-      })
-    } catch (error) {
-      if (error instanceof Object && error.code === 4902) {
-        const networkInfo = sdk.getNetwork(selectedToken.network);
-        await provider.provider.request({
-          method: 'wallet_addEthereumChain',
-          params: [
-            {
-              chainId: ethers.utils.hexValue(tokenNetworkId),
-              chainName: networkInfo.name,
-              rpcUrls: networkInfo.rpcUrls,
-              nativeCurrency: {
-                name: networkInfo.baseAsset.name,
-                symbol: networkInfo.baseAsset.symbol,
-                decimals: networkInfo.baseAsset.decimals
-              },
-              blockExplorerUrls: [networkInfo.explorerURL]
-            }
-          ]
-        });
+      try {
         await provider.provider.request({
           method: 'wallet_switchEthereumChain',
           params: [{ chainId: ethers.utils.hexValue(tokenNetworkId) }]
-        });
-      } else {
-        throw error;
+        })
+      } catch (error) {
+        if (error instanceof Object && error.code === 4902) {
+          const networkInfo = sdk.getNetwork(selectedToken.network);
+          await provider.provider.request({
+            method: 'wallet_addEthereumChain',
+            params: [
+              {
+                chainId: ethers.utils.hexValue(tokenNetworkId),
+                chainName: networkInfo.name,
+                rpcUrls: networkInfo.rpcUrls,
+                nativeCurrency: {
+                  name: networkInfo.baseAsset.name,
+                  symbol: networkInfo.baseAsset.symbol,
+                  decimals: networkInfo.baseAsset.decimals
+                },
+                blockExplorerUrls: [networkInfo.explorerURL]
+              }
+            ]
+          });
+          await provider.provider.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: ethers.utils.hexValue(tokenNetworkId) }]
+          });
+        } else {
+          throw error;
+        }
       }
+    } catch (error) {
+      parentElement.removeChild(parentElement.querySelector('img'));
+      dlElement.innerHTML = `
+        ${dlElement.innerHTML}
+        <dt>Result:</dt>
+        <dd>failed</dd>
+      `;
+      throw error;
     }
   }
 
