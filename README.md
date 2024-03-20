@@ -387,7 +387,7 @@ holyheldSDK.getNetwork(Network.ethereum); // NetworkInfo
 holyheldSDK.getNetworkByChainId(1); // NetworkInfo
 
 (async () => {
-  // estimate gas price
+  // estimate transaction price
   const value = await holyheldSDK.getTopUpEstimation(Network.ethereum); // '287499997500000' (in WEI)
 })();
 ```
