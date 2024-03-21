@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import type { Address, PublicClient, WalletClient } from 'viem';
+import type { Address, PublicClient, WalletClient, Transport, Chain } from 'viem';
 import Core, {
   CardTopUpOnChainService,
   PermitOnChainService,
@@ -25,6 +25,8 @@ import type {
   GetTagDataForTopUpExternalResponse,
   ServerExternalSettings,
   ConvertEURData,
+  WalletList,
+  ClientType,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import {
   CORE_SERVICE_BASE_URL,
@@ -63,6 +65,7 @@ export default class HolyheldSDK {
   protected readonly settingsService: HHAPISettingsService;
   protected readonly estimationService: HHAPIEstimationService;
   protected readonly logger: Logger;
+  private isInitialized: boolean = false;
 
   constructor(protected readonly options: HolyheldSDKOptions) {
     const permitService = new PermitOnChainService();
@@ -90,7 +93,57 @@ export default class HolyheldSDK {
     });
   }
 
-  async getServerSettings(): Promise<ServerExternalSettings> {
+  public async init(): Promise<void> {
+    try {
+      const config = await this.settingsService.getClientConfigExternal('sdk', this.options.apiKey);
+      Core.setConfig(config.references.networks);
+      this.isInitialized = true;
+    } catch (error) {
+      if (error instanceof HHError) {
+        throw new HolyheldSDKError(
+          HolyheldSDKErrorCode.FailedInitialization,
+          'Failed to initialize SDK',
+          error,
+        );
+      }
+
+      throw error;
+    }
+  }
+
+  private checkInitialization(): void {
+    if (!this.isInitialized) {
+      throw new HolyheldSDKError(HolyheldSDKErrorCode.NotInitialized, 'SDK is not initialized');
+    }
+  }
+
+  public getAvailableNetworks() {
+    this.checkInitialization();
+
+    return Core.getAvailableNetworks();
+  }
+
+  public getNetwork(network: Network) {
+    this.checkInitialization();
+
+    return Core.getNetwork(network);
+  }
+
+  public getNetworkChainId(network: Network) {
+    this.checkInitialization();
+
+    return Core.getChainId(network);
+  }
+
+  public getNetworkByChainId(chainId: number) {
+    this.checkInitialization();
+
+    return Core.getNetworkByChainId(chainId);
+  }
+
+  public async getServerSettings(): Promise<ServerExternalSettings> {
+    this.checkInitialization();
+
     try {
       return await this.settingsService.getServerSettingsExternal(this.options.apiKey);
     } catch (error) {
@@ -106,7 +159,9 @@ export default class HolyheldSDK {
     }
   }
 
-  async getTagInfoForTopUp(tag: string): Promise<GetTagDataForTopUpExternalResponse> {
+  public async getTagInfoForTopUp(tag: string): Promise<GetTagDataForTopUpExternalResponse> {
+    this.checkInitialization();
+
     try {
       return await this.tagService.getTagDataForTopUpExternal(tag, this.options.apiKey);
     } catch (error) {
@@ -122,15 +177,18 @@ export default class HolyheldSDK {
     }
   }
 
-  async getWalletBalances(
+  public async getWalletBalances(
     address: string,
   ): Promise<Pick<GetMultiChainWalletTokensResponse, 'tokens'>> {
+    this.checkInitialization();
+
     try {
       const { tokens } = await this.assetService.getMultiChainWalletTokensExternal(
-        address,
+        address as Address,
         this.options.apiKey,
       );
-      return { tokens };
+      const availableNetworks = Core.getAvailableNetworks();
+      return { tokens: tokens.filter((item) => availableNetworks.includes(item.network)) };
     } catch (error) {
       if (error instanceof HHError) {
         throw new HolyheldSDKError(
@@ -144,21 +202,23 @@ export default class HolyheldSDK {
     }
   }
 
-  async convertTokenToEUR(
+  public async convertTokenToEUR(
     sellTokenAddress: string,
     sellTokenDecimals: number,
     sellAmount: string,
     network: Network,
   ): Promise<ConvertEURData> {
+    this.checkInitialization();
+
     const topupProxyAddress = Core.getNetworkAddress(network, TOP_UP_EXCHANGE_PROXY_ADDRESS_KEY);
 
-    const usdc = Core.getUSDCAssetData(network);
+    const usdc = Core.getSwapTargetForTopUp(network);
 
     try {
       return await this.swapService.convertTokenToEURForTopUpExternal(
         usdc.address,
         usdc.decimals,
-        sellTokenAddress,
+        sellTokenAddress as Address,
         sellTokenDecimals,
         sellAmount,
         topupProxyAddress,
@@ -179,21 +239,23 @@ export default class HolyheldSDK {
     }
   }
 
-  async convertEURToToken(
+  public async convertEURToToken(
     sellTokenAddress: string,
     sellTokenDecimals: number,
     sellEURAmount: string,
     network: Network,
   ): Promise<ConvertEURData> {
+    this.checkInitialization();
+
     const topupProxyAddress = Core.getNetworkAddress(network, TOP_UP_EXCHANGE_PROXY_ADDRESS_KEY);
 
-    const usdc = Core.getUSDCAssetData(network);
+    const usdc = Core.getSwapTargetForTopUp(network);
 
     try {
       return await this.swapService.convertEURToTokenForTopUpExternal(
         usdc.address,
         usdc.decimals,
-        sellTokenAddress,
+        sellTokenAddress as Address,
         sellTokenDecimals,
         sellEURAmount,
         topupProxyAddress,
@@ -214,7 +276,9 @@ export default class HolyheldSDK {
     }
   }
 
-  async getTopUpEstimation(network: Network): Promise<string> {
+  public async getTopUpEstimation(network: Network): Promise<string> {
+    this.checkInitialization();
+
     try {
       return (await this.estimationService.getTopUpEstimationExternal(network, this.options.apiKey))
         .priceInWei;
@@ -231,10 +295,10 @@ export default class HolyheldSDK {
     }
   }
 
-  async topup(
-    publicClient: PublicClient,
+  public async topup(
+    publicClient: PublicClient<Transport, Chain>,
     walletClient: WalletClient,
-    senderAddress: Address,
+    senderAddress: string,
     tokenAddress: string,
     tokenNetwork: Network,
     tokenAmount: string,
@@ -243,6 +307,8 @@ export default class HolyheldSDK {
     supportsSignTypedDataV4: boolean = false,
     config?: TopUpCallbackConfig,
   ): Promise<void> {
+    this.checkInitialization();
+
     try {
       await this.auditService.sendAuditEventExternal(
         {
@@ -251,7 +317,7 @@ export default class HolyheldSDK {
           tokenAddress,
           network: tokenNetwork,
         },
-        senderAddress,
+        senderAddress as Address,
         this.options.apiKey,
       );
     } catch (error) {
@@ -283,7 +349,7 @@ export default class HolyheldSDK {
       }
 
       const inputAsset = await this.assetService.getFullTokenDataWithPriceExternal(
-        tokenAddress,
+        tokenAddress as Address,
         tokenNetwork,
         this.options.apiKey,
       );
@@ -294,10 +360,6 @@ export default class HolyheldSDK {
         tokenAmount,
         tokenNetwork,
       );
-
-      if (!Core.isSettlementToken(inputAsset) && transferData === undefined) {
-        transferData = convertData.transferData;
-      }
 
       const settings = await this.getServerSettings();
 
@@ -324,25 +386,48 @@ export default class HolyheldSDK {
         );
       }
 
-      const usdc = Core.getUSDCAssetData(tokenNetwork);
+      let swapTargetPrice = '0';
 
-      const usdcPriceReturn = await this.assetService.getTokenPricesExternal(
-        [{ address: usdc.address, network: tokenNetwork }],
-        this.options.apiKey,
+      const isSwapTarget = Core.isSwapTargetForTopUp(tokenAddress as Address, tokenNetwork);
+      const isSettlementToken = Core.isSettlementTokenForTopUp(
+        tokenAddress as Address,
+        tokenNetwork,
       );
+      const isEURSettlementToken =
+        isSettlementToken &&
+        (Core.getSettlementTokensForTopUp(tokenNetwork).find((st) =>
+          Core.sameAddress(st.address, tokenAddress),
+        )?.isEURStableCoin ??
+          false);
 
-      if (usdcPriceReturn.length !== 1) {
-        throw new HHError('Failed to get token price');
+      if (!isSwapTarget && !isEURSettlementToken) {
+        const swapTarget = Core.getSwapTargetForTopUp(tokenNetwork);
+
+        const swapTargetPrices = await this.assetService.getTokenPricesExternal(
+          [{ address: swapTarget.address, network: swapTarget.network }],
+          this.options.apiKey,
+        );
+
+        if (swapTargetPrices.length !== 1) {
+          throw new HHError('Failed to get token price');
+        }
+
+        swapTargetPrice = swapTargetPrices[0].price;
+
+        if (transferData === undefined) {
+          transferData = convertData.transferData;
+        }
+      } else {
+        transferData = undefined;
       }
 
       await this.topupService.topUpCompound(
-        senderAddress,
+        senderAddress as Address,
         publicClient,
         createWalletClientAdapter(walletClient),
         inputAsset,
         tokenAmount,
-        inputAsset.priceUSD,
-        usdcPriceReturn[0].price,
+        swapTargetPrice,
         transferData,
         tagHash,
         supportsSignTypedDataV4,
@@ -376,7 +461,7 @@ export default class HolyheldSDK {
             try {
               await this.auditService.sendTxCallDataAuditEventExternal(
                 payload,
-                senderAddress,
+                senderAddress as Address,
                 this.options.apiKey,
               );
             } catch (error) {
@@ -416,5 +501,10 @@ export default class HolyheldSDK {
 
       throw error;
     }
+  }
+
+  public async getWalletList(type: ClientType): Promise<WalletList> {
+    const config = await this.settingsService.getClientConfigExternal(type, this.options.apiKey);
+    return config.wallets;
   }
 }
