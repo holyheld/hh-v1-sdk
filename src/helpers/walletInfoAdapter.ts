@@ -1,7 +1,7 @@
 import type { PublicClientWithHoistedChain } from '@holyheld/web-app-shared/lib/helpers/viem-types';
 import { isContract } from '@holyheld/web-app-shared/lib/services/onchain/v2/erc1271/detector';
-import { WalletInfoAdapter } from '@holyheld/web-app-shared/lib/services/onchain/v2/utils/walletInfoAdapter';
-import { Address } from 'viem';
+import type { WalletInfoAdapter } from '@holyheld/web-app-shared/lib/services/onchain/v2/utils/walletInfoAdapter';
+import type { Address } from 'viem';
 
 export function createWalletInfoAdapter(
   address: Address,
