@@ -52,7 +52,7 @@ import HolyheldSDK from '@holyheld/sdk';
 
 To off-ramp to a Holyheld account the following steps should be completed:
 1. Get settings and ensure that off-ramping is available using `getServerSettings` method.
-2. Check that selected holytag can off-ramp using `getTagInfoForTopUp` method.
+2. Check that selected wallet or holytag can transact using methods: `validateAddress` for a wallet or `getTagInfoForTopUp` for a $holytag.
 3. Provide two parameters: token and amount.
 4. Get binary data to pass as swap parameters using `convertTokenToEUR` or `convertEURToToken` methods.
 5. Call the `topup` method to execute the transaction.
@@ -61,7 +61,7 @@ To off-ramp to a Holyheld account the following steps should be completed:
 
 Here are the functions that are available for you to use.
 
-### Get settings:
+### `getServerSettings` Get settings:
 
 This method gets current state/settings for interacting with the service. Please always use this method to check:
 - if the feature is available;
@@ -94,7 +94,32 @@ type Response = {
 }
 ```
 
-### Get tag information:
+### `validateAddress` Get wallet information:
+
+User wallet address is a unique identifier which can have account, card and a $holytag bound to it. It is alphanumeric string.
+
+> 🔔 Please note that a valid wallet address is 42 strings long and begins with `0x` prefix.
+
+> 🔔 Please note that this method does not support ENS domains.
+
+
+```js
+(async () => {
+  // a wallet address could be pre-set or have to be input by user, depends on the application
+  const data = await holyheldSDK.validateAddress('0x000000000000000000000000000000000000dEaD');
+})();
+```
+
+Types:
+
+```typescript
+type Response = {
+  isTopupAllowed: boolean;
+  isOnRampAllowed: boolean;
+}
+```
+
+### `getTagInfoForTopUp` Get tag information:
 
 $Holytag is a unique identifier which can have account, card and multiple Ethereum addresses bound to it. It is alphanumeric string with a few special characters allowed.
 
@@ -128,7 +153,7 @@ type Response = {
 }
 ```
 
-### Get wallet balances:
+### `getWalletBalances` Get wallet balances:
 
 You can use `getWalletBalances` method to retrieve all tokens on the connected user wallet address. Holyheld natively supports 9 Networks. The full list of supported networks is [here](https://holyheld.com/faq/frequently-asked-questions/supported-networks).
 
@@ -177,7 +202,7 @@ type Response = {
 }
 ```
 
-### Convert token to EUR:
+### `convertTokenToEUR` Convert token to EUR:
 
 This method is used to estimate a token value in EUR to proceed with the off-ramping. `convertTokenToEUR` method can also be used in some scenarios/apps where token to be sent is pre-set and not selectable.
 
@@ -211,7 +236,7 @@ type Response = {
 }
 ```
 
-### Convert EUR to token:
+### `convertEURToToken` Convert EUR to token:
 
 `convertEURToToken` method returns a calculated token amount to match provided (expected) EUR amount.
 
