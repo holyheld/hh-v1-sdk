@@ -59,7 +59,6 @@ export interface TopUpCallbackConfig {
 
 export default class HolyheldSDK {
   protected readonly permitService: PermitOnChainService;
-  protected readonly permit2Service: Permit2OnChainService;
   protected readonly approvalService: HHAPIApprovalService;
   protected readonly assetService: HHAPIAssetsService;
   protected readonly tagService: HHAPITagService;
@@ -72,7 +71,6 @@ export default class HolyheldSDK {
 
   constructor(protected readonly options: HolyheldSDKOptions) {
     this.permitService = new PermitOnChainService();
-    this.permit2Service = new Permit2OnChainService();
     this.approvalService = new HHAPIApprovalService(API_VIEW_BASE_URL, '');
     this.assetService = new HHAPIAssetsService(ASSET_SERVICE_BASE_URL, 'sdk');
     this.tagService = new HHAPITagService(CORE_SERVICE_BASE_URL);
@@ -440,15 +438,19 @@ export default class HolyheldSDK {
         transferData = undefined;
       }
 
+      const walletInfo = createWalletInfoAdapter(
+        senderAddress as Address,
+        supportsSignTypedDataV4,
+        publicClient,
+      );
+
+      const permit2Service = new Permit2OnChainService(walletInfo);
+
       const topupService = new CardTopUpOnChainService({
         permitService: this.permitService,
         approvalService: this.approvalService,
-        permit2Service: this.permit2Service,
-        walletInfo: createWalletInfoAdapter(
-          senderAddress as Address,
-          supportsSignTypedDataV4,
-          publicClient,
-        ),
+        permit2Service,
+        walletInfo,
       });
 
       await topupService.topUpCompound(
