@@ -397,29 +397,6 @@ const walletClient = createWalletClient({
 });
 ```
 
-## Additional methods
-
-### Validate address
-
-You can use `validateAddress` method...
-
-```js
-(async () => {
-  const data = await holyheldSDK.validateAddress(
-    '0x...', // user wallet address
-  );
-})();
-```
-
-Types:
-
-```typescript
-type Response = {
-  isTopupAllowed: boolean;
-  isOnRampAllowed: boolean;
-}
-```
-
 ## Utilities
 
 You can use the utilities to work with networks that the sdk supports:
@@ -522,8 +499,8 @@ enum HolyheldSDKErrorCode {
   UserRejectedSignature = 'HSDK_RS', // user rejected the signature
   UserRejectedTransaction = 'HSDK_RT', // user rejected transaction
   FailedSettings = 'HSDK_FS', // cannot get settings
-  FailedTagInfo = 'HSDK_FTI', //  cannot get $holytag info
-  FailedAddressInfo = 'HSDK_FAI', //  cannot get address info
+  FailedTagInfo = 'HSDK_FTI', // cannot get $holytag info
+  FailedAddressInfo = 'HSDK_FAI', // cannot get address info
   FailedWalletBalances = 'HSDK_FWB', // cannot get wallet balance
   FailedConversion = 'HSDK_FC', // cannot estimate EUR to TOKEN, or TOKEN to EUR
   FailedTopUp = 'HSDK_FTU', // cannot complete top up
