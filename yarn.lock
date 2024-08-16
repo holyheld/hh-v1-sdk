@@ -181,10 +181,10 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.56.0.tgz#ef20350fec605a7f7035a01764731b2de0f3782b"
   integrity sha512-gMsVel9D7f2HLkBma9VbtzZRehRogVRfbr++f06nL2vnCGCNlzOD+/MUov/F4p8myyAHspEhVobgjpX64q5m6A==
 
-"@holyheld/web-app-shared@2.6.8":
-  version "2.6.8"
-  resolved "https://npm.pkg.github.com/download/@holyheld/web-app-shared/2.6.8/0a21bc654cda39eb19b412f26ab529f23801de00#0a21bc654cda39eb19b412f26ab529f23801de00"
-  integrity sha512-EkRG8+w3rmbq1C5ijtSiS++/KVH/+8QOreQXELeWoacWY3VmytnBXR/eHCy6KTR/E9JB4QV6JALWBRinypI+ww==
+"@holyheld/web-app-shared@v2.6.13-rc.3":
+  version "2.6.13-rc.3"
+  resolved "https://npm.pkg.github.com/download/@holyheld/web-app-shared/2.6.13-rc.3/41f8c0046661881e17068fdf816968f109b29c95#41f8c0046661881e17068fdf816968f109b29c95"
+  integrity sha512-qDHMWwcQV5oBk1xT1vn2ze7SpmirEm6cVW2zCAm8h9hZFKzfK5YgoHi+Oj15+9+fwGTbzLqEdClVT/vJMGxl/w==
   dependencies:
     dayjs "^1.11.4"
     qs "^6.11.0"

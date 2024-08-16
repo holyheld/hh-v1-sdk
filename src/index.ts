@@ -8,6 +8,7 @@ export type {
   NetworkInfo,
   WalletToken,
 } from '@holyheld/web-app-shared/sdklib/bundle';
-export { TopUpStep } from './sdk';
-export type { TopUpCallbackConfig, HolyheldSDKOptions } from './sdk';
+export { TopUpStep } from './offRampSDK';
+export type { TopUpCallbackConfig } from './offRampSDK';
+export type { HolyheldSDKOptions } from './sdk';
 export { default } from './sdk';

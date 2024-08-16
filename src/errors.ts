@@ -13,6 +13,8 @@ export enum HolyheldSDKErrorCode {
   FailedEstimation = 'HSDK_FE',
   FailedConversion = 'HSDK_FC',
   FailedTopUp = 'HSDK_FTU',
+  FailedOnRampRequest = 'HSDK_FOR',
+  FailedWatchOnRampRequest = 'HSDK_FWORR',
 }
 
 export class HolyheldSDKError extends Error {
