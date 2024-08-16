@@ -13,7 +13,6 @@ import Core, {
   HHAPIAuditService,
   Network,
   ExpectedError,
-  EECode,
   UnexpectedError,
   HHError,
   TransactionState,
@@ -23,6 +22,7 @@ import type {
   TransferData,
   GetMultiChainWalletTokensResponse,
   GetTagDataForTopUpExternalResponse,
+  ValidateAddressExternalExternalResponse,
   ServerExternalSettings,
   ConvertEURData,
   WalletList,
@@ -35,10 +35,11 @@ import {
   TOP_UP_EXCHANGE_PROXY_ADDRESS_KEY,
   TEST_HOLYTAG,
 } from './constants';
-import { createWalletClientAdapter } from './helpers';
+import { createWalletClientAdapter } from './helpers/walletClientAdapter';
 import { LogLevel, createDefaultLogger } from './logger';
 import type { Logger } from './logger';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
+import { createWalletInfoAdapter } from './helpers';
 
 export interface HolyheldSDKOptions {
   apiKey: string;
@@ -57,7 +58,8 @@ export interface TopUpCallbackConfig {
 }
 
 export default class HolyheldSDK {
-  protected readonly topupService: CardTopUpOnChainService;
+  protected readonly permitService: PermitOnChainService;
+  protected readonly approvalService: HHAPIApprovalService;
   protected readonly assetService: HHAPIAssetsService;
   protected readonly tagService: HHAPITagService;
   protected readonly swapService: HHAPISwapService;
@@ -68,12 +70,9 @@ export default class HolyheldSDK {
   private isInitialized: boolean = false;
 
   constructor(protected readonly options: HolyheldSDKOptions) {
-    const permitService = new PermitOnChainService();
-    const permit2Service = new Permit2OnChainService();
-    const approvalService = new HHAPIApprovalService(API_VIEW_BASE_URL, '');
-
-    this.topupService = new CardTopUpOnChainService(permitService, approvalService, permit2Service);
-    this.assetService = new HHAPIAssetsService(ASSET_SERVICE_BASE_URL);
+    this.permitService = new PermitOnChainService();
+    this.approvalService = new HHAPIApprovalService(API_VIEW_BASE_URL, '');
+    this.assetService = new HHAPIAssetsService(ASSET_SERVICE_BASE_URL, 'sdk');
     this.tagService = new HHAPITagService(CORE_SERVICE_BASE_URL);
     this.swapService = new HHAPISwapService(ASSET_SERVICE_BASE_URL);
     this.auditService = new HHAPIAuditService(CORE_SERVICE_BASE_URL);
@@ -169,6 +168,24 @@ export default class HolyheldSDK {
         throw new HolyheldSDKError(
           HolyheldSDKErrorCode.FailedTagInfo,
           'Failed to get tag information for top up',
+          error,
+        );
+      }
+
+      throw error;
+    }
+  }
+
+  public async validateAddress(address: string): Promise<ValidateAddressExternalExternalResponse> {
+    this.checkInitialization();
+
+    try {
+      return await this.tagService.validateAddressExternal(address, this.options.apiKey);
+    } catch (error) {
+      if (error instanceof HHError) {
+        throw new HolyheldSDKError(
+          HolyheldSDKErrorCode.FailedAddressInfo,
+          'Failed to validate address',
           error,
         );
       }
@@ -421,7 +438,22 @@ export default class HolyheldSDK {
         transferData = undefined;
       }
 
-      await this.topupService.topUpCompound(
+      const walletInfo = createWalletInfoAdapter(
+        senderAddress as Address,
+        supportsSignTypedDataV4,
+        publicClient,
+      );
+
+      const permit2Service = new Permit2OnChainService(walletInfo);
+
+      const topupService = new CardTopUpOnChainService({
+        permitService: this.permitService,
+        approvalService: this.approvalService,
+        permit2Service,
+        walletInfo,
+      });
+
+      await topupService.topUpCompound(
         senderAddress as Address,
         publicClient,
         createWalletClientAdapter(walletClient),
@@ -430,7 +462,6 @@ export default class HolyheldSDK {
         swapTargetPrice,
         transferData,
         tagHash,
-        supportsSignTypedDataV4,
         {},
         {
           onTransactionHash: (hash: string) => {
@@ -475,7 +506,7 @@ export default class HolyheldSDK {
         throw error;
       }
 
-      if (error instanceof ExpectedError && error.getCode() === EECode.userRejectSign) {
+      if (error instanceof ExpectedError && error.getCode() === 'userRejectSign') {
         throw new HolyheldSDKError(
           HolyheldSDKErrorCode.UserRejectedSignature,
           'User rejected the signature request',
@@ -483,7 +514,7 @@ export default class HolyheldSDK {
         );
       }
 
-      if (error instanceof ExpectedError && error.getCode() === EECode.userRejectTransaction) {
+      if (error instanceof ExpectedError && error.getCode() === 'userRejectTransaction') {
         throw new HolyheldSDKError(
           HolyheldSDKErrorCode.UserRejectedTransaction,
           'User rejected the transaction',

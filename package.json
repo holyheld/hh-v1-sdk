@@ -1,6 +1,6 @@
 {
   "name": "@holyheld/sdk",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
@@ -27,10 +27,10 @@
     "axios-retry": "^4.0.0",
     "bignumber.js": "^9.1.2",
     "dayjs": "^1.11.10",
-    "viem": "^2.7.14"
+    "viem": "^2.10.0"
   },
   "devDependencies": {
-    "@holyheld/web-app-shared": "2.3.23",
+    "@holyheld/web-app-shared": "2.6.8",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
