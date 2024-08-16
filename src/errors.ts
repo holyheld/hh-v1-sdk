@@ -8,10 +8,13 @@ export enum HolyheldSDKErrorCode {
   UserRejectedTransaction = 'HSDK_RT',
   FailedSettings = 'HSDK_FS',
   FailedTagInfo = 'HSDK_FTI',
+  FailedAddressInfo = 'HSDK_FAI',
   FailedWalletBalances = 'HSDK_FWB',
   FailedEstimation = 'HSDK_FE',
   FailedConversion = 'HSDK_FC',
   FailedTopUp = 'HSDK_FTU',
+  FailedOnRampRequest = 'HSDK_FOR',
+  FailedWatchOnRampRequest = 'HSDK_FWORR',
 }
 
 export class HolyheldSDKError extends Error {
