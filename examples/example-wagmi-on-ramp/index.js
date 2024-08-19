@@ -140,7 +140,7 @@ submitButton.addEventListener('click', async () => {
   const walletClient = await getWalletClient(config, {chainId: tokenNetworkId});
 
   try {
-    const requestId = await sdk.onRamp.requestOnRamp(
+    const requestResult = await sdk.onRamp.requestOnRamp(
       walletClient,
       walletClient.account.address,
       selectedToken.address,
@@ -149,13 +149,13 @@ submitButton.addEventListener('click', async () => {
     );
     parentElement.innerHTML = `
     ${getMessageHTML(
-      `Request_id is: ${requestId}`
+      `Request id is: ${requestResult.requestUid}`
     )}
     <br>
     ${getSpinnerHTML()}`;
 
     const result = await sdk.onRamp.watchRequestId(
-      requestId,
+      requestResult.requestUid,
     );
     if (result) {
       parentElement.innerHTML = getMessageHTML(
