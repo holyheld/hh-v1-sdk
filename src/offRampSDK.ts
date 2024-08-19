@@ -1,25 +1,25 @@
 import BigNumber from 'bignumber.js';
-import type { Address, PublicClient, WalletClient, Transport, Chain } from 'viem';
+import type { Address, Chain, PublicClient, Transport, WalletClient } from 'viem';
+import type { ConvertEURData, TransferData } from '@holyheld/web-app-shared/sdklib/bundle';
 import Core, {
   CardTopUpOnChainService,
-  PermitOnChainService,
-  Permit2OnChainService,
+  ExpectedError,
   HHAPIApprovalService,
   HHAPIAssetsService,
-  HHAPITagService,
-  HHAPISwapService,
   HHAPIEstimationService,
-  Network,
-  ExpectedError,
-  UnexpectedError,
+  HHAPISwapService,
+  HHAPITagService,
   HHError,
+  Network,
+  Permit2OnChainService,
+  PermitOnChainService,
   TransactionState,
   TransactionStep,
+  UnexpectedError,
+  isDefaultAddress,
 } from '@holyheld/web-app-shared/sdklib/bundle';
-import type { TransferData, ConvertEURData } from '@holyheld/web-app-shared/sdklib/bundle';
-import { TOP_UP_EXCHANGE_PROXY_ADDRESS_KEY, TEST_HOLYTAG } from './constants';
-import { createWalletClientAdapter } from './helpers/walletClientAdapter';
-import type { Logger } from './logger';
+import { TEST_HOLYTAG, TOP_UP_EXCHANGE_PROXY_ADDRESS_KEY } from './constants';
+import { createWalletClientAdapter } from './helpers';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
 import { createWalletInfoAdapter } from './helpers';
 import { HolyheldSDKCommon, RequiredServiceList } from './types';
@@ -35,7 +35,6 @@ export interface HolyheldOffRampSDKOptions {
     | 'estimationService'
   >;
   apiKey: string;
-  logger: Logger;
 }
 
 export enum TopUpStep {
@@ -56,7 +55,6 @@ export default class OffRampSDK {
   readonly #assetService: HHAPIAssetsService;
   readonly #swapService: HHAPISwapService;
   readonly #estimationService: HHAPIEstimationService;
-  protected readonly logger: Logger;
   readonly #common: HolyheldSDKCommon;
 
   constructor(protected readonly options: HolyheldOffRampSDKOptions) {
@@ -67,8 +65,18 @@ export default class OffRampSDK {
     this.#tagService = options.services.tagService;
     this.#estimationService = options.services.estimationService;
 
-    this.logger = options.logger;
     this.#common = options.commonSDK;
+  }
+
+  public getAvailableNetworks(): Network[] {
+    const all = this.#common.getAllAvailableNetworks();
+
+    return all.filter((n) => {
+      return (
+        !isDefaultAddress(Core.getNetworkAddress(n, 'TOP_UP_PROXY_ADDRESS')) &&
+        !isDefaultAddress(Core.getNetworkAddress(n, 'TOP_UP_EXCHANGE_PROXY_ADDRESS'))
+      );
+    });
   }
 
   public async convertTokenToEUR(

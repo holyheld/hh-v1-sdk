@@ -5,30 +5,33 @@ import {
   Network,
   UnexpectedError,
 } from '@holyheld/web-app-shared/sdklib/bundle';
-import { Logger } from './logger';
 import type { Address, WalletClient } from 'viem';
 import { HolyheldSDKCommon, RequiredServiceList } from './types';
 import { createPromise, createWalletClientAdapter } from './helpers';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
+import { getSwapSourceForOnRamp } from '@holyheld/web-app-shared/lib/references/tokens';
 
 export interface HolyheldOnRampSDKOptions {
   commonSDK: HolyheldSDKCommon;
   services: RequiredServiceList<'onRampService'>;
   apiKey: string;
-  logger: Logger;
 }
 
 export class OnRampSDK {
   readonly #onRampService: HHAPIOnRampService;
 
-  protected readonly logger: Logger;
   readonly #common: HolyheldSDKCommon;
 
   constructor(protected readonly options: HolyheldOnRampSDKOptions) {
     this.#onRampService = options.services.onRampService;
 
-    this.logger = options.logger;
     this.#common = options.commonSDK;
+  }
+
+  public getAvailableNetworks(): Network[] {
+    return this.#common
+      .getAllAvailableNetworks()
+      .filter((n) => getSwapSourceForOnRamp(n) !== undefined);
   }
 
   public async requestOnRamp(
@@ -109,13 +112,16 @@ export class OnRampSDK {
       });
 
       switch (res.status) {
-        case 'APPROVED':
+        case 'success':
           resolve(true);
           break;
-        case 'REJECTED':
+        case 'declined':
           resolve(false);
           break;
-        case 'NOT_RESOLVED':
+        case 'failed':
+          reject('TODO past reason here');
+          break;
+        case 'not_approved':
         default:
           return;
       }

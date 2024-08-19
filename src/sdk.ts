@@ -78,7 +78,6 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
         onRampService: this.#onRampService,
       },
       apiKey: this.options.apiKey,
-      logger: this.logger,
     });
 
     this.offRamp = new OffRampSDK({
@@ -92,7 +91,6 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
         estimationService: this.#estimationService,
       },
       apiKey: this.options.apiKey,
-      logger: this.logger,
     });
   }
 
