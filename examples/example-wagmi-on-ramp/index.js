@@ -105,6 +105,7 @@ getSettingsButton.addEventListener('click', async () => {
   );
 });
 
+
 // 3. Choose amount of token to be sent
 setAmountButton.addEventListener('click', async () => {
   const input = parentElement.querySelector('input');
@@ -123,7 +124,7 @@ setAmountButton.addEventListener('click', async () => {
     selectedToken.address,
     sdk.getNetwork(selectedToken.network).displayedName,
     selectedToken.symbol,
-    amountInEUR
+    amountInEUR.toString()
   );
   submitButton.removeAttribute('hidden');
 });
@@ -144,11 +145,14 @@ submitButton.addEventListener('click', async () => {
       walletClient.account.address,
       selectedToken.address,
       selectedToken.network,
-      amountInEUR
+      amountInEUR.toString()
     );
-    parentElement.innerHTML = `${getMessageHTML(
+    parentElement.innerHTML = `
+    ${getMessageHTML(
       `Request_id is: ${requestId}`
-    )}<\br>${getSpinnerHTML()}`
+    )}
+    <br>
+    ${getSpinnerHTML()}`;
 
     const result = await sdk.onRamp.watchRequestId(
       requestId,
@@ -167,7 +171,5 @@ submitButton.addEventListener('click', async () => {
       `Request flow failed by: ${error}`
     );
     throw error;
-  } finally {
-    parentElement.removeChild(parentElement.querySelector('img'));
   }
 });

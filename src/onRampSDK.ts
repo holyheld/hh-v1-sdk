@@ -3,6 +3,7 @@ import {
   HHAPIOnRampService,
   HHError,
   Network,
+  Token,
   UnexpectedError,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import type { Address, WalletClient } from 'viem';
@@ -16,6 +17,16 @@ export interface HolyheldOnRampSDKOptions {
   services: RequiredServiceList<'onRampService'>;
   apiKey: string;
 }
+
+export type RequestResult = {
+  requestUid: string;
+  chainId: number;
+  token: Token;
+  amountEUR: string;
+  amountToken: string;
+  feeEUR: string;
+  beneficiaryAddress: Address;
+};
 
 export class OnRampSDK {
   readonly #onRampService: HHAPIOnRampService;
@@ -40,7 +51,7 @@ export class OnRampSDK {
     tokenAddress: string,
     tokenNetwork: Network,
     fiatAmount: string,
-  ): Promise<string> {
+  ): Promise<RequestResult> {
     this.#common.assertInitialized();
 
     this.#common.sendAudit({
@@ -67,7 +78,15 @@ export class OnRampSDK {
         apiKey: this.options.apiKey,
       });
 
-      return res.requestId;
+      return {
+        amountEUR: res.amountEUR,
+        amountToken: res.amountToken,
+        beneficiaryAddress: res.beneficiaryAddress,
+        chainId: res.chainId,
+        feeEUR: res.feeEUR,
+        token: token,
+        requestUid: res.requestUid,
+      };
     } catch (error) {
       if (error instanceof HolyheldSDKError) {
         throw error;
@@ -93,7 +112,7 @@ export class OnRampSDK {
     }
   }
 
-  public async watchRequestId(requestId: string, timeoutMs?: number): Promise<boolean> {
+  public async watchRequestId(requestUid: string, timeoutMs?: number): Promise<boolean> {
     this.#common.assertInitialized();
 
     const { reject, resolve, wait } = createPromise<boolean, string>();
@@ -107,7 +126,7 @@ export class OnRampSDK {
 
     const interval = setInterval(async () => {
       const res = await this.#onRampService.requestStatus({
-        requestId: requestId,
+        requestUid: requestUid,
         apiKey: this.options.apiKey,
       });
 
