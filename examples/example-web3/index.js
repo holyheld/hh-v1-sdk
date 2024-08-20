@@ -95,7 +95,7 @@ selectHolytagButton.addEventListener('click', async () => {
   selectHolytagButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 
-  const response = await sdk.getTagInfoForTopUp(holytag);
+  const response = await sdk.offRamp.getTagInfoForTopUp(holytag);
 
   if (!response.found) {
     alert('$holytag is not found.');
@@ -182,7 +182,7 @@ setAmountButton.addEventListener('click', async () => {
   setAmountButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 
-  const response = await sdk.convertTokenToEUR(selectedToken.address, selectedToken.decimals, String(amount), selectedToken.network);
+  const response = await sdk.offRamp.convertTokenToEUR(selectedToken.address, selectedToken.decimals, String(amount), selectedToken.network);
 
   amountInEUR = response.EURAmount;
 
@@ -299,7 +299,7 @@ submitButton.addEventListener('click', async () => {
   });
 
   try {
-    await sdk.topup(
+    await sdk.offRamp.topup(
       publicClient,
       walletClient,
       address,

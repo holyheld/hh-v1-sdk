@@ -137,7 +137,7 @@ Tags are stored case-sensitive for display, but not case-sensitive for search, a
 ```js
 (async () => {
   // a tag name could be pre-set or have to be input by user, depends on the application
-  const data = await holyheldSDK.getTagInfoForTopUp('TESTSDK');
+  const data = await holyheldSDK.offRamp.getTagInfoForTopUp('TESTSDK');
 })();
 ```
 
@@ -213,7 +213,7 @@ This method also returns `transferData` — a hexadecimal string which can conta
 import { Network } from '@holyheld/sdk';
 
 (async () => {
-  const data = await holyheldSDK.convertTokenToEUR(
+  const data = await holyheldSDK.offRamp.convertTokenToEUR(
     '0x...', // token address
     6, // token decimals
     '9.99', // token amount
@@ -247,7 +247,7 @@ This method also returns `transferData`, that is hexadecimal string which could 
 import { Network } from '@holyheld/sdk';
 
 (async () => {
-  const data = await holyheldSDK.convertEURToToken(
+  const data = await holyheldSDK.offRamp.convertEURToToken(
     '0x...', // token address
     6, // token decimals
     '999.99', // EUR amount
@@ -306,7 +306,7 @@ const walletClient = createWalletClient({
 });
 
 (async () => {
-  await holyheldSDK.topup(
+  await holyheldSDK.offRamp.topup(
     publicClient,
     walletClient,
     '0x...', // wallet address
@@ -414,7 +414,7 @@ holyheldSDK.getNetworkByChainId(1); // NetworkInfo
 
 (async () => {
   // estimate transaction price
-  const value = await holyheldSDK.getTopUpEstimation(Network.ethereum); // '287499997500000' (in WEI)
+  const value = await holyheldSDK.offRamp.getTopUpEstimation(Network.ethereum); // '287499997500000' (in WEI)
 })();
 ```
 
@@ -472,7 +472,7 @@ const holyheldSDK = new HolyheldSDK({
 
 (async () => {
   try {
-    await holyheldSDK.topup(/* ... */);
+    await holyheldSDK.offRamp.topup(/* ... */);
   } catch (error) {
     if (
       error instanceof HolyheldSDKError &&
@@ -504,6 +504,8 @@ enum HolyheldSDKErrorCode {
   FailedWalletBalances = 'HSDK_FWB', // cannot get wallet balance
   FailedConversion = 'HSDK_FC', // cannot estimate EUR to TOKEN, or TOKEN to EUR
   FailedTopUp = 'HSDK_FTU', // cannot complete top up
+  FailedOnRampRequest = 'HSDK_FOR', // connot create on-ramp request
+  FailedWatchOnRampRequest = 'HSDK_FWORR', // fail to watch request status
 }
 ```
 

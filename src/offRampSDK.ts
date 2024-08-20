@@ -1,6 +1,10 @@
 import BigNumber from 'bignumber.js';
 import type { Address, Chain, PublicClient, Transport, WalletClient } from 'viem';
-import type { ConvertEURData, TransferData } from '@holyheld/web-app-shared/sdklib/bundle';
+import type {
+  ConvertEURData,
+  GetTagDataForTopUpExternalResponse,
+  TransferData,
+} from '@holyheld/web-app-shared/sdklib/bundle';
 import Core, {
   CardTopUpOnChainService,
   ExpectedError,
@@ -66,6 +70,24 @@ export default class OffRampSDK {
     this.#estimationService = options.services.estimationService;
 
     this.#common = options.commonSDK;
+  }
+
+  public async getTagInfoForTopUp(tag: string): Promise<GetTagDataForTopUpExternalResponse> {
+    this.#common.assertInitialized();
+
+    try {
+      return await this.#tagService.getTagDataForTopUpExternal(tag, this.options.apiKey);
+    } catch (error) {
+      if (error instanceof HHError) {
+        throw new HolyheldSDKError(
+          HolyheldSDKErrorCode.FailedTagInfo,
+          'Failed to get tag information for top up',
+          error,
+        );
+      }
+
+      throw error;
+    }
   }
 
   public getAvailableNetworks(): Network[] {
