@@ -125,24 +125,29 @@ export class OnRampSDK {
     }
 
     const interval = setInterval(async () => {
-      const res = await this.#onRampService.requestStatus({
-        requestUid: requestUid,
-        apiKey: this.options.apiKey,
-      });
+      try {
+        const res = await this.#onRampService.requestStatus({
+          requestUid: requestUid,
+          apiKey: this.options.apiKey,
+        });
 
-      switch (res.status) {
-        case 'success':
-          resolve(true);
-          break;
-        case 'declined':
-          resolve(false);
-          break;
-        case 'failed':
-          reject('TODO past reason here');
-          break;
-        case 'not_approved':
-        default:
-          return;
+        switch (res.status) {
+          case 'success':
+            resolve(true);
+            break;
+          case 'declined':
+            resolve(false);
+            break;
+          case 'failed':
+            reject('TODO past reason here');
+            break;
+          case 'not_approved':
+          default:
+            return;
+        }
+      } catch (e) {
+        reject(`fail to request status of request: ${e}`);
+        return;
       }
     }, 2_000);
 

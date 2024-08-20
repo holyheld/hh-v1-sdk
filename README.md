@@ -551,6 +551,66 @@ type Logger = (
 ) => void;
 ```
 
+## On-ramp Flow
+
+Example here: https://sdk-example-wagmi-onramp.holyheld.com/
+
+### `requestOnRamp` Request on-ramp
+create request id. Request appr or decl on mobile app
+
+```js
+(async () => {
+  //find token by addr and network or u can use u sefl token object
+  const selectedToken = await sdk.getTokenByAddressAndNetwork('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 'ethereum')
+
+  // wrap your provider in viem wallet client
+  // https://viem.sh/docs/clients/wallet.html
+  const walletClient = createWalletClient({
+    chain,
+    transport: custom(provider), // current provider in your app (see examples below)
+    account: '0x...', // wallet address
+  });
+
+  const data = await sdk.onRamp.requestOnRamp(
+    walletClient,
+    walletClient.account.address,
+    selectedToken.address,
+    selectedToken.network,
+    '1' // amount in EUR
+  );
+})();
+```
+
+Types:
+
+```typescript
+type RequestResult = {
+  requestUid: string;
+  chainId: number;
+  token: Token;
+  amountEUR: string;
+  amountToken: string;
+  feeEUR: string; // network fee
+  beneficiaryAddress: Address;
+}
+```
+
+## `watchRequestId` Watch for request by id
+wait for request will be resolved (or timeout (optional))
+
+```js
+(async () => {
+  const result = await sdk.onRamp.watchRequestId(
+    requestUid, // request id from responce requestOnRamp method
+    timeout // optional
+  );
+})();
+```
+
+return `true` if request resolved as approved and `false` if rejected
+> Can throw error if request resolved as `failed` or timeout or http request not `OK`
+
+
 ## Examples
 
 Source code for several Web3 providers can be found in the examples directory, as well as deployed versions are available at:
