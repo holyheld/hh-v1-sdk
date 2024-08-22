@@ -139,7 +139,7 @@ export class OnRampSDK {
             resolve(false);
             break;
           case 'failed':
-            reject('TODO past reason here');
+            reject(`fail execute on-ramp with reason: ${res.reason}`);
             break;
           case 'not_approved':
           default:
