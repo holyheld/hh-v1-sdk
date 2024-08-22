@@ -11,7 +11,7 @@
     "vite": "^4.4.5"
   },
   "dependencies": {
-    "@holyheld/sdk": "*",
+    "@holyheld/sdk": "latest",
     "ethers": "^5.7.2"
   }
 }
