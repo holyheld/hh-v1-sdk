@@ -504,7 +504,9 @@ enum HolyheldSDKErrorCode {
   FailedWalletBalances = 'HSDK_FWB', // cannot get wallet balance
   FailedConversion = 'HSDK_FC', // cannot estimate EUR to TOKEN, or TOKEN to EUR
   FailedTopUp = 'HSDK_FTU', // cannot complete top up
-  FailedOnRampRequest = 'HSDK_FOR', // cannot create on-ramp request
+  FailedCreateOnRampRequest = 'HSDK_FCOR', // cannot create on-ramp request
+  FailedOnRampRequest = 'HSDK_FOR', // fail execute on-ramp request with reason (like not enoth balance)
+  FailedWatchOnRampRequestTimeout = 'HSDK_FwORT', // watch request timeout
   FailedWatchOnRampRequest = 'HSDK_FWORR', // fail to watch request status
 }
 ```

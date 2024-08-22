@@ -102,7 +102,7 @@ export class OnRampSDK {
 
       if (error instanceof HHError) {
         throw new HolyheldSDKError(
-          HolyheldSDKErrorCode.FailedOnRampRequest,
+          HolyheldSDKErrorCode.FailedCreateOnRampRequest,
           `OnRamp failed${error instanceof UnexpectedError ? ` with code ${error.getCode()}` : ''}`,
           error,
         );
@@ -115,12 +115,17 @@ export class OnRampSDK {
   public async watchRequestId(requestUid: string, timeoutMs?: number): Promise<boolean> {
     this.#common.assertInitialized();
 
-    const { reject, resolve, wait } = createPromise<boolean, string>();
+    const { reject, resolve, wait } = createPromise<boolean, HolyheldSDKError>();
 
     let timeout: ReturnType<typeof setTimeout> | undefined;
     if (timeoutMs) {
       timeout = setTimeout(() => {
-        reject('watch request timeout');
+        reject(
+          new HolyheldSDKError(
+            HolyheldSDKErrorCode.FailedWatchOnRampRequestTimeout,
+            'watch request timeout',
+          ),
+        );
       }, timeoutMs);
     }
 
@@ -139,14 +144,25 @@ export class OnRampSDK {
             resolve(false);
             break;
           case 'failed':
-            reject(`fail execute on-ramp with reason: ${res.reason}`);
+            reject(
+              new HolyheldSDKError(
+                HolyheldSDKErrorCode.FailedOnRampRequest,
+                res.reason,
+              ).withPayload({ reason: res.reason }),
+            );
             break;
           case 'not_approved':
           default:
             return;
         }
       } catch (e) {
-        reject(`fail to request status of request: ${e}`);
+        reject(
+          new HolyheldSDKError(
+            HolyheldSDKErrorCode.FailedWatchOnRampRequest,
+            `Failed request on-ramp status`,
+            e,
+          ),
+        );
         return;
       }
     }, 2_000);
@@ -154,6 +170,9 @@ export class OnRampSDK {
     try {
       return await wait();
     } catch (error) {
+      if (error instanceof HolyheldSDKError) {
+        throw error;
+      }
       throw new HolyheldSDKError(
         HolyheldSDKErrorCode.FailedWatchOnRampRequest,
         `OnRamp failed${error instanceof UnexpectedError ? ` with code ${error.getCode()}` : ''}`,

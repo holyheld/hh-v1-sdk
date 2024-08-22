@@ -3,7 +3,7 @@ import './index.css';
 import {connect, createConfig, http, getWalletClient} from '@wagmi/core';
 import {arbitrum, avalanche, base, gnosis, mainnet, optimism, polygon, polygonZkEvm, zkSync} from '@wagmi/core/chains';
 import {injected} from '@wagmi/connectors';
-import HolyheldSDK, {Network} from '@holyheld/sdk';
+import HolyheldSDK, {HolyheldSDKError, HolyheldSDKErrorCode, Network} from '@holyheld/sdk';
 import {
   getSpinnerHTML,
   getTokenInfoHTML,
@@ -163,13 +163,24 @@ submitButton.addEventListener('click', async () => {
       );
     } else {
       parentElement.innerHTML = getErrorMessageHTML(
-        `Request rejected or failed`
+        `Request rejected`
       );
     }
   } catch (error) {
+    if (error instanceof HolyheldSDKError && error.code === HolyheldSDKErrorCode.FailedWatchOnRampRequest) {
+      parentElement.innerHTML = getErrorMessageHTML(
+        `Watch failed by: ${error}`
+      );
+      return;
+    }
+    if (error instanceof HolyheldSDKError && error.code === HolyheldSDKErrorCode.FailedOnRampRequest) {
+      parentElement.innerHTML = getErrorMessageHTML(
+        `Request failed by: ${error.payload.reason ?? 'unknown'}`
+      );
+      return;
+    }
     parentElement.innerHTML = getErrorMessageHTML(
-      `Request flow failed by: ${error}`
+      `Request or watch failed by: ${error}`
     );
-    throw error;
   }
 });
