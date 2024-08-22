@@ -9,8 +9,8 @@ export const getErrorMessageHTML = (msg) => `
 
 export const getMessageHTML = (msg) => `
   <dl>
-    <dt>Error:</dt>
-    <dd><span style="color: red">${msg}<span></dd>
+    <dt></dt>
+    <dd><span style="color: green">${msg}<span></dd>
   </dl>
 `;
 
