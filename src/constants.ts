@@ -1,4 +1,4 @@
-export const CORE_SERVICE_BASE_URL = 'https://apicore.holyheld.com';
+export const CORE_SERVICE_BASE_URL = 'https://apicorestg.holyheld.com';
 export const ASSET_SERVICE_BASE_URL = 'https://apiassets.holyheld.com';
 export const API_VIEW_BASE_URL = 'https://apiview.holyheld.com/api';
 

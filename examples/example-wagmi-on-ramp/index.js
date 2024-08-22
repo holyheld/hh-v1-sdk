@@ -3,7 +3,7 @@ import './index.css';
 import {connect, createConfig, http, getWalletClient} from '@wagmi/core';
 import {arbitrum, avalanche, base, gnosis, mainnet, optimism, polygon, polygonZkEvm, zkSync} from '@wagmi/core/chains';
 import {injected} from '@wagmi/connectors';
-import HolyheldSDK from '@holyheld/sdk';
+import HolyheldSDK, {Network} from '@holyheld/sdk';
 import {
   getSpinnerHTML,
   getTokenInfoHTML,
@@ -94,7 +94,7 @@ getSettingsButton.addEventListener('click', async () => {
   // }
 
   //also loading token info. U can use other tokens
-  selectedToken = await sdk.getTokenByAddressAndNetwork('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 'ethereum')
+  selectedToken = await sdk.getTokenByAddressAndNetwork('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',  Network.ethereum)
 
   setAmountButton.removeAttribute('hidden');
   parentElement.innerHTML = getTokenInfoHTML(

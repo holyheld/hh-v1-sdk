@@ -504,7 +504,7 @@ enum HolyheldSDKErrorCode {
   FailedWalletBalances = 'HSDK_FWB', // cannot get wallet balance
   FailedConversion = 'HSDK_FC', // cannot estimate EUR to TOKEN, or TOKEN to EUR
   FailedTopUp = 'HSDK_FTU', // cannot complete top up
-  FailedOnRampRequest = 'HSDK_FOR', // connot create on-ramp request
+  FailedOnRampRequest = 'HSDK_FOR', // cannot create on-ramp request
   FailedWatchOnRampRequest = 'HSDK_FWORR', // fail to watch request status
 }
 ```
@@ -561,7 +561,7 @@ create request id. Request appr or decl on mobile app
 ```js
 (async () => {
   //find token by addr and network or u can use u sefl token object
-  const selectedToken = await sdk.getTokenByAddressAndNetwork('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 'ethereum')
+  const selectedToken = await sdk.getTokenByAddressAndNetwork('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', Network.ethereum)
 
   // wrap your provider in viem wallet client
   // https://viem.sh/docs/clients/wallet.html

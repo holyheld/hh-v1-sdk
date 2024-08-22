@@ -3,6 +3,7 @@ type PromiseParts<ReturnType, RejectType = string> = {
   reject?: (cause: RejectType) => void;
   wait?: () => Promise<ReturnType>;
 };
+
 export const createPromise = <ReturnType, RejectType = string>(): Required<
   PromiseParts<ReturnType, RejectType>
 > => {
