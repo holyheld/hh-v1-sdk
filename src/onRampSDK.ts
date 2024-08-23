@@ -48,25 +48,41 @@ export class OnRampSDK {
   public async convertTokenToEUR(token: Token, amount: string): Promise<string> {
     this.#common.assertInitialized();
 
-    const res = await this.#onRampService.convertTokenAmountToEURAmount({
-      token: token,
-      tokenAmount: amount,
-      apiKey: this.options.apiKey,
-    });
+    try {
+      const res = await this.#onRampService.convertTokenAmountToEURAmount({
+        token: token,
+        tokenAmount: amount,
+        apiKey: this.options.apiKey,
+      });
 
-    return res.fiatAmount;
+      return res.fiatAmount;
+    } catch (error) {
+      throw new HolyheldSDKError(
+        HolyheldSDKErrorCode.FailedConvertOnRampAmount,
+        'Fail convert token to eur amount',
+        error,
+      );
+    }
   }
 
   public async convertEURToToken(token: Token, amount: string): Promise<string> {
     this.#common.assertInitialized();
 
-    const res = await this.#onRampService.convertEURAmountToTokenAmount({
-      token: token,
-      fiatAmount: amount,
-      apiKey: this.options.apiKey,
-    });
+    try {
+      const res = await this.#onRampService.convertEURAmountToTokenAmount({
+        token: token,
+        fiatAmount: amount,
+        apiKey: this.options.apiKey,
+      });
 
-    return res.tokenAmount;
+      return res.tokenAmount;
+    } catch (error) {
+      throw new HolyheldSDKError(
+        HolyheldSDKErrorCode.FailedConvertOnRampAmount,
+        'Fail convert eur to token amount',
+        error,
+      );
+    }
   }
 
   public async requestOnRamp(

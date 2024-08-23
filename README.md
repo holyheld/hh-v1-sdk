@@ -508,6 +508,7 @@ enum HolyheldSDKErrorCode {
   FailedOnRampRequest = 'HSDK_FOR', // fail execute on-ramp request with reason (like not enoth balance)
   FailedWatchOnRampRequestTimeout = 'HSDK_FwORT', // watch request timeout
   FailedWatchOnRampRequest = 'HSDK_FWORR', // fail to watch request status
+  FailedConvertOnRampAmount = 'HSDK_FCORA', //cannot convert (estimate) EUR to TOKEN, or TOKEN to EUR
 }
 ```
 
@@ -612,6 +613,27 @@ wait for request will be resolved (or timeout (optional))
 return `true` if request resolved as approved and `false` if rejected
 > Can throw error if request resolved as `failed` or timeout or http request not `OK`
 
+## `convertEURToToken` Convert EUR amount to Token amount
+```js
+(async () => {
+  const result = await sdk.onRamp.convertEURToToken(
+    token,
+    '11.11' // EUR amount
+  );
+  console.log('token amount is', result)
+})();
+```
+
+## `convertTokenToEUR` Convert Token amount to EUR amount
+```js
+(async () => {
+  const result = await sdk.onRamp.convertTokenToEUR(
+    token,
+    '11.11' // token amount
+  );
+  console.log('EUR amount is', result)
+})();
+```
 
 ## Examples
 
