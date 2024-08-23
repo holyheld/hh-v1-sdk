@@ -45,6 +45,30 @@ export class OnRampSDK {
       .filter((n) => getSwapSourceForOnRamp(n) !== undefined);
   }
 
+  public async convertTokenToEUR(token: Token, amount: string): Promise<string> {
+    this.#common.assertInitialized();
+
+    const res = await this.#onRampService.convertTokenAmountToEURAmount({
+      token: token,
+      tokenAmount: amount,
+      apiKey: this.options.apiKey,
+    });
+
+    return res.fiatAmount;
+  }
+
+  public async convertEURToToken(token: Token, amount: string): Promise<string> {
+    this.#common.assertInitialized();
+
+    const res = await this.#onRampService.convertEURAmountToTokenAmount({
+      token: token,
+      fiatAmount: amount,
+      apiKey: this.options.apiKey,
+    });
+
+    return res.tokenAmount;
+  }
+
   public async requestOnRamp(
     walletClient: WalletClient,
     walletAddress: string,

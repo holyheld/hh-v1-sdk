@@ -85,13 +85,13 @@ getSettingsButton.addEventListener('click', async () => {
 
   settings = await sdk.getServerSettings();
 
-  // if (!settings.external.isOnRampEnabled) {
-  //   parentElement.innerHTML = getErrorMessageHTML(
-  //     'On-ramp not available'
-  //   );
-  //   getSettingsButton.removeAttribute('hidden');
-  //   return;
-  // }
+  if (!settings.external.isOnRampEnabled) {
+    parentElement.innerHTML = getErrorMessageHTML(
+      'On-ramp not available for sdk, please contact support'
+    );
+    getSettingsButton.removeAttribute('hidden');
+    return;
+  }
 
   //also loading token info. U can use other tokens
   selectedToken = await sdk.getTokenByAddressAndNetwork('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',  Network.ethereum)
