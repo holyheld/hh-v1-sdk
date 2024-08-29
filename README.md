@@ -345,7 +345,7 @@ To on-ramp from a Holyheld account the following steps should be completed:
 4. Optionally. Get binary data to pass as swap parameters using `convertEURToToken` or `convertTokenToEUR` methods.
 5. Call the `requestOnRamp` method to execute the transaction.
 > 🔔 User will need to confirm the on-ramp request in their Holyheld app
-6. Wait for the callback response of the operation result.
+6. Wait for the callback response of the operation result using `watchRequestId`.
 
 Here are the functions that are available for you to use.
 
@@ -411,8 +411,6 @@ type Response = {
 
 This method is used to estimate a token value in EUR to proceed with the on-ramping. `convertTokenToEUR` method can also be used in some scenarios/apps where token to be sent is pre-set and not selectable.
 
-This method also returns `transferData` — a hexadecimal string which can contain token-specific transfer, unwrap or swap data that is passed in off-ramping transaction.
-
 ```js
 (async () => {
   const result = await sdk.onRamp.convertTokenToEUR(
@@ -423,26 +421,9 @@ This method also returns `transferData` — a hexadecimal string which can conta
 })();
 ```
 
-Types:
-
-```typescript
-import type { TransferData } from '@holyheld/sdk';
-
-type Response = {
-  // amount of token that was passed to query
-  tokenAmount: string; // example: '1.99'
-  // EUR valuation of the token amount provided
-  EURAmount: string; // example: '314.25'
-  // data to be passed in sending transaction for this specific token (and amount)
-  transferData?: TransferData;
-}
-```
-
 ## `convertEURToToken` Convert EUR to token:
 
 `convertEURToToken` method returns a calculated token amount to match requested EUR amount.
-
-This method also returns `transferData`, that is hexadecimal string which could contain token-specific transfer, unwrap or swap data that is passed in sending to tag transaction.
 
 ```js
 (async () => {
@@ -452,21 +433,6 @@ This method also returns `transferData`, that is hexadecimal string which could 
   );
   console.log('token amount is', result)
 })();
-```
-
-Types:
-
-```typescript
-import type { TransferData } from '@holyheld/sdk';
-
-type Response = {
-  // amount (in EUR) that was passed to query
-  EURAmount: string; // example: '30.00'
-  // token amount to match expected valuation
-  tokenAmount: string; // example: '4.18'
-  // data to be passed in sending transaction for this specific token (and amount)
-  transferData?: TransferData;
-}
 ```
 
 ## `requestOnRamp` Created on-ramp transaction request:
