@@ -5,11 +5,12 @@ Holyheld SDK provides methods to off-ramp crypto to Holyheld account via $holyta
 [![npm](https://img.shields.io/npm/v/@holyheld/sdk?labelColor=1F1F1F&color=41CA28)](https://www.npmjs.com/package/@holyheld/sdk)
 ![License: BUSL-1.1](https://img.shields.io/badge/License-BUSL--1.1-41CA28?labelColor=1F1F1F)
 
-#### Quick navigation:
+## Quick navigation:
 
 - [Installation](#installation)
 - [Initialization](#initialization)
 - [Off-ramp flow](#off-ramp-flow)
+- [On-ramp flow](#on-ramp-flow)
 - [Additional methods](#additional-methods)
 - [Working with different Web3 providers](#working-with-different-web3-providers)
 - [Utilities](#utilities)
@@ -18,11 +19,11 @@ Holyheld SDK provides methods to off-ramp crypto to Holyheld account via $holyta
 - [Examples](#examples)
 - [Testing](#testing)
 
-#### 🔔 Web3 Provider note
+## 🔔 Web3 Provider note
 
 > By default, a [viem](https://github.com/wagmi-dev/viem) provider is used for EVM-compatible JSON-RPC interaction, but [Web3.js](https://github.com/web3/web3.js) and [ethers.js](https://github.com/ethers-io/ethers.js) are also supported, please see [examples](#working-with-different-web3-providers).
 
-## Installation
+# Installation
 
 Using npm:
 
@@ -36,7 +37,7 @@ Using yarn:
 $ yarn add @holyheld/sdk
 ```
 
-## Initialization
+# Initialization
 
 ```js
 import HolyheldSDK from '@holyheld/sdk';
@@ -49,7 +50,7 @@ import HolyheldSDK from '@holyheld/sdk';
 })();
 ```
 
-## Off-ramp Flow
+# Off-ramp Flow
 
 To off-ramp to a Holyheld account the following steps should be completed:
 1. Get settings and ensure that off-ramping is available using `getServerSettings` method.
@@ -62,7 +63,7 @@ To off-ramp to a Holyheld account the following steps should be completed:
 
 Here are the functions that are available for you to use.
 
-### `getServerSettings` Get settings:
+## `getServerSettings` Get settings:
 
 This method gets current state/settings for interacting with the service. Please always use this method to check:
 - if the feature is available;
@@ -95,7 +96,7 @@ type Response = {
 }
 ```
 
-### `validateAddress` Get wallet information:
+## `validateAddress` Get wallet information:
 
 User wallet address is a unique identifier which can have account, card and a $holytag bound to it. It is alphanumeric string.
 
@@ -120,7 +121,7 @@ type Response = {
 }
 ```
 
-### `getTagInfoForTopUp` Get tag information:
+## `getTagInfoForTopUp` Get tag information:
 
 $Holytag is a unique identifier which can have account, card and multiple Ethereum addresses bound to it. It is alphanumeric string with a few special characters allowed.
 
@@ -130,7 +131,7 @@ When displaying $holytag usually is prepended with a `$` prefix, for example: $J
 
 Tags are stored case-sensitive for display, but not case-sensitive for search, and are not allowed to have multiple case variants registered, meaning if there is a tag `$ToTheMoon` registered, there couldn't be tag `$toTHEmoon` created afterwards.
 
-#### 🔔 Test $holytag
+### 🔔 Test $holytag
 
 > You can use `TESTSDK` as a test $holytag. All transactions to this $holytag will NOT trigger an actual fiat transaction, but will return a fully valid response. There is no minimum amount set for the test $holytag. Funds can be retrieved back. This test $holytag works across all supported networks an tokens.
 
@@ -154,9 +155,9 @@ type Response = {
 }
 ```
 
-### `getWalletBalances` Get wallet balances:
+## `getWalletBalances` Get wallet balances:
 
-You can use `getWalletBalances` method to retrieve all tokens on the connected user wallet address. Holyheld natively supports 9 Networks. The full list of supported networks is [here](https://holyheld.com/faq/frequently-asked-questions/supported-networks).
+You can use `getWalletBalances` method to retrieve all tokens on the connected user wallet address. Holyheld natively supports 14 Networks. The full list of supported networks is [here](https://holyheld.com/faq/frequently-asked-questions/supported-networks).
 
 ```js
 (async () => {
@@ -203,7 +204,7 @@ type Response = {
 }
 ```
 
-### `convertTokenToEUR` Convert token to EUR:
+## `convertTokenToEUR` Convert token to EUR:
 
 This method is used to estimate a token value in EUR to proceed with the off-ramping. `convertTokenToEUR` method can also be used in some scenarios/apps where token to be sent is pre-set and not selectable.
 
@@ -237,7 +238,7 @@ type Response = {
 }
 ```
 
-### `convertEURToToken` Convert EUR to token:
+## `convertEURToToken` Convert EUR to token:
 
 `convertEURToToken` method returns a calculated token amount to match provided (expected) EUR amount.
 
@@ -271,9 +272,9 @@ type Response = {
 }
 ```
 
-### Top Up:
+## Off-ramp:
 
-This is the 'main' method to call that executes off-ramping to $holytag. Parameter values should be retrieved using methods described above, such as `transferData` matching token and token amount provided.
+This is the 'main' method to call that executes off-ramping to the user card. Parameter values should be retrieved using methods described above, such as `transferData` matching token and token amount provided.
 
 > 🚨 Some wallets like Metamask are single-network handled. It means that while Holyheld can return/accept transaction on any supported network, user **must** switch to the correct network in the wallet, in order for the transaction to be processed.
 
@@ -335,12 +336,203 @@ interface TopUpCallbackConfig {
   onStepChange?: (step: TopUpStep) => void;
 }
 ```
+# On-ramp Flow
 
-### Working with different Web3 providers
+To on-ramp from a Holyheld account the following steps should be completed:
+1. Get settings and ensure that on-ramping is available using `getServerSettings` method.
+2. Check that selected wallet can transact using `validateAddress` method.
+3. Provide two parameters: token and amount in EUR.
+4. Optionally. Get binary data to pass as swap parameters using `convertEURToToken` or `convertTokenToEUR` methods.
+5. Call the `requestOnRamp` method to execute the transaction.
+> 🔔 User will need to confirm the on-ramp request in their Holyheld app
+6. Wait for the callback response of the operation result.
+
+Here are the functions that are available for you to use.
+
+## `getServerSettings` Get settings:
+
+This method gets current state/settings for interacting with the service. Please always use this method to check:
+- if the feature is available;
+- the minimum and maximum allowed amounts to on-ramp.
+
+> 🔔 Please note, that financial values are provided and consumed as strings to avoid floating point conversion problems.
+
+```js
+(async () => {
+  const data = await holyheldSDK.getServerSettings();
+})();
+```
+
+Types:
+
+```typescript
+type Response = {
+  external: {
+    // indicates if the sending feature is available at the moment
+    isTopupEnabled: boolean;
+    // maximum amount (equivalent in EUR) that is allowed to be processed
+    maxTopUpAmountInEUR: string; // example: '1000'
+    // minimum amount (equivalent in EUR) that is allowed to be processed
+    minTopUpAmountInEUR: string; // example: '5'
+  };
+  common: {
+    // fee (in percent) that is deducted when making an off-ramping operation on mainnet
+    topUpFeePercent: string; // example: '0.75'
+  };
+}
+```
+
+## `validateAddress` Get wallet information:
+
+User wallet address is a unique identifier which can have account, card and a $holytag bound to it. It is alphanumeric string.
+
+> 🔔 Please note that a valid wallet address is 42 strings long and begins with `0x` prefix.
+
+> 🔔 Please note that this method does not support ENS domains.
+
+
+```js
+(async () => {
+  // a wallet address could be pre-set or have to be input by user, depends on the application
+  const data = await holyheldSDK.validateAddress('0x000000000000000000000000000000000000dEaD');
+})();
+```
+
+Types:
+
+```typescript
+type Response = {
+  isTopupAllowed: boolean;
+  isOnRampAllowed: boolean;
+}
+```
+
+## `convertTokenToEUR` Convert token to EUR:
+
+This method is used to estimate a token value in EUR to proceed with the on-ramping. `convertTokenToEUR` method can also be used in some scenarios/apps where token to be sent is pre-set and not selectable.
+
+This method also returns `transferData` — a hexadecimal string which can contain token-specific transfer, unwrap or swap data that is passed in off-ramping transaction.
+
+```js
+(async () => {
+  const result = await sdk.onRamp.convertTokenToEUR(
+    token,
+    '11.11' // native token amount
+  );
+  console.log('EUR amount is', result)
+})();
+```
+
+Types:
+
+```typescript
+import type { TransferData } from '@holyheld/sdk';
+
+type Response = {
+  // amount of token that was passed to query
+  tokenAmount: string; // example: '1.99'
+  // EUR valuation of the token amount provided
+  EURAmount: string; // example: '314.25'
+  // data to be passed in sending transaction for this specific token (and amount)
+  transferData?: TransferData;
+}
+```
+
+## `convertEURToToken` Convert EUR to token:
+
+`convertEURToToken` method returns a calculated token amount to match requested EUR amount.
+
+This method also returns `transferData`, that is hexadecimal string which could contain token-specific transfer, unwrap or swap data that is passed in sending to tag transaction.
+
+```js
+(async () => {
+  const result = await sdk.onRamp.convertEURToToken(
+    token,
+    '11.11' // EUR amount
+  );
+  console.log('token amount is', result)
+})();
+```
+
+Types:
+
+```typescript
+import type { TransferData } from '@holyheld/sdk';
+
+type Response = {
+  // amount (in EUR) that was passed to query
+  EURAmount: string; // example: '30.00'
+  // token amount to match expected valuation
+  tokenAmount: string; // example: '4.18'
+  // data to be passed in sending transaction for this specific token (and amount)
+  transferData?: TransferData;
+}
+```
+
+## `requestOnRamp` Created on-ramp transaction request:
+
+This is the 'main' method to call that executes on-ramping from a Holyheld account. Parameter values should be retrieved using methods described above, such as `transferData` matching token and token amount provided.
+
+> 🚨 As per security requirements, user **must** approve or confirm the on-ramp request in their Holyheld mobile app within 3 minutes. If the user declines, or lets the confirmation expire -- the transaction will fail.
+
+```js
+(async () => {
+  // you can locate token by address and network, or you can use a self token object
+  const selectedToken = await sdk.getTokenByAddressAndNetwork('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', Network.ethereum)
+
+  // wrap your provider in viem wallet client, see https://viem.sh/docs/clients/wallet.html
+  const walletClient = createWalletClient({
+    chain,
+    transport: custom(provider), // current provider in your app (see examples in the Examples section)
+    account: '0x...', // user wallet address
+  });
+
+  const data = await sdk.onRamp.requestOnRamp(
+    walletClient,
+    walletClient.account.address, // user wallet address
+    selectedToken.address, // address of the token to arrive
+    selectedToken.network, // network where tokens will arrive
+    '1' // amount in EUR
+  );
+})();
+```
+
+Types:
+
+```typescript
+type RequestResult = {
+  requestUid: string; // ID of the on-ramp request credted
+  chainId: number; // ID of the network where tokens will arrive
+  token: Token; // Address of the token to arrive
+  amountEUR: string; // amount of EUR charged from the user
+  amountToken: string; // native amount of tokens received
+  feeEUR: string; // network gas fee charged from the total transaction amount
+  beneficiaryAddress: Address; // user wallet address where tokens will arrive
+}
+```
+
+After creating the on-ramp request, user will need to confirm it in their Holyheld app.
+
+## `watchRequestId` Watch the on-ramp request by ID:
+This method is used to await for the request outcome based on the user confirmation or rejection in the Holyheld app. There are only three possible outcomes of any request:
+1. `true` if the request has been confirmed by the user and processed
+2. `false` if the request has been declined by the user
+3. An error if request was not processed, timed out, or HTTP request was not returned as `OK`
+
+```js
+(async () => {
+  const result = await sdk.onRamp.watchRequestId(
+    requestUid, // request ID from response for the requestOnRamp method
+    timeout // optional
+  );
+})();
+```
+
+# Working with different Web3 providers
 
 By default, a [viem](https://github.com/wagmi-dev/viem) provider is used for EVM-compatible JSON-RPC interaction. However, you can use Holyheld SDK with other providers like Ethers.js and Web3.js
 
-#### Wagmi
+## Wagmi
 
 ```js
 import { getPublicClient, getWalletClient } from '@wagmi/core';
@@ -353,7 +545,7 @@ const chainId; // token chain id
 })();
 ```
 
-#### Ethers.js
+## Ethers.js
 
 ```js
 import { providers } from 'ethers';
@@ -375,7 +567,7 @@ const walletClient = createWalletClient({
 });
 ```
 
-#### Web3.js
+## Web3.js
 
 ```js
 import Web3 from 'web3';
@@ -397,9 +589,9 @@ const walletClient = createWalletClient({
 });
 ```
 
-## Utilities
+# Utilities
 
-You can use the utilities to work with networks that the sdk supports:
+You can use the utilities to work with networks that the SDK supports:
 
 ```js
 import { Network } from '@holyheld/sdk';
@@ -459,7 +651,7 @@ type NetworkInfo = {
 };
 ```
 
-## Error handling
+# Error handling
 
 Some errors have the class `HolyheldSDKError`. The most helpful property of these errors is code. You can compare code with the values in the `HolyheldSDKErrorCode`.
 
@@ -505,14 +697,14 @@ enum HolyheldSDKErrorCode {
   FailedConversion = 'HSDK_FC', // cannot estimate EUR to TOKEN, or TOKEN to EUR
   FailedTopUp = 'HSDK_FTU', // cannot complete top up
   FailedCreateOnRampRequest = 'HSDK_FCOR', // cannot create on-ramp request
-  FailedOnRampRequest = 'HSDK_FOR', // fail execute on-ramp request with reason (like not enoth balance)
+  FailedOnRampRequest = 'HSDK_FOR', // fail execute on-ramp request with reason (for example not enough balance)
   FailedWatchOnRampRequestTimeout = 'HSDK_FwORT', // watch request timeout
   FailedWatchOnRampRequest = 'HSDK_FWORR', // fail to watch request status
   FailedConvertOnRampAmount = 'HSDK_FCORA', //cannot convert (estimate) EUR to TOKEN, or TOKEN to EUR
 }
 ```
 
-## Logging
+# Logging
 
 Logs are disabled by default. If you're debugging an application, set the `logger` option to `true`.
 
@@ -554,88 +746,7 @@ type Logger = (
 ) => void;
 ```
 
-## On-ramp Flow
-
-Example here: https://sdk-example-wagmi-onramp.holyheld.com/
-
-### `requestOnRamp` Request on-ramp
-create request id. Request appr or decl on mobile app
-
-```js
-(async () => {
-  //find token by addr and network or u can use u sefl token object
-  const selectedToken = await sdk.getTokenByAddressAndNetwork('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', Network.ethereum)
-
-  // wrap your provider in viem wallet client
-  // https://viem.sh/docs/clients/wallet.html
-  const walletClient = createWalletClient({
-    chain,
-    transport: custom(provider), // current provider in your app (see examples below)
-    account: '0x...', // wallet address
-  });
-
-  const data = await sdk.onRamp.requestOnRamp(
-    walletClient,
-    walletClient.account.address,
-    selectedToken.address,
-    selectedToken.network,
-    '1' // amount in EUR
-  );
-})();
-```
-
-Types:
-
-```typescript
-type RequestResult = {
-  requestUid: string;
-  chainId: number;
-  token: Token;
-  amountEUR: string;
-  amountToken: string;
-  feeEUR: string; // network fee
-  beneficiaryAddress: Address;
-}
-```
-
-## `watchRequestId` Watch for request by id
-wait for request will be resolved (or timeout (optional))
-
-```js
-(async () => {
-  const result = await sdk.onRamp.watchRequestId(
-    requestUid, // request id from responce requestOnRamp method
-    timeout // optional
-  );
-})();
-```
-
-return `true` if request resolved as approved and `false` if rejected
-> Can throw error if request resolved as `failed` or timeout or http request not `OK`
-
-## `convertEURToToken` Convert EUR amount to Token amount
-```js
-(async () => {
-  const result = await sdk.onRamp.convertEURToToken(
-    token,
-    '11.11' // EUR amount
-  );
-  console.log('token amount is', result)
-})();
-```
-
-## `convertTokenToEUR` Convert Token amount to EUR amount
-```js
-(async () => {
-  const result = await sdk.onRamp.convertTokenToEUR(
-    token,
-    '11.11' // token amount
-  );
-  console.log('EUR amount is', result)
-})();
-```
-
-## Examples
+# Examples
 
 Source code for several Web3 providers can be found in the examples directory, as well as deployed versions are available at:
 
@@ -645,11 +756,17 @@ Source code for several Web3 providers can be found in the examples directory, a
 
 These are minimal html/javascript applications to illustrate the flow described in the document above.
 
-## Testing
+## Off-ramp example
 
-A test $holytag is defined to provide test capabilities: `$SDKTEST`. It can be used as recipient tag for any amount on any supported network. This means no minimal amount restriction and that no real debit card cashout would take place, but the application, backend and smart contract interactions would be executed as they would during the regular flow.
-It is advised to use the test tag `$SDKTEST` with small amounts of tokens (less than $0.1) on L2 chains (Arbitrum, Polygon, Avalanche, etc.) to avoid gas costs while performing the tests, ensuring correct live execution of tag card cashout.
+A minimalistic version of the on-ramp SDK implementation can be found [here](https://holyheld.com/sdk/send).
 
-## License
 
-Business Source License 1.1.
+## On-ramp example
+
+A minimalistic version of the on-ramp SDK implementation can be found [here](https://sdk-example-wagmi-onramp.holyheld.com/).
+
+# Testing
+
+A test $holytag is defined to provide test capabilities: `$SDKTEST`. It can be used as recipient tag without minimum amount required on any supported network. It means there is no minimal amount restriction and that no real off-ramp transactions would take place, but the application, backend and smart contract interactions will be executed as they would during the regular flow.
+
+It is advised to use the test tag `$SDKTEST` with small amounts of tokens (less than $0.1) on networks with low network gas fees (Arbitrum, Polygon, Avalanche, etc.) to avoid gas costs while performing the tests, ensuring correct live execution of the off-ramp.
