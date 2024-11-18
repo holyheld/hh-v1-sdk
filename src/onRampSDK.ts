@@ -44,7 +44,7 @@ export default class OnRampSDK {
   public getAvailableNetworks(): Network[] {
     return this.#common
       .getAllAvailableNetworks()
-      .filter((n) => getSwapSourceForOnRamp(n) !== undefined);
+      .filter((network) => getSwapSourceForOnRamp(network) !== undefined);
   }
 
   public async convertTokenToEUR(token: Token, amount: string): Promise<string> {
@@ -61,7 +61,7 @@ export default class OnRampSDK {
     } catch (error) {
       throw new HolyheldSDKError(
         HolyheldSDKErrorCode.FailedConvertOnRampAmount,
-        'Fail convert token to eur amount',
+        'Fail convert token to EUR amount',
         error,
       );
     }
@@ -81,7 +81,7 @@ export default class OnRampSDK {
     } catch (error) {
       throw new HolyheldSDKError(
         HolyheldSDKErrorCode.FailedConvertOnRampAmount,
-        'Fail convert eur to token amount',
+        'Fail convert EUR to token amount',
         error,
       );
     }

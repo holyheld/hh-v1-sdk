@@ -63,6 +63,7 @@ export default class OffRampSDK {
   readonly #assetService: HHAPIAssetsService;
   readonly #swapService: HHAPISwapService;
   readonly #estimationService: HHAPIEstimationService;
+
   readonly #common: HolyheldSDKCommon;
 
   constructor(protected readonly options: HolyheldOffRampSDKOptions) {
