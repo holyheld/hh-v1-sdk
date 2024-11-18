@@ -4,14 +4,14 @@ import Core, {
   HHAPITagService,
   HHAPISettingsService,
   HHAPIAuditService,
-  Network,
-  HHError,
   HHAPISwapService,
   HHAPIEstimationService,
   HHAPIApprovalService,
-  PermitOnChainService,
   HHAPIOnRampService,
-  Token,
+  HHError,
+  PermitOnChainService,
+  Network,
+  type Token,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import type {
   GetMultiChainWalletTokensResponse,
@@ -24,7 +24,7 @@ import { CORE_SERVICE_BASE_URL, ASSET_SERVICE_BASE_URL, API_VIEW_BASE_URL } from
 import { LogLevel, createDefaultLogger } from './logger';
 import type { Logger } from './logger';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
-import { HolyheldSDKCommon } from './types';
+import type { HolyheldSDKCommon } from './types';
 import { OnRampSDK } from './onRampSDK';
 import OffRampSDK from './offRampSDK';
 

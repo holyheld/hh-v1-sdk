@@ -30,7 +30,7 @@ import {
 import { createWalletClientAdapter } from './helpers';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
 import { createWalletInfoAdapter } from './helpers';
-import { HolyheldSDKCommon, RequiredServiceList } from './types';
+import type { HolyheldSDKCommon, RequiredServiceList } from './types';
 
 export interface HolyheldOffRampSDKOptions {
   commonSDK: HolyheldSDKCommon;

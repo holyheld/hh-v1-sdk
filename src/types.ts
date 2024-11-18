@@ -7,11 +7,11 @@ import {
   HHAPISettingsService,
   HHAPISwapService,
   HHAPITagService,
-  Network,
-  NetworkInfo,
   PermitOnChainService,
-  Token,
-  ValidateAddressExternalExternalResponse,
+  Network,
+  type NetworkInfo,
+  type Token,
+  type ValidateAddressExternalExternalResponse,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import type {
   ClientType,

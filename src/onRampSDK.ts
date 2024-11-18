@@ -3,11 +3,11 @@ import {
   HHAPIOnRampService,
   HHError,
   Network,
-  Token,
   UnexpectedError,
+  type Token,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import type { Address, WalletClient } from 'viem';
-import { HolyheldSDKCommon, RequiredServiceList } from './types';
+import type { HolyheldSDKCommon, RequiredServiceList } from './types';
 import { createPromise, createWalletClientAdapter } from './helpers';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
 import { getSwapSourceForOnRamp } from '@holyheld/web-app-shared/lib/references/tokens';
