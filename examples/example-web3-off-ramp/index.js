@@ -4,7 +4,13 @@ import Web3 from 'web3';
 import { createPublicClient, createWalletClient, custom, http } from 'viem';
 import * as chains from 'viem/chains';
 import HolyheldSDK from '@holyheld/sdk';
-import { getSpinnerHTML, getSettingsHTML, getRadioItemHTML, getTokenInfoHTML, getDataHTML } from './templates';
+import {
+  getSpinnerHTML,
+  getSettingsHTML,
+  getRadioItemHTML,
+  getTokenInfoHTML,
+  getDataHTML,
+} from './templates';
 
 const parentElement = document.querySelector('section');
 const connectButton = document.querySelector('#connect');
@@ -39,7 +45,7 @@ connectButton.addEventListener('click', async () => {
 
   web3 = new Web3(window.ethereum);
 
-  const accounts = await web3.currentProvider.request({method: 'eth_requestAccounts'});
+  const accounts = await web3.currentProvider.request({ method: 'eth_requestAccounts' });
 
   address = accounts[0];
 
@@ -78,7 +84,7 @@ getSettingsButton.addEventListener('click', async () => {
   parentElement.innerHTML = getSettingsHTML(
     settings.external.isTopupEnabled,
     settings.external.minTopUpAmountInEUR,
-    settings.external.maxTopUpAmountInEUR
+    settings.external.maxTopUpAmountInEUR,
   );
 });
 
@@ -103,7 +109,7 @@ selectHolytagButton.addEventListener('click', async () => {
     parentElement.innerHTML = getSettingsHTML(
       settings.external.isTopupEnabled,
       settings.external.minTopUpAmountInEUR,
-      settings.external.maxTopUpAmountInEUR
+      settings.external.maxTopUpAmountInEUR,
     );
     return;
   }
@@ -131,7 +137,7 @@ getTokensButton.addEventListener('click', async () => {
         sdk.getNetwork(current.network).displayedName,
         current.name,
         current.balance,
-        current.symbol
+        current.symbol,
       )}
     `;
   }, '');
@@ -143,18 +149,18 @@ getTokensButton.addEventListener('click', async () => {
 // 5. Select token (and chain) to be used for sending
 selectTokenButton.addEventListener('click', () => {
   const selectedRadio = parentElement.querySelector('input:checked');
-  const [ address, network ] = selectedRadio.value.split(',');
+  const [address, network] = selectedRadio.value.split(',');
 
   selectTokenButton.setAttribute('hidden', '');
 
-  selectedToken = allTokens.find(item => item.address === address && item.network === network);
+  selectedToken = allTokens.find((item) => item.address === address && item.network === network);
 
   parentElement.innerHTML = getTokenInfoHTML(
     selectedToken.name,
     selectedToken.address,
     sdk.getNetwork(selectedToken.network).displayedName,
     selectedToken.balance,
-    selectedToken.symbol
+    selectedToken.symbol,
   );
   setAmountButton.removeAttribute('hidden');
 });
@@ -182,7 +188,12 @@ setAmountButton.addEventListener('click', async () => {
   setAmountButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 
-  const response = await sdk.offRamp.convertTokenToEUR(selectedToken.address, selectedToken.decimals, String(amount), selectedToken.network);
+  const response = await sdk.offRamp.convertTokenToEUR(
+    selectedToken.address,
+    selectedToken.decimals,
+    String(amount),
+    selectedToken.network,
+  );
 
   amountInEUR = response.EURAmount;
 
@@ -197,7 +208,7 @@ setAmountButton.addEventListener('click', async () => {
       selectedToken.address,
       sdk.getNetwork(selectedToken.network).displayedName,
       selectedToken.balance,
-      selectedToken.symbol
+      selectedToken.symbol,
     );
     setAmountButton.removeAttribute('hidden');
   }
@@ -221,9 +232,9 @@ setAmountButton.addEventListener('click', async () => {
     selectedToken.symbol,
     amount,
     amountInEUR,
-    holytag
+    holytag,
   );
-  submit.removeAttribute('hidden');
+  submitButton.removeAttribute('hidden');
 });
 
 // 7. Submit sending of token to recipient's debit card (this could require more than one
@@ -246,8 +257,8 @@ submitButton.addEventListener('click', async () => {
       try {
         await web3.currentProvider.request({
           method: 'wallet_switchEthereumChain',
-          params: [{ chainId: Web3.utils.toHex(tokenNetworkId) }]
-        })
+          params: [{ chainId: Web3.utils.toHex(tokenNetworkId) }],
+        });
       } catch (error) {
         if (error instanceof Object && error.code === 4902) {
           const networkInfo = sdk.getNetwork(selectedToken.network);
@@ -261,15 +272,15 @@ submitButton.addEventListener('click', async () => {
                 nativeCurrency: {
                   name: networkInfo.baseAsset.name,
                   symbol: networkInfo.baseAsset.symbol,
-                  decimals: networkInfo.baseAsset.decimals
+                  decimals: networkInfo.baseAsset.decimals,
                 },
-                blockExplorerUrls: [networkInfo.explorerURL]
-              }
-            ]
+                blockExplorerUrls: [networkInfo.explorerURL],
+              },
+            ],
           });
           await web3.currentProvider.request({
             method: 'wallet_switchEthereumChain',
-            params: [{ chainId: Web3.utils.toHex(tokenNetworkId) }]
+            params: [{ chainId: Web3.utils.toHex(tokenNetworkId) }],
           });
         } else {
           throw error;
@@ -329,7 +340,7 @@ submitButton.addEventListener('click', async () => {
               <dd id="step">${step}</dd>
             `;
           }
-        }
+        },
       },
     );
     dlElement.innerHTML = `

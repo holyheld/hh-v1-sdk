@@ -1,10 +1,34 @@
 import './index.css';
 
-import { connect, createConfig, http, switchChain, getAccount, getPublicClient, getWalletClient } from '@wagmi/core';
-import { arbitrum, avalanche, base, gnosis, mainnet, optimism, polygon, polygonZkEvm, zkSync } from '@wagmi/core/chains';
+import {
+  connect,
+  createConfig,
+  http,
+  switchChain,
+  getAccount,
+  getPublicClient,
+  getWalletClient,
+} from '@wagmi/core';
+import {
+  arbitrum,
+  avalanche,
+  base,
+  gnosis,
+  mainnet,
+  optimism,
+  polygon,
+  polygonZkEvm,
+  zkSync,
+} from '@wagmi/core/chains';
 import { injected } from '@wagmi/connectors';
 import HolyheldSDK from '@holyheld/sdk';
-import { getSpinnerHTML, getSettingsHTML, getRadioItemHTML, getTokenInfoHTML, getDataHTML } from './templates';
+import {
+  getSpinnerHTML,
+  getSettingsHTML,
+  getRadioItemHTML,
+  getTokenInfoHTML,
+  getDataHTML,
+} from './templates';
 
 const parentElement = document.querySelector('section');
 const connectButton = document.querySelector('#connect');
@@ -38,9 +62,7 @@ connectButton.addEventListener('click', async () => {
 
   config = createConfig({
     chains: [mainnet, polygon, optimism, polygonZkEvm, gnosis, avalanche, arbitrum, zkSync, base],
-    connectors: [
-      injected(),
-    ],
+    connectors: [injected()],
     transports: {
       [mainnet.id]: http(),
       [polygon.id]: http(),
@@ -54,7 +76,7 @@ connectButton.addEventListener('click', async () => {
     },
   });
 
-  await connect( config, { connector: injected() });
+  await connect(config, { connector: injected() });
 
   initializeButton.removeAttribute('hidden');
   parentElement.innerHTML = '';
@@ -91,7 +113,7 @@ getSettingsButton.addEventListener('click', async () => {
   parentElement.innerHTML = getSettingsHTML(
     settings.external.isTopupEnabled,
     settings.external.minTopUpAmountInEUR,
-    settings.external.maxTopUpAmountInEUR
+    settings.external.maxTopUpAmountInEUR,
   );
 });
 
@@ -116,7 +138,7 @@ selectHolytagButton.addEventListener('click', async () => {
     parentElement.innerHTML = getSettingsHTML(
       settings.external.isTopupEnabled,
       settings.external.minTopUpAmountInEUR,
-      settings.external.maxTopUpAmountInEUR
+      settings.external.maxTopUpAmountInEUR,
     );
     return;
   }
@@ -146,7 +168,7 @@ getTokensButton.addEventListener('click', async () => {
         sdk.getNetwork(current.network).displayedName,
         current.name,
         current.balance,
-        current.symbol
+        current.symbol,
       )}
     `;
   }, '');
@@ -158,18 +180,18 @@ getTokensButton.addEventListener('click', async () => {
 // 5. Select token (and chain) to be used for sending
 selectTokenButton.addEventListener('click', () => {
   const selectedRadio = parentElement.querySelector('input:checked');
-  const [ address, network ] = selectedRadio.value.split(',');
+  const [address, network] = selectedRadio.value.split(',');
 
   selectTokenButton.setAttribute('hidden', '');
 
-  selectedToken = allTokens.find(item => item.address === address && item.network === network);
+  selectedToken = allTokens.find((item) => item.address === address && item.network === network);
 
   parentElement.innerHTML = getTokenInfoHTML(
     selectedToken.name,
     selectedToken.address,
     sdk.getNetwork(selectedToken.network).displayedName,
     selectedToken.balance,
-    selectedToken.symbol
+    selectedToken.symbol,
   );
   setAmountButton.removeAttribute('hidden');
 });
@@ -197,7 +219,12 @@ setAmountButton.addEventListener('click', async () => {
   setAmountButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 
-  const response = await sdk.offRamp.convertTokenToEUR(selectedToken.address, selectedToken.decimals, String(amount), selectedToken.network);
+  const response = await sdk.offRamp.convertTokenToEUR(
+    selectedToken.address,
+    selectedToken.decimals,
+    String(amount),
+    selectedToken.network,
+  );
 
   amountInEUR = response.EURAmount;
 
@@ -212,7 +239,7 @@ setAmountButton.addEventListener('click', async () => {
       selectedToken.address,
       sdk.getNetwork(selectedToken.network).displayedName,
       selectedToken.balance,
-      selectedToken.symbol
+      selectedToken.symbol,
     );
     setAmountButton.removeAttribute('hidden');
   }
@@ -236,9 +263,9 @@ setAmountButton.addEventListener('click', async () => {
     selectedToken.symbol,
     amount,
     amountInEUR,
-    holytag
+    holytag,
   );
-  submit.removeAttribute('hidden');
+  submitButton.removeAttribute('hidden');
 });
 
 // 7. Submit sending of token to recipient's debit card (this could require more than one
@@ -304,7 +331,7 @@ submitButton.addEventListener('click', async () => {
               <dd id="step">${step}</dd>
             `;
           }
-        }
+        },
       },
     );
     dlElement.innerHTML = `

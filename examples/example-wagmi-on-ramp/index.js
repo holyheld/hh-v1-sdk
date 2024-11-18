@@ -1,14 +1,25 @@
 import './index.css';
 
-import {connect, createConfig, http, getWalletClient} from '@wagmi/core';
-import {arbitrum, avalanche, base, gnosis, mainnet, optimism, polygon, polygonZkEvm, zkSync} from '@wagmi/core/chains';
-import {injected} from '@wagmi/connectors';
-import HolyheldSDK, {HolyheldSDKError, HolyheldSDKErrorCode, Network} from '@holyheld/sdk';
+import { connect, createConfig, http, getWalletClient } from '@wagmi/core';
+import {
+  arbitrum,
+  avalanche,
+  base,
+  gnosis,
+  mainnet,
+  optimism,
+  polygon,
+  polygonZkEvm,
+  zkSync,
+} from '@wagmi/core/chains';
+import { injected } from '@wagmi/connectors';
+import HolyheldSDK, { HolyheldSDKError, HolyheldSDKErrorCode, Network } from '@holyheld/sdk';
 import {
   getSpinnerHTML,
   getTokenInfoHTML,
   getDataHTML,
-  getErrorMessageHTML, getMessageHTML
+  getErrorMessageHTML,
+  getMessageHTML,
 } from './templates';
 
 const parentElement = document.querySelector('section');
@@ -36,9 +47,7 @@ connectButton.addEventListener('click', async () => {
 
   config = createConfig({
     chains: [mainnet, polygon, optimism, polygonZkEvm, gnosis, avalanche, arbitrum, zkSync, base],
-    connectors: [
-      injected(),
-    ],
+    connectors: [injected()],
     transports: {
       [mainnet.id]: http(),
       [polygon.id]: http(),
@@ -52,7 +61,7 @@ connectButton.addEventListener('click', async () => {
     },
   });
 
-  await connect(config, {connector: injected()});
+  await connect(config, { connector: injected() });
 
   initializeButton.removeAttribute('hidden');
   parentElement.innerHTML = '';
@@ -71,7 +80,7 @@ initializeButton.addEventListener('click', async () => {
     return;
   }
 
-  sdk = new HolyheldSDK({apiKey, logger: true});
+  sdk = new HolyheldSDK({ apiKey, logger: true });
   await sdk.init();
 
   getSettingsButton.removeAttribute('hidden');
@@ -87,23 +96,25 @@ getSettingsButton.addEventListener('click', async () => {
 
   if (!settings.external.isOnRampEnabled) {
     parentElement.innerHTML = getErrorMessageHTML(
-      'On-ramp not available for sdk, please contact support'
+      'On-ramp not available for sdk, please contact support',
     );
     getSettingsButton.removeAttribute('hidden');
     return;
   }
 
   //also loading token info. U can use other tokens
-  selectedToken = await sdk.getTokenByAddressAndNetwork('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',  Network.ethereum)
+  selectedToken = await sdk.getTokenByAddressAndNetwork(
+    '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    Network.ethereum,
+  );
 
   setAmountButton.removeAttribute('hidden');
   parentElement.innerHTML = getTokenInfoHTML(
     selectedToken.name,
     selectedToken.address,
-    sdk.getNetwork(selectedToken.network).displayedName
+    sdk.getNetwork(selectedToken.network).displayedName,
   );
 });
-
 
 // 3. Choose amount of token to be sent
 setAmountButton.addEventListener('click', async () => {
@@ -122,7 +133,7 @@ setAmountButton.addEventListener('click', async () => {
     selectedToken.name,
     selectedToken.address,
     sdk.getNetwork(selectedToken.network).displayedName,
-    amountInEUR.toString()
+    amountInEUR.toString(),
   );
   submitButton.removeAttribute('hidden');
 });
@@ -135,7 +146,7 @@ submitButton.addEventListener('click', async () => {
 
   const tokenNetworkId = sdk.getNetworkChainId(selectedToken.network);
 
-  const walletClient = await getWalletClient(config, {chainId: tokenNetworkId});
+  const walletClient = await getWalletClient(config, { chainId: tokenNetworkId });
 
   try {
     const requestResult = await sdk.onRamp.requestOnRamp(
@@ -143,42 +154,36 @@ submitButton.addEventListener('click', async () => {
       walletClient.account.address,
       selectedToken.address,
       selectedToken.network,
-      amountInEUR.toString()
+      amountInEUR.toString(),
     );
     parentElement.innerHTML = `
-    ${getMessageHTML(
-      `Request id is: ${requestResult.requestUid}`
-    )}
+    ${getMessageHTML(`Request id is: ${requestResult.requestUid}`)}
     <br>
     ${getSpinnerHTML()}`;
 
-    const result = await sdk.onRamp.watchRequestId(
-      requestResult.requestUid,
-    );
+    const result = await sdk.onRamp.watchRequestId(requestResult.requestUid);
     if (result) {
-      parentElement.innerHTML = getMessageHTML(
-        `Request success`
-      );
+      parentElement.innerHTML = getMessageHTML(`Request success`);
     } else {
-      parentElement.innerHTML = getErrorMessageHTML(
-        `Request rejected`
-      );
+      parentElement.innerHTML = getErrorMessageHTML(`Request rejected`);
     }
   } catch (error) {
-    if (error instanceof HolyheldSDKError && error.code === HolyheldSDKErrorCode.FailedWatchOnRampRequest) {
+    if (
+      error instanceof HolyheldSDKError &&
+      error.code === HolyheldSDKErrorCode.FailedWatchOnRampRequest
+    ) {
+      parentElement.innerHTML = getErrorMessageHTML(`Watch failed by: ${error}`);
+      return;
+    }
+    if (
+      error instanceof HolyheldSDKError &&
+      error.code === HolyheldSDKErrorCode.FailedOnRampRequest
+    ) {
       parentElement.innerHTML = getErrorMessageHTML(
-        `Watch failed by: ${error}`
+        `Request failed by: ${error.payload.reason ?? 'unknown'}`,
       );
       return;
     }
-    if (error instanceof HolyheldSDKError && error.code === HolyheldSDKErrorCode.FailedOnRampRequest) {
-      parentElement.innerHTML = getErrorMessageHTML(
-        `Request failed by: ${error.payload.reason ?? 'unknown'}`
-      );
-      return;
-    }
-    parentElement.innerHTML = getErrorMessageHTML(
-      `Request or watch failed by: ${error}`
-    );
+    parentElement.innerHTML = getErrorMessageHTML(`Request or watch failed by: ${error}`);
   }
 });
