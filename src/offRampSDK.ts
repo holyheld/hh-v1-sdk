@@ -22,7 +22,11 @@ import Core, {
   UnexpectedError,
   isDefaultAddress,
 } from '@holyheld/web-app-shared/sdklib/bundle';
-import { TEST_HOLYTAG, TOP_UP_EXCHANGE_PROXY_ADDRESS_KEY } from './constants';
+import {
+  EURO_LIMIT_FOR_TEST_HOLYTAG,
+  TEST_HOLYTAG,
+  TOP_UP_EXCHANGE_PROXY_ADDRESS_KEY,
+} from './constants';
 import { createWalletClientAdapter } from './helpers';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
 import { createWalletInfoAdapter } from './helpers';
@@ -259,8 +263,10 @@ export default class OffRampSDK {
 
       const settings = await this.#common.getServerSettings();
 
+      const isTestHolytag = tag.toLowerCase() === TEST_HOLYTAG.toLowerCase();
+
       if (
-        tag.toLowerCase() !== TEST_HOLYTAG.toLowerCase() &&
+        !isTestHolytag &&
         new BigNumber(convertData.EURAmount).lt(
           new BigNumber(settings.external.minTopUpAmountInEUR).multipliedBy(new BigNumber(0.99)),
         )
@@ -271,14 +277,18 @@ export default class OffRampSDK {
         );
       }
 
+      const maxTopUpAmountInEUR = isTestHolytag
+        ? EURO_LIMIT_FOR_TEST_HOLYTAG
+        : settings.external.maxTopUpAmountInEUR;
+
       if (
         new BigNumber(convertData.EURAmount).gt(
-          new BigNumber(settings.external.maxTopUpAmountInEUR).multipliedBy(new BigNumber(1.01)),
+          new BigNumber(maxTopUpAmountInEUR).multipliedBy(new BigNumber(1.01)),
         )
       ) {
         throw new HolyheldSDKError(
           HolyheldSDKErrorCode.InvalidTopUpAmount,
-          `Maximum allowed amount is ${settings.external.maxTopUpAmountInEUR} EUR`,
+          `Maximum allowed amount is ${maxTopUpAmountInEUR} EUR`,
         );
       }
 

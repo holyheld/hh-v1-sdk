@@ -1,9 +1,9 @@
-import type { Address } from 'viem';
 import {
   isContract,
-  PublicClientWithHoistedChain,
-  WalletInfoAdapter,
+  type PublicClientWithHoistedChain,
+  type WalletInfoAdapter,
 } from '@holyheld/web-app-shared/sdklib/bundle';
+import type { Address } from 'viem';
 
 export function createWalletInfoAdapter(
   address: Address,

@@ -56,7 +56,7 @@ export const getDataHTML = (name, address, networkDisplayedName, symbol, amount,
     <dt>Amount in ${symbol}:</dt>
     <dd>${amount} ${symbol}</dd>
     <dt>Amount in EUR:</dt>
-    <dd>${amountInEUR} EUR</dd>
+    <dd>${amountInEUR === '0' ? '0.01' : amountInEUR} EUR</dd>
     <dt>$holytag:</dt>
     <dd>${holytag}</dd>
   </dl>
