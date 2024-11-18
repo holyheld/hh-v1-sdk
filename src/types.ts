@@ -47,7 +47,7 @@ export interface HolyheldSDKCommon {
   sendAudit(params: {
     data: Record<string, unknown>;
     address: `0x${string}`;
-    apikey: string;
+    apiKey: string;
     operationId?: string | undefined;
   }): Promise<void>;
 }

@@ -20,12 +20,12 @@ import type {
   WalletList,
   ClientType,
 } from '@holyheld/web-app-shared/sdklib/bundle';
+import type { Logger } from './logger';
+import type { HolyheldSDKCommon } from './types';
 import { CORE_SERVICE_BASE_URL, ASSET_SERVICE_BASE_URL, API_VIEW_BASE_URL } from './constants';
 import { LogLevel, createDefaultLogger } from './logger';
-import type { Logger } from './logger';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
-import type { HolyheldSDKCommon } from './types';
-import { OnRampSDK } from './onRampSDK';
+import OnRampSDK from './onRampSDK';
 import OffRampSDK from './offRampSDK';
 
 export interface HolyheldSDKOptions {
@@ -218,7 +218,7 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
   async sendAudit(params: {
     data: Record<string, unknown>;
     address: `0x${string}`;
-    apikey: string;
+    apiKey: string;
     operationId?: string | undefined;
   }): Promise<void> {
     try {

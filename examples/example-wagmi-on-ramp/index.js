@@ -100,8 +100,7 @@ getSettingsButton.addEventListener('click', async () => {
   parentElement.innerHTML = getTokenInfoHTML(
     selectedToken.name,
     selectedToken.address,
-    sdk.getNetwork(selectedToken.network).displayedName,
-    selectedToken.symbol
+    sdk.getNetwork(selectedToken.network).displayedName
   );
 });
 
@@ -123,7 +122,6 @@ setAmountButton.addEventListener('click', async () => {
     selectedToken.name,
     selectedToken.address,
     sdk.getNetwork(selectedToken.network).displayedName,
-    selectedToken.symbol,
     amountInEUR.toString()
   );
   submitButton.removeAttribute('hidden');

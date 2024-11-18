@@ -22,6 +22,7 @@ import Core, {
   UnexpectedError,
   isDefaultAddress,
 } from '@holyheld/web-app-shared/sdklib/bundle';
+import type { HolyheldSDKCommon, RequiredServiceList } from './types';
 import {
   EURO_LIMIT_FOR_TEST_HOLYTAG,
   TEST_HOLYTAG,
@@ -30,7 +31,6 @@ import {
 import { createWalletClientAdapter } from './helpers';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
 import { createWalletInfoAdapter } from './helpers';
-import type { HolyheldSDKCommon, RequiredServiceList } from './types';
 
 export interface HolyheldOffRampSDKOptions {
   commonSDK: HolyheldSDKCommon;
@@ -97,10 +97,10 @@ export default class OffRampSDK {
   public getAvailableNetworks(): Network[] {
     const all = this.#common.getAllAvailableNetworks();
 
-    return all.filter((n) => {
+    return all.filter((network) => {
       return (
-        !isDefaultAddress(Core.getNetworkAddress(n, 'TOP_UP_PROXY_ADDRESS')) &&
-        !isDefaultAddress(Core.getNetworkAddress(n, 'TOP_UP_EXCHANGE_PROXY_ADDRESS'))
+        !isDefaultAddress(Core.getNetworkAddress(network, 'TOP_UP_PROXY_ADDRESS')) &&
+        !isDefaultAddress(Core.getNetworkAddress(network, 'TOP_UP_EXCHANGE_PROXY_ADDRESS'))
       );
     });
   }
@@ -221,7 +221,7 @@ export default class OffRampSDK {
         network: tokenNetwork,
       },
       address: senderAddress as Address,
-      apikey: this.options.apiKey,
+      apiKey: this.options.apiKey,
     });
 
     try {
@@ -380,7 +380,7 @@ export default class OffRampSDK {
           onCallData: async (payload) => {
             this.#common.sendAudit({
               data: payload,
-              apikey: this.options.apiKey,
+              apiKey: this.options.apiKey,
               address: senderAddress as Address,
             });
           },

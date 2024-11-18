@@ -41,7 +41,7 @@ export const getRadioItemHTML = (isFirst, address, network, networkDisplayedName
   </div>
 `;
 
-export const getTokenInfoHTML = (name, address, networkDisplayedName, symbol) => `
+export const getTokenInfoHTML = (name, address, networkDisplayedName) => `
   <dl>
     <dt>Name:</dt>
     <dd>${name}</dd>
@@ -57,7 +57,7 @@ export const getTokenInfoHTML = (name, address, networkDisplayedName, symbol) =>
   </label>
 `;
 
-export const getDataHTML = (name, address, networkDisplayedName, symbol, amountInEUR) => `
+export const getDataHTML = (name, address, networkDisplayedName, amountInEUR) => `
   <dl>
     <dt>Name:</dt>
     <dd>${name}</dd>

@@ -12,6 +12,8 @@ import { createPromise, createWalletClientAdapter } from './helpers';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
 import { getSwapSourceForOnRamp } from '@holyheld/web-app-shared/lib/references/tokens';
 
+const STATUS_CHECK_INTERVAL = 2_000;
+
 export interface HolyheldOnRampSDKOptions {
   commonSDK: HolyheldSDKCommon;
   services: RequiredServiceList<'onRampService'>;
@@ -28,7 +30,7 @@ export type RequestResult = {
   beneficiaryAddress: Address;
 };
 
-export class OnRampSDK {
+export default class OnRampSDK {
   readonly #onRampService: HHAPIOnRampService;
 
   readonly #common: HolyheldSDKCommon;
@@ -49,13 +51,13 @@ export class OnRampSDK {
     this.#common.assertInitialized();
 
     try {
-      const res = await this.#onRampService.convertTokenAmountToEURAmount({
+      const response = await this.#onRampService.convertTokenAmountToEURAmount({
         token: token,
         tokenAmount: amount,
         apiKey: this.options.apiKey,
       });
 
-      return res.fiatAmount;
+      return response.fiatAmount;
     } catch (error) {
       throw new HolyheldSDKError(
         HolyheldSDKErrorCode.FailedConvertOnRampAmount,
@@ -69,13 +71,13 @@ export class OnRampSDK {
     this.#common.assertInitialized();
 
     try {
-      const res = await this.#onRampService.convertEURAmountToTokenAmount({
+      const response = await this.#onRampService.convertEURAmountToTokenAmount({
         token: token,
         fiatAmount: amount,
         apiKey: this.options.apiKey,
       });
 
-      return res.tokenAmount;
+      return response.tokenAmount;
     } catch (error) {
       throw new HolyheldSDKError(
         HolyheldSDKErrorCode.FailedConvertOnRampAmount,
@@ -102,7 +104,7 @@ export class OnRampSDK {
         walletAddress,
       },
       address: walletAddress as Address,
-      apikey: this.options.apiKey,
+      apiKey: this.options.apiKey,
     });
     try {
       const token = await this.#common.getTokenByAddressAndNetwork(
@@ -110,7 +112,7 @@ export class OnRampSDK {
         tokenNetwork,
       );
 
-      const res = await this.#onRampService.requestExecute({
+      const response = await this.#onRampService.requestExecute({
         walletClientAdapter: createWalletClientAdapter(walletClient),
         address: walletAddress as Address,
         token: token,
@@ -119,13 +121,13 @@ export class OnRampSDK {
       });
 
       return {
-        amountEUR: res.amountEUR,
-        amountToken: res.amountToken,
-        beneficiaryAddress: res.beneficiaryAddress,
-        chainId: res.chainId,
-        feeEUR: res.feeEUR,
+        amountEUR: response.amountEUR,
+        amountToken: response.amountToken,
+        beneficiaryAddress: response.beneficiaryAddress,
+        chainId: response.chainId,
+        feeEUR: response.feeEUR,
         token: token,
-        requestUid: res.requestUid,
+        requestUid: response.requestUid,
       };
     } catch (error) {
       if (error instanceof HolyheldSDKError) {
@@ -143,7 +145,7 @@ export class OnRampSDK {
       if (error instanceof HHError) {
         throw new HolyheldSDKError(
           HolyheldSDKErrorCode.FailedCreateOnRampRequest,
-          `OnRamp failed${error instanceof UnexpectedError ? ` with code ${error.getCode()}` : ''}`,
+          `On-ramp failed${error instanceof UnexpectedError ? ` with code ${error.getCode()}` : ''}`,
           error,
         );
       }
@@ -171,12 +173,12 @@ export class OnRampSDK {
 
     const interval = setInterval(async () => {
       try {
-        const res = await this.#onRampService.requestStatus({
+        const response = await this.#onRampService.requestStatus({
           requestUid: requestUid,
           apiKey: this.options.apiKey,
         });
 
-        switch (res.status) {
+        switch (response.status) {
           case 'success':
             resolve(true);
             break;
@@ -187,8 +189,8 @@ export class OnRampSDK {
             reject(
               new HolyheldSDKError(
                 HolyheldSDKErrorCode.FailedOnRampRequest,
-                res.reason,
-              ).withPayload({ reason: res.reason }),
+                response.reason,
+              ).withPayload({ reason: response.reason }),
             );
             break;
           case 'not_approved':
@@ -205,7 +207,7 @@ export class OnRampSDK {
         );
         return;
       }
-    }, 2_000);
+    }, STATUS_CHECK_INTERVAL);
 
     try {
       return await wait();
@@ -215,7 +217,7 @@ export class OnRampSDK {
       }
       throw new HolyheldSDKError(
         HolyheldSDKErrorCode.FailedWatchOnRampRequest,
-        `OnRamp failed${error instanceof UnexpectedError ? ` with code ${error.getCode()}` : ''}`,
+        `On-ramp failed${error instanceof UnexpectedError ? ` with code ${error.getCode()}` : ''}`,
         error,
       );
     } finally {
