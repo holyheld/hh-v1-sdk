@@ -112,8 +112,8 @@ getSettingsButton.addEventListener('click', async () => {
 
   // also loading token info. You can use other tokens
   selectedToken = await sdk.getTokenByAddressAndNetwork(
-    '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-    Network.ethereum,
+    '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+    Network.arbitrum,
   );
 
   setAmountButton.removeAttribute('hidden');

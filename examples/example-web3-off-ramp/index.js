@@ -3,7 +3,7 @@ import './index.css';
 import Web3 from 'web3';
 import { createPublicClient, createWalletClient, custom, http } from 'viem';
 import * as chains from 'viem/chains';
-import HolyheldSDK from '@holyheld/sdk';
+import HolyheldSDK from '../../src/index';
 import {
   getSpinnerHTML,
   getSettingsHTML,
