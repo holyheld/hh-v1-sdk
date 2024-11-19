@@ -18,7 +18,11 @@ import {
   optimism,
   polygon,
   polygonZkEvm,
-  zkSync,
+  zksync,
+  blast,
+  mode,
+  bsc,
+  manta
 } from '@wagmi/core/chains';
 import { injected } from '@wagmi/connectors';
 import HolyheldSDK from '@holyheld/sdk';
@@ -61,7 +65,7 @@ connectButton.addEventListener('click', async () => {
   parentElement.innerHTML = getSpinnerHTML();
 
   config = createConfig({
-    chains: [mainnet, polygon, optimism, polygonZkEvm, gnosis, avalanche, arbitrum, zkSync, base],
+    chains: [mainnet, polygon, optimism, polygonZkEvm, gnosis, avalanche, arbitrum, zksync, base, blast, mode, bsc, manta],
     connectors: [injected()],
     transports: {
       [mainnet.id]: http(),
@@ -71,8 +75,12 @@ connectButton.addEventListener('click', async () => {
       [gnosis.id]: http(),
       [avalanche.id]: http(),
       [arbitrum.id]: http(),
-      [zkSync.id]: http(),
+      [zksync.id]: http(),
       [base.id]: http(),
+      [blast.id]: http(),
+      [mode.id]: http(),
+      [bsc.id]: http(),
+      [manta.id]: http(),
     },
   });
 

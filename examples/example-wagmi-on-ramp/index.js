@@ -10,7 +10,11 @@ import {
   optimism,
   polygon,
   polygonZkEvm,
-  zkSync,
+  zksync,
+  blast,
+  mode,
+  bsc,
+  manta
 } from '@wagmi/core/chains';
 import { injected } from '@wagmi/connectors';
 import HolyheldSDK, { HolyheldSDKError, HolyheldSDKErrorCode, Network } from '@holyheld/sdk';
@@ -46,7 +50,7 @@ connectButton.addEventListener('click', async () => {
   parentElement.innerHTML = getSpinnerHTML();
 
   config = createConfig({
-    chains: [mainnet, polygon, optimism, polygonZkEvm, gnosis, avalanche, arbitrum, zkSync, base],
+    chains: [mainnet, polygon, optimism, polygonZkEvm, gnosis, avalanche, arbitrum, zksync, base, blast, mode, bsc, manta],
     connectors: [injected()],
     transports: {
       [mainnet.id]: http(),
@@ -56,8 +60,12 @@ connectButton.addEventListener('click', async () => {
       [gnosis.id]: http(),
       [avalanche.id]: http(),
       [arbitrum.id]: http(),
-      [zkSync.id]: http(),
+      [zksync.id]: http(),
       [base.id]: http(),
+      [blast.id]: http(),
+      [mode.id]: http(),
+      [bsc.id]: http(),
+      [manta.id]: http(),
     },
   });
 
@@ -87,7 +95,7 @@ initializeButton.addEventListener('click', async () => {
   parentElement.innerHTML = '';
 });
 
-// 2. Get SDK settings (feature is enabled)
+// 2. Get SDK settings (check that the feature is enabled)
 getSettingsButton.addEventListener('click', async () => {
   getSettingsButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
@@ -96,13 +104,13 @@ getSettingsButton.addEventListener('click', async () => {
 
   if (!settings.external.isOnRampEnabled) {
     parentElement.innerHTML = getErrorMessageHTML(
-      'On-ramp not available for sdk, please contact support',
+      'On-ramp is not available for SDK, please contact support',
     );
     getSettingsButton.removeAttribute('hidden');
     return;
   }
 
-  //also loading token info. U can use other tokens
+  // also loading token info. You can use other tokens
   selectedToken = await sdk.getTokenByAddressAndNetwork(
     '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
     Network.ethereum,
@@ -138,8 +146,9 @@ setAmountButton.addEventListener('click', async () => {
   submitButton.removeAttribute('hidden');
 });
 
-// 4. Submit sending of token to recipient's debit card (this could require more than one
-//    wallet interaction, e.g. sign permit and then send a transaction
+// 4. Submit sending of a token to the recipient's debit card
+//    (this may require more than one wallet interaction, e.g.,
+//    signing a permit and then sending a transaction)
 submitButton.addEventListener('click', async () => {
   submitButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
