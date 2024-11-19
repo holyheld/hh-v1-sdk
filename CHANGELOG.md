@@ -9,11 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Features
 
-- TODO
+- Added on-ramp flow
+- The documentation moved to the [website](https://holyheld.com/documentation/introduction)
 
 ### BREAKING CHANGES
 
-- TODO
+- The methods `getTagInfoForTopUp`, `convertTokenToEUR`, `convertEURToToken`, and `topup` are now invoked via the `offRamp` object for the off-ramp flow. For example: `holyheldSDK.offRamp.getTagInfoForTopUp('TESTSDK')`
 
 ## [2.1.2] - 2024-09-06
 
