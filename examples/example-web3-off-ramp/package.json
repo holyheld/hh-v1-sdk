@@ -12,7 +12,7 @@
     "vite-plugin-node-polyfills": "^0.16.0"
   },
   "dependencies": {
-    "@holyheld/sdk": "*",
+    "@holyheld/sdk": "latest",
     "web3": "^4.5.0"
   }
 }

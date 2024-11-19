@@ -1,4 +1,4 @@
-import { WalletClient, Transport, Chain, Account } from 'viem';
+import type { WalletClient, Transport, Chain, Account } from 'viem';
 import type {
   WalletClientAdapter,
   WalletClientExecutor,

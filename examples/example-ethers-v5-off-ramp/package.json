@@ -1,5 +1,5 @@
 {
-  "name": "example-wagmi",
+  "name": "example-ethers-v5",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
@@ -11,9 +11,7 @@
     "vite": "^4.4.5"
   },
   "dependencies": {
-    "@holyheld/sdk": "*",
-    "@wagmi/connectors": "^4.1.14",
-    "@wagmi/core": "^2.6.5",
-    "viem": "^2.7.8"
+    "@holyheld/sdk": "latest",
+    "ethers": "^5.7.2"
   }
 }

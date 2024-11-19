@@ -1,6 +1,8 @@
-import type { PublicClientWithHoistedChain } from '@holyheld/web-app-shared/lib/helpers/viem-types';
-import { isContract } from '@holyheld/web-app-shared/lib/services/onchain/v2/account-abstraction-wallets/isContract';
-import type { WalletInfoAdapter } from '@holyheld/web-app-shared/lib/services/onchain/v2/utils/walletInfoAdapter';
+import {
+  isContract,
+  type PublicClientWithHoistedChain,
+  type WalletInfoAdapter,
+} from '@holyheld/web-app-shared/sdklib/bundle';
 import type { Address } from 'viem';
 
 export function createWalletInfoAdapter(
