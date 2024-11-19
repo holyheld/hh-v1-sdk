@@ -181,10 +181,10 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.56.0.tgz#ef20350fec605a7f7035a01764731b2de0f3782b"
   integrity sha512-gMsVel9D7f2HLkBma9VbtzZRehRogVRfbr++f06nL2vnCGCNlzOD+/MUov/F4p8myyAHspEhVobgjpX64q5m6A==
 
-"@holyheld/web-app-shared@v2.7.14-rc.1":
-  version "2.7.14-rc.1"
-  resolved "https://npm.pkg.github.com/download/@holyheld/web-app-shared/2.7.14-rc.1/c7c2bc9c93963ddef2c8f54f20ff35ff81a6fd1b#c7c2bc9c93963ddef2c8f54f20ff35ff81a6fd1b"
-  integrity sha512-bM1mrYfzgWZFtuOmfGrU/7x+wWFmaxKnI6C0/NenblWK2xQ8kojpn/l8mLSja5fhzx9S4GsbWrwFLLsu7u2u4w==
+"@holyheld/web-app-shared@v2.7.14-rc.4":
+  version "2.7.14-rc.4"
+  resolved "https://npm.pkg.github.com/download/@holyheld/web-app-shared/2.7.14-rc.4/cdc49f80831e714bf19ba5370cc847d25526aa5e#cdc49f80831e714bf19ba5370cc847d25526aa5e"
+  integrity sha512-Ra+/yoe/0JH3FHsYK2bu4SJDvC2SQybymnS5yPkIB93v4mJSa6hJ2LoKBeA45h6k2GKVzWBAUrtHfDZtthw1wQ==
   dependencies:
     dayjs "^1.11.4"
     qs "^6.11.0"

@@ -8,7 +8,7 @@ import {
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import type { Address, WalletClient } from 'viem';
 import type { HolyheldSDKCommon, RequiredServiceList } from './types';
-import { createPromise, createWalletClientAdapter } from './helpers';
+import { createPromise } from './helpers';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
 import { getSwapSourceForOnRamp } from '@holyheld/web-app-shared/lib/references/tokens';
 
@@ -113,7 +113,6 @@ export default class OnRampSDK {
       );
 
       const response = await this.#onRampService.requestExecute({
-        walletClientAdapter: createWalletClientAdapter(walletClient),
         address: walletAddress as Address,
         token: token,
         fiatAmount: fiatAmount,
