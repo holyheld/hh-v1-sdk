@@ -1,4 +1,4 @@
-import {
+import Core, {
   ExpectedError,
   HHAPIOnRampService,
   HHError,
@@ -10,7 +10,6 @@ import type { Address, WalletClient } from 'viem';
 import type { HolyheldSDKCommon, RequiredServiceList } from './types';
 import { createPromise } from './helpers';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
-import { getSwapSourceForOnRamp } from '@holyheld/web-app-shared/lib/references/tokens';
 
 const STATUS_CHECK_INTERVAL = 2_000;
 
@@ -44,7 +43,7 @@ export default class OnRampSDK {
   public getAvailableNetworks(): Network[] {
     return this.#common
       .getAllAvailableNetworks()
-      .filter((network) => getSwapSourceForOnRamp(network) !== undefined);
+      .filter((network) => Core.getSwapSourceForOnRamp(network) !== undefined);
   }
 
   public async convertTokenToEUR(token: Token, amount: string): Promise<string> {
