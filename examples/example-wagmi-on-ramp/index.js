@@ -159,7 +159,6 @@ submitButton.addEventListener('click', async () => {
 
   try {
     const requestResult = await sdk.onRamp.requestOnRamp(
-      walletClient,
       walletClient.account.address,
       selectedToken.address,
       selectedToken.network,

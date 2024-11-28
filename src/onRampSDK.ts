@@ -1,12 +1,14 @@
+import BigNumber from 'bignumber.js';
 import Core, {
   ExpectedError,
   HHAPIOnRampService,
+  HHAPISwapService,
   HHError,
   Network,
   UnexpectedError,
   type Token,
 } from '@holyheld/web-app-shared/sdklib/bundle';
-import type { Address, WalletClient } from 'viem';
+import type { Address } from 'viem';
 import type { HolyheldSDKCommon, RequiredServiceList } from './types';
 import { createPromise } from './helpers';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
@@ -15,7 +17,7 @@ const STATUS_CHECK_INTERVAL = 2_000;
 
 export interface HolyheldOnRampSDKOptions {
   commonSDK: HolyheldSDKCommon;
-  services: RequiredServiceList<'onRampService'>;
+  services: RequiredServiceList<'onRampService' | 'swapService'>;
   apiKey: string;
 }
 
@@ -31,11 +33,13 @@ export type RequestResult = {
 
 export default class OnRampSDK {
   readonly #onRampService: HHAPIOnRampService;
+  readonly #swapService: HHAPISwapService;
 
   readonly #common: HolyheldSDKCommon;
 
   constructor(protected readonly options: HolyheldOnRampSDKOptions) {
     this.#onRampService = options.services.onRampService;
+    this.#swapService = options.services.swapService;
 
     this.#common = options.commonSDK;
   }
@@ -46,12 +50,21 @@ export default class OnRampSDK {
       .filter((network) => Core.getSwapSourceForOnRamp(network) !== undefined);
   }
 
-  public async convertTokenToEUR(token: Token, amount: string): Promise<string> {
+  public async convertTokenToEUR(
+    tokenAddress: string,
+    tokenNetwork: Network,
+    amount: string,
+  ): Promise<string> {
     this.#common.assertInitialized();
 
     try {
-      const response = await this.#onRampService.convertTokenAmountToEURAmount({
-        token: token,
+      const token = await this.#common.getTokenByAddressAndNetwork(
+        tokenAddress as Address,
+        tokenNetwork,
+      );
+
+      const response = await this.#swapService.convertTokenToEURForOnRampExternal({
+        token,
         tokenAmount: amount,
         apiKey: this.options.apiKey,
       });
@@ -66,12 +79,21 @@ export default class OnRampSDK {
     }
   }
 
-  public async convertEURToToken(token: Token, amount: string): Promise<string> {
+  public async convertEURToToken(
+    tokenAddress: string,
+    tokenNetwork: Network,
+    amount: string,
+  ): Promise<string> {
     this.#common.assertInitialized();
 
     try {
-      const response = await this.#onRampService.convertEURAmountToTokenAmount({
-        token: token,
+      const token = await this.#common.getTokenByAddressAndNetwork(
+        tokenAddress as Address,
+        tokenNetwork,
+      );
+
+      const response = await this.#swapService.convertEURToTokenForOnRampExternal({
+        token,
         fiatAmount: amount,
         apiKey: this.options.apiKey,
       });
@@ -87,7 +109,6 @@ export default class OnRampSDK {
   }
 
   public async requestOnRamp(
-    walletClient: WalletClient,
     walletAddress: string,
     tokenAddress: string,
     tokenNetwork: Network,
@@ -105,7 +126,24 @@ export default class OnRampSDK {
       address: walletAddress as Address,
       apiKey: this.options.apiKey,
     });
+
     try {
+      const settings = await this.#common.getServerSettings();
+
+      if (new BigNumber(fiatAmount).lt(settings.external.minOnRampAmountInEUR)) {
+        throw new HolyheldSDKError(
+          HolyheldSDKErrorCode.InvalidOnRampAmount,
+          `Minimum allowed amount is ${settings.external.minOnRampAmountInEUR} EUR`,
+        );
+      }
+
+      if (new BigNumber(fiatAmount).gt(new BigNumber(settings.external.maxOnRampAmountInEUR))) {
+        throw new HolyheldSDKError(
+          HolyheldSDKErrorCode.InvalidOnRampAmount,
+          `Maximum allowed amount is ${settings.external.maxOnRampAmountInEUR} EUR`,
+        );
+      }
+
       const token = await this.#common.getTokenByAddressAndNetwork(
         tokenAddress as Address,
         tokenNetwork,

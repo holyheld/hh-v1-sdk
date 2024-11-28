@@ -76,6 +76,7 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
       commonSDK: this,
       services: {
         onRampService: this.#onRampService,
+        swapService: this.#swapService,
       },
       apiKey: this.options.apiKey,
     });

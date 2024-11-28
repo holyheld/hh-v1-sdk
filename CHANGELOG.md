@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2024-11-28
+
+### Features
+
+- Fixed conversion methods `onRamp.convertTokenToEUR` and `onRamp.convertEURToToken`
+- Added properties `minOnRampAmountInEUR` and `maxOnRampAmountInEUR` in the method `getServerSettings`
+
+### BREAKING CHANGES
+
+- Method `onRamp.requestOnRamp` no longer requires `WalletClient` to be passed. Changed the order and number of arguments. See [documentation](https://holyheld.com/documentation/on-ramp-flow)
+- Changed the arguments in the methods `onRamp.convertTokenToEUR` and `onRamp.convertEURToToken`. See [documentation](https://holyheld.com/documentation/on-ramp-flow)
+
 ## [3.0.1] - 2024-11-26
 
 ### Bug Fixes
