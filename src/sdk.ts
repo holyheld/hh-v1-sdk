@@ -51,7 +51,11 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
 
   constructor(protected readonly options: HolyheldSDKOptions) {
     this.#permitService = new PermitOnChainService();
-    this.#approvalService = new HHAPIApprovalService(API_VIEW_BASE_URL, '');
+    this.#approvalService = new HHAPIApprovalService(API_VIEW_BASE_URL, '', {
+      getAccountUid: () => '',
+      getAddress: () => '0x',
+      getSignature: () => '',
+    });
     this.#assetService = new HHAPIAssetsService(ASSET_SERVICE_BASE_URL, 'sdk');
     this.#tagService = new HHAPITagService(CORE_SERVICE_BASE_URL);
     this.#swapService = new HHAPISwapService(ASSET_SERVICE_BASE_URL);

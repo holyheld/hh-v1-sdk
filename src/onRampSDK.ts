@@ -21,7 +21,12 @@ export interface HolyheldOnRampSDKOptions {
   apiKey: string;
 }
 
-export type RequestResult = {
+export type EstimateOnRampResult = {
+  expectedAmount: string;
+  feeAmount: string;
+};
+
+export type RequestOnRampResult = {
   requestUid: string;
   chainId: number;
   token: Token;
@@ -29,6 +34,16 @@ export type RequestResult = {
   amountToken: string;
   feeEUR: string;
   beneficiaryAddress: Address;
+};
+
+export type WatchOnRampResult = {
+  success: boolean;
+  hash?: string;
+};
+
+export type WatchOnRampRequestIdOptions = {
+  timeout?: number;
+  waitForTransactionHash?: boolean;
 };
 
 export default class OnRampSDK {
@@ -73,7 +88,7 @@ export default class OnRampSDK {
     } catch (error) {
       throw new HolyheldSDKError(
         HolyheldSDKErrorCode.FailedConvertOnRampAmount,
-        'Fail convert token to EUR amount',
+        'Failed to convert token to EUR amount',
         error,
       );
     }
@@ -102,7 +117,38 @@ export default class OnRampSDK {
     } catch (error) {
       throw new HolyheldSDKError(
         HolyheldSDKErrorCode.FailedConvertOnRampAmount,
-        'Fail convert EUR to token amount',
+        'Failed to convert EUR to token amount',
+        error,
+      );
+    }
+  }
+
+  public async getOnRampEstimation(
+    walletAddress: string,
+    tokenAddress: string,
+    tokenNetwork: Network,
+    fiatAmount: string,
+  ): Promise<EstimateOnRampResult> {
+    this.#common.assertInitialized();
+
+    try {
+      const token = await this.#common.getTokenByAddressAndNetwork(
+        tokenAddress as Address,
+        tokenNetwork,
+      );
+
+      const response = await this.#onRampService.estimateExternal({
+        token,
+        amountEUR: fiatAmount,
+        beneficiaryAddress: walletAddress as Address,
+        apiKey: this.options.apiKey,
+      });
+
+      return response;
+    } catch (error) {
+      throw new HolyheldSDKError(
+        HolyheldSDKErrorCode.FailedOnRampEstimation,
+        'Failed to estimate',
         error,
       );
     }
@@ -113,7 +159,7 @@ export default class OnRampSDK {
     tokenAddress: string,
     tokenNetwork: Network,
     fiatAmount: string,
-  ): Promise<RequestResult> {
+  ): Promise<RequestOnRampResult> {
     this.#common.assertInitialized();
 
     this.#common.sendAudit({
@@ -190,13 +236,16 @@ export default class OnRampSDK {
     }
   }
 
-  public async watchRequestId(requestUid: string, timeoutMs?: number): Promise<boolean> {
+  public async watchRequestId(
+    requestUid: string,
+    options: WatchOnRampRequestIdOptions = {},
+  ): Promise<WatchOnRampResult> {
     this.#common.assertInitialized();
 
-    const { reject, resolve, wait } = createPromise<boolean, HolyheldSDKError>();
+    const { reject, resolve, wait } = createPromise<WatchOnRampResult, HolyheldSDKError>();
 
     let timeout: ReturnType<typeof setTimeout> | undefined;
-    if (timeoutMs) {
+    if (options.timeout) {
       timeout = setTimeout(() => {
         reject(
           new HolyheldSDKError(
@@ -204,7 +253,7 @@ export default class OnRampSDK {
             'watch request timeout',
           ),
         );
-      }, timeoutMs);
+      }, options.timeout);
     }
 
     const interval = setInterval(async () => {
@@ -214,12 +263,21 @@ export default class OnRampSDK {
           apiKey: this.options.apiKey,
         });
 
+        const result: WatchOnRampResult = { success: false };
+
         switch (response.status) {
           case 'success':
-            resolve(true);
+            if (response.txHash) {
+              result.hash = response.txHash;
+            }
+
+            if (result.hash || !options.waitForTransactionHash) {
+              result.success = true;
+              resolve(result);
+            }
             break;
           case 'declined':
-            resolve(false);
+            resolve(result);
             break;
           case 'failed':
             reject(

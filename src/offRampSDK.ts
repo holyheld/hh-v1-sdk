@@ -1,5 +1,13 @@
 import BigNumber from 'bignumber.js';
-import type { Address, Chain, PublicClient, Transport, WalletClient } from 'viem';
+import {
+  pad,
+  parseUnits,
+  type Address,
+  type Chain,
+  type PublicClient,
+  type Transport,
+  type WalletClient,
+} from 'viem';
 import type {
   ConvertEURData,
   GetTagDataForTopUpExternalResponse,
@@ -7,10 +15,12 @@ import type {
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import Core, {
   CardTopUpOnChainService,
+  CardTopUpOnChainServiceV2,
   ExpectedError,
   HHAPIApprovalService,
   HHAPIAssetsService,
   HHAPIEstimationService,
+  HHAPIGaslessTopUpService,
   HHAPISwapService,
   HHAPITagService,
   HHError,
@@ -27,6 +37,7 @@ import {
   EURO_LIMIT_FOR_TEST_HOLYTAG,
   TEST_HOLYTAG,
   TOP_UP_EXCHANGE_PROXY_ADDRESS_KEY,
+  CORE_SERVICE_BASE_URL,
 } from './constants';
 import { createWalletClientAdapter } from './helpers';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
@@ -180,13 +191,86 @@ export default class OffRampSDK {
     }
   }
 
-  public async getTopUpEstimation(network: Network): Promise<string> {
+  public async getTopUpEstimation(
+    publicClient: PublicClient<Transport, Chain>,
+    network: Network,
+    amount: string,
+    senderAddress: string,
+    supportsSignTypedDataV4: boolean = false,
+  ): Promise<string> {
     this.#common.assertInitialized();
 
     try {
-      return (
-        await this.#estimationService.getTopUpEstimationExternal(network, this.options.apiKey)
-      ).priceInWei;
+      const networkInfo = this.#common.getNetwork(network);
+
+      if (!networkInfo) {
+        throw new HHError('Failed to get network info');
+      }
+
+      const walletInfo = createWalletInfoAdapter(
+        senderAddress as Address,
+        supportsSignTypedDataV4,
+        publicClient,
+      );
+
+      const permit2Service = new Permit2OnChainService(walletInfo);
+      const gaslessService = new HHAPIGaslessTopUpService({
+        baseURL: CORE_SERVICE_BASE_URL,
+        assetsService: this.#assetService,
+        walletInfo,
+        authorizer: { getAccountUid: () => '', getAddress: () => '0x', getSignature: () => '' },
+        permit2Service,
+      });
+      const topupService = new CardTopUpOnChainServiceV2({
+        approvalService: this.#approvalService,
+        permitService: this.#permitService,
+        permit2Service,
+        gaslessService,
+        walletInfo,
+      });
+
+      const swapTarget = Core.getSwapTargetForTopUp(network);
+
+      const [token, convertData, swapTargetPrices] = await Promise.all([
+        this.#assetService.getFullTokenDataWithPriceExternal(
+          networkInfo.baseAsset.address,
+          network,
+          this.options.apiKey,
+        ),
+        this.convertTokenToEUR(
+          networkInfo.baseAsset.address,
+          networkInfo.baseAsset.decimals,
+          amount,
+          network,
+        ),
+        this.#assetService.getTokenPricesExternal(
+          [{ address: swapTarget.address, network: swapTarget.network }],
+          this.options.apiKey,
+        ),
+      ]);
+
+      if (swapTargetPrices.length !== 1) {
+        throw new HHError('Failed to get token price');
+      }
+
+      const allowanceFlow = await topupService.getAllowanceFlow({
+        publicClient,
+        senderAddress: senderAddress as Address,
+        flowData: {
+          flowType: 'topUp',
+          amountInWei: parseUnits(amount, networkInfo.baseAsset.decimals),
+          token,
+          transferData: convertData.transferData,
+          swapTargetPriceUSD: swapTargetPrices[0].price,
+          receiverHash: pad('0x0', { dir: 'left', size: 32 }),
+        },
+      });
+
+      if (allowanceFlow.flow !== 'executeWithPermit') {
+        throw new HHError('Unexpected allowance flow', { payload: allowanceFlow });
+      }
+
+      return allowanceFlow.estimation.totalFee.toString();
     } catch (error) {
       if (error instanceof HHError) {
         throw new HolyheldSDKError(

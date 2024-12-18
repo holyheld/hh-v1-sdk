@@ -19,6 +19,7 @@ export enum HolyheldSDKErrorCode {
   FailedWatchOnRampRequestTimeout = 'HSDK_FwORT',
   FailedWatchOnRampRequest = 'HSDK_FWORR',
   FailedConvertOnRampAmount = 'HSDK_FCORA',
+  FailedOnRampEstimation = 'HSDK_FORE',
 }
 
 export class HolyheldSDKError extends Error {

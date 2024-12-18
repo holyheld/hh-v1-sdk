@@ -9,7 +9,12 @@ export type {
   WalletToken,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 export { TopUpStep } from './offRampSDK';
-export type { RequestResult } from './onRampSDK';
+export type {
+  RequestOnRampResult,
+  EstimateOnRampResult,
+  WatchOnRampRequestIdOptions,
+  WatchOnRampResult,
+} from './onRampSDK';
 export type { TopUpCallbackConfig } from './offRampSDK';
 export type { HolyheldSDKOptions } from './sdk';
 export { default } from './sdk';
