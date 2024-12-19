@@ -13,11 +13,10 @@ import Core, {
   type Token,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import type {
-  GetMultiChainWalletTokensResponse,
-  ValidateAddressExternalExternalResponse,
   ServerExternalSettings,
   WalletList,
   ClientType,
+  WalletToken,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import type { Logger } from './logger';
 import type { HolyheldSDKCommon } from './types';
@@ -31,6 +30,15 @@ export interface HolyheldSDKOptions {
   apiKey: string;
   logger?: Logger | boolean;
 }
+
+export type ValidateAddressResult = {
+  isTopupAllowed: boolean;
+  isOnRampAllowed: boolean;
+};
+
+export type WalletBalances = {
+  tokens: WalletToken[];
+};
 
 export default class HolyheldSDK implements HolyheldSDKCommon {
   readonly #permitService: PermitOnChainService;
@@ -164,7 +172,7 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
     }
   }
 
-  public async validateAddress(address: string): Promise<ValidateAddressExternalExternalResponse> {
+  public async validateAddress(address: string): Promise<ValidateAddressResult> {
     this.assertInitialized();
 
     try {
@@ -182,9 +190,7 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
     }
   }
 
-  public async getWalletBalances(
-    address: string,
-  ): Promise<Pick<GetMultiChainWalletTokensResponse, 'tokens'>> {
+  public async getWalletBalances(address: string): Promise<WalletBalances> {
     this.assertInitialized();
 
     try {

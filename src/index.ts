@@ -7,14 +7,15 @@ export type {
   Token,
   NetworkInfo,
   WalletToken,
+  ServerExternalSettings,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 export { TopUpStep } from './offRampSDK';
+export type { TopUpCallbackConfig, ConvertTopUpData } from './offRampSDK';
 export type {
   RequestOnRampResult,
   EstimateOnRampResult,
   WatchOnRampRequestIdOptions,
   WatchOnRampResult,
 } from './onRampSDK';
-export type { TopUpCallbackConfig } from './offRampSDK';
-export type { HolyheldSDKOptions } from './sdk';
+export type { HolyheldSDKOptions, ValidateAddressResult, WalletBalances } from './sdk';
 export { default } from './sdk';

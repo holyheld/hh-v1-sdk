@@ -8,11 +8,7 @@ import {
   type Transport,
   type WalletClient,
 } from 'viem';
-import type {
-  ConvertEURData,
-  GetTagDataForTopUpExternalResponse,
-  TransferData,
-} from '@holyheld/web-app-shared/sdklib/bundle';
+import type { TransferData } from '@holyheld/web-app-shared/sdklib/bundle';
 import Core, {
   CardTopUpOnChainService,
   CardTopUpOnChainServiceV2,
@@ -50,6 +46,18 @@ export interface HolyheldOffRampSDKOptions {
   apiKey: string;
 }
 
+export type TagInfoForTopUp = {
+  found: boolean;
+  avatarSrc?: string;
+  tag?: string;
+};
+
+export type ConvertTopUpData = {
+  transferData?: TransferData;
+  tokenAmount: string;
+  EURAmount: string;
+};
+
 export enum TopUpStep {
   Confirming = 'confirming',
   Approving = 'approving',
@@ -80,7 +88,7 @@ export default class OffRampSDK {
     this.#common = options.commonSDK;
   }
 
-  public async getTagInfoForTopUp(tag: string): Promise<GetTagDataForTopUpExternalResponse> {
+  public async getTagInfoForTopUp(tag: string): Promise<TagInfoForTopUp> {
     this.#common.assertInitialized();
 
     try {
@@ -114,7 +122,7 @@ export default class OffRampSDK {
     sellTokenDecimals: number,
     sellAmount: string,
     network: Network,
-  ): Promise<ConvertEURData> {
+  ): Promise<ConvertTopUpData> {
     this.#common.assertInitialized();
 
     const topupProxyAddress = Core.getNetworkAddress(network, TOP_UP_EXCHANGE_PROXY_ADDRESS_KEY);
@@ -151,7 +159,7 @@ export default class OffRampSDK {
     sellTokenDecimals: number,
     sellEURAmount: string,
     network: Network,
-  ): Promise<ConvertEURData> {
+  ): Promise<ConvertTopUpData> {
     this.#common.assertInitialized();
 
     const topupProxyAddress = Core.getNetworkAddress(network, TOP_UP_EXCHANGE_PROXY_ADDRESS_KEY);
