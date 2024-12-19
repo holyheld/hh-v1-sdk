@@ -15,7 +15,6 @@ import Core, {
   ExpectedError,
   HHAPIApprovalService,
   HHAPIAssetsService,
-  HHAPIGaslessTopUpService,
   HHAPISwapService,
   HHAPITagService,
   HHError,
@@ -32,7 +31,6 @@ import {
   EURO_LIMIT_FOR_TEST_HOLYTAG,
   TEST_HOLYTAG,
   TOP_UP_EXCHANGE_PROXY_ADDRESS_KEY,
-  CORE_SERVICE_BASE_URL,
 } from './constants';
 import { createWalletClientAdapter } from './helpers';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
@@ -214,18 +212,10 @@ export default class OffRampSDK {
       );
 
       const permit2Service = new Permit2OnChainService(walletInfo);
-      const gaslessService = new HHAPIGaslessTopUpService({
-        baseURL: CORE_SERVICE_BASE_URL,
-        assetsService: this.#assetService,
-        walletInfo,
-        authorizer: { getAccountUid: () => '', getAddress: () => '0x', getSignature: () => '' },
-        permit2Service,
-      });
       const topupService = new CardTopUpOnChainServiceV2({
         approvalService: this.#approvalService,
         permitService: this.#permitService,
         permit2Service,
-        gaslessService,
         walletInfo,
       });
 
