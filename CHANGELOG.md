@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2024-12-19
+
+### Features
+
+- Added method `onRamp.getOnRampEstimation`
+
+### BREAKING CHANGES
+
+- Changed the arguments and the return value of the method `onRamp.watchRequestId`. See [documentation](https://holyheld.com/documentation/on-ramp-flow)
+- Changed the arguments of the method `offRamp.getTopUpEstimation`. See [documentation](https://holyheld.com/documentation/on-ramp-flow)
+- The `offRamp.getTopUpEstimation` method now supports estimation only for native tokens used for gas fees.
+
 ## [3.1.0] - 2024-11-28
 
 ### Features

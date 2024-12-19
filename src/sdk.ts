@@ -5,7 +5,6 @@ import Core, {
   HHAPISettingsService,
   HHAPIAuditService,
   HHAPISwapService,
-  HHAPIEstimationService,
   HHAPIApprovalService,
   HHAPIOnRampService,
   HHError,
@@ -14,11 +13,10 @@ import Core, {
   type Token,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import type {
-  GetMultiChainWalletTokensResponse,
-  ValidateAddressExternalExternalResponse,
   ServerExternalSettings,
   WalletList,
   ClientType,
+  WalletToken,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import type { Logger } from './logger';
 import type { HolyheldSDKCommon } from './types';
@@ -33,6 +31,15 @@ export interface HolyheldSDKOptions {
   logger?: Logger | boolean;
 }
 
+export type ValidateAddressResult = {
+  isTopupAllowed: boolean;
+  isOnRampAllowed: boolean;
+};
+
+export type WalletBalances = {
+  tokens: WalletToken[];
+};
+
 export default class HolyheldSDK implements HolyheldSDKCommon {
   readonly #permitService: PermitOnChainService;
   readonly #approvalService: HHAPIApprovalService;
@@ -41,7 +48,6 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
   readonly #swapService: HHAPISwapService;
   readonly #auditService: HHAPIAuditService;
   readonly #settingsService: HHAPISettingsService;
-  readonly #estimationService: HHAPIEstimationService;
   readonly #onRampService: HHAPIOnRampService;
   protected readonly logger: Logger;
   #isInitialized: boolean = false;
@@ -57,7 +63,6 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
     this.#swapService = new HHAPISwapService(ASSET_SERVICE_BASE_URL);
     this.#auditService = new HHAPIAuditService(CORE_SERVICE_BASE_URL);
     this.#settingsService = new HHAPISettingsService(CORE_SERVICE_BASE_URL);
-    this.#estimationService = new HHAPIEstimationService(ASSET_SERVICE_BASE_URL);
     this.#onRampService = new HHAPIOnRampService(CORE_SERVICE_BASE_URL);
 
     this.logger = options.logger === true ? createDefaultLogger() : options.logger || (() => {});
@@ -89,7 +94,6 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
         approvalService: this.#approvalService,
         assetService: this.#assetService,
         swapService: this.#swapService,
-        estimationService: this.#estimationService,
       },
       apiKey: this.options.apiKey,
     });
@@ -164,7 +168,7 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
     }
   }
 
-  public async validateAddress(address: string): Promise<ValidateAddressExternalExternalResponse> {
+  public async validateAddress(address: string): Promise<ValidateAddressResult> {
     this.assertInitialized();
 
     try {
@@ -182,9 +186,7 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
     }
   }
 
-  public async getWalletBalances(
-    address: string,
-  ): Promise<Pick<GetMultiChainWalletTokensResponse, 'tokens'>> {
+  public async getWalletBalances(address: string): Promise<WalletBalances> {
     this.assertInitialized();
 
     try {

@@ -1,16 +1,20 @@
 import BigNumber from 'bignumber.js';
-import type { Address, Chain, PublicClient, Transport, WalletClient } from 'viem';
-import type {
-  ConvertEURData,
-  GetTagDataForTopUpExternalResponse,
-  TransferData,
-} from '@holyheld/web-app-shared/sdklib/bundle';
+import {
+  pad,
+  parseUnits,
+  type Address,
+  type Chain,
+  type PublicClient,
+  type Transport,
+  type WalletClient,
+} from 'viem';
+import type { TransferData } from '@holyheld/web-app-shared/sdklib/bundle';
 import Core, {
   CardTopUpOnChainService,
+  CardTopUpOnChainServiceV2,
   ExpectedError,
   HHAPIApprovalService,
   HHAPIAssetsService,
-  HHAPIEstimationService,
   HHAPISwapService,
   HHAPITagService,
   HHError,
@@ -35,15 +39,22 @@ import { createWalletInfoAdapter } from './helpers';
 export interface HolyheldOffRampSDKOptions {
   commonSDK: HolyheldSDKCommon;
   services: RequiredServiceList<
-    | 'tagService'
-    | 'permitService'
-    | 'approvalService'
-    | 'assetService'
-    | 'swapService'
-    | 'estimationService'
+    'tagService' | 'permitService' | 'approvalService' | 'assetService' | 'swapService'
   >;
   apiKey: string;
 }
+
+export type TagInfoForTopUp = {
+  found: boolean;
+  avatarSrc?: string;
+  tag?: string;
+};
+
+export type ConvertTopUpData = {
+  transferData?: TransferData;
+  tokenAmount: string;
+  EURAmount: string;
+};
 
 export enum TopUpStep {
   Confirming = 'confirming',
@@ -62,7 +73,6 @@ export default class OffRampSDK {
   readonly #approvalService: HHAPIApprovalService;
   readonly #assetService: HHAPIAssetsService;
   readonly #swapService: HHAPISwapService;
-  readonly #estimationService: HHAPIEstimationService;
 
   readonly #common: HolyheldSDKCommon;
 
@@ -72,12 +82,11 @@ export default class OffRampSDK {
     this.#assetService = options.services.assetService;
     this.#swapService = options.services.swapService;
     this.#tagService = options.services.tagService;
-    this.#estimationService = options.services.estimationService;
 
     this.#common = options.commonSDK;
   }
 
-  public async getTagInfoForTopUp(tag: string): Promise<GetTagDataForTopUpExternalResponse> {
+  public async getTagInfoForTopUp(tag: string): Promise<TagInfoForTopUp> {
     this.#common.assertInitialized();
 
     try {
@@ -111,7 +120,7 @@ export default class OffRampSDK {
     sellTokenDecimals: number,
     sellAmount: string,
     network: Network,
-  ): Promise<ConvertEURData> {
+  ): Promise<ConvertTopUpData> {
     this.#common.assertInitialized();
 
     const topupProxyAddress = Core.getNetworkAddress(network, TOP_UP_EXCHANGE_PROXY_ADDRESS_KEY);
@@ -148,7 +157,7 @@ export default class OffRampSDK {
     sellTokenDecimals: number,
     sellEURAmount: string,
     network: Network,
-  ): Promise<ConvertEURData> {
+  ): Promise<ConvertTopUpData> {
     this.#common.assertInitialized();
 
     const topupProxyAddress = Core.getNetworkAddress(network, TOP_UP_EXCHANGE_PROXY_ADDRESS_KEY);
@@ -180,13 +189,78 @@ export default class OffRampSDK {
     }
   }
 
-  public async getTopUpEstimation(network: Network): Promise<string> {
+  public async getTopUpEstimation(
+    publicClient: PublicClient<Transport, Chain>,
+    network: Network,
+    amount: string,
+    senderAddress: string,
+    supportsSignTypedDataV4: boolean = false,
+  ): Promise<string> {
     this.#common.assertInitialized();
 
     try {
-      return (
-        await this.#estimationService.getTopUpEstimationExternal(network, this.options.apiKey)
-      ).priceInWei;
+      const networkInfo = this.#common.getNetwork(network);
+
+      if (!networkInfo) {
+        throw new HHError('Failed to get network info');
+      }
+
+      const walletInfo = createWalletInfoAdapter(
+        senderAddress as Address,
+        supportsSignTypedDataV4,
+        publicClient,
+      );
+
+      const permit2Service = new Permit2OnChainService(walletInfo);
+      const topupService = new CardTopUpOnChainServiceV2({
+        approvalService: this.#approvalService,
+        permitService: this.#permitService,
+        permit2Service,
+        walletInfo,
+      });
+
+      const swapTarget = Core.getSwapTargetForTopUp(network);
+
+      const [token, convertData, swapTargetPrices] = await Promise.all([
+        this.#assetService.getFullTokenDataWithPriceExternal(
+          networkInfo.baseAsset.address,
+          network,
+          this.options.apiKey,
+        ),
+        this.convertTokenToEUR(
+          networkInfo.baseAsset.address,
+          networkInfo.baseAsset.decimals,
+          amount,
+          network,
+        ),
+        this.#assetService.getTokenPricesExternal(
+          [{ address: swapTarget.address, network: swapTarget.network }],
+          this.options.apiKey,
+        ),
+      ]);
+
+      if (swapTargetPrices.length !== 1) {
+        throw new HHError('Failed to get token price');
+      }
+
+      const allowanceFlow = await topupService.getAllowanceFlow({
+        publicClient,
+        senderAddress: senderAddress as Address,
+        flowData: {
+          flowType: 'topUp',
+          amountInWei: parseUnits(amount, networkInfo.baseAsset.decimals),
+          token,
+          transferData: convertData.transferData,
+          swapTargetPriceUSD: swapTargetPrices[0].price,
+          receiverHash: pad('0x0', { dir: 'left', size: 32 }),
+        },
+      });
+
+      if (allowanceFlow.flow !== 'executeWithPermit') {
+        throw new HHError('Unexpected allowance flow', { payload: allowanceFlow });
+      }
+
+      return allowanceFlow.estimation.totalFee.toString();
     } catch (error) {
       if (error instanceof HHError) {
         throw new HolyheldSDKError(

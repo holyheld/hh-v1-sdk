@@ -2,7 +2,6 @@ import {
   HHAPIApprovalService,
   HHAPIAssetsService,
   HHAPIAuditService,
-  HHAPIEstimationService,
   HHAPIOnRampService,
   HHAPISettingsService,
   HHAPISwapService,
@@ -11,15 +10,14 @@ import {
   Network,
   type NetworkInfo,
   type Token,
-  type ValidateAddressExternalExternalResponse,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import type {
   ClientType,
-  GetMultiChainWalletTokensResponse,
   ServerExternalSettings,
   WalletList,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import type { Address } from 'viem';
+import { ValidateAddressResult, WalletBalances } from './sdk';
 
 export interface HolyheldSDKCommon {
   init(): Promise<void>;
@@ -38,9 +36,9 @@ export interface HolyheldSDKCommon {
 
   getServerSettings(): Promise<ServerExternalSettings>;
 
-  validateAddress(address: string): Promise<ValidateAddressExternalExternalResponse>;
+  validateAddress(address: string): Promise<ValidateAddressResult>;
 
-  getWalletBalances(address: string): Promise<Pick<GetMultiChainWalletTokensResponse, 'tokens'>>;
+  getWalletBalances(address: string): Promise<WalletBalances>;
 
   getWalletList(type: ClientType): Promise<WalletList>;
 
@@ -60,7 +58,6 @@ export type ServiceList = {
   swapService?: HHAPISwapService;
   auditService?: HHAPIAuditService;
   settingsService?: HHAPISettingsService;
-  estimationService?: HHAPIEstimationService;
   onRampService?: HHAPIOnRampService;
 };
 
