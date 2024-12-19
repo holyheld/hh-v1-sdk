@@ -19,7 +19,6 @@ import Core, {
   ExpectedError,
   HHAPIApprovalService,
   HHAPIAssetsService,
-  HHAPIEstimationService,
   HHAPIGaslessTopUpService,
   HHAPISwapService,
   HHAPITagService,
@@ -46,12 +45,7 @@ import { createWalletInfoAdapter } from './helpers';
 export interface HolyheldOffRampSDKOptions {
   commonSDK: HolyheldSDKCommon;
   services: RequiredServiceList<
-    | 'tagService'
-    | 'permitService'
-    | 'approvalService'
-    | 'assetService'
-    | 'swapService'
-    | 'estimationService'
+    'tagService' | 'permitService' | 'approvalService' | 'assetService' | 'swapService'
   >;
   apiKey: string;
 }
@@ -73,7 +67,6 @@ export default class OffRampSDK {
   readonly #approvalService: HHAPIApprovalService;
   readonly #assetService: HHAPIAssetsService;
   readonly #swapService: HHAPISwapService;
-  readonly #estimationService: HHAPIEstimationService;
 
   readonly #common: HolyheldSDKCommon;
 
@@ -83,7 +76,6 @@ export default class OffRampSDK {
     this.#assetService = options.services.assetService;
     this.#swapService = options.services.swapService;
     this.#tagService = options.services.tagService;
-    this.#estimationService = options.services.estimationService;
 
     this.#common = options.commonSDK;
   }

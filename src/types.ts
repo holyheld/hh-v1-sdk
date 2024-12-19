@@ -2,7 +2,6 @@ import {
   HHAPIApprovalService,
   HHAPIAssetsService,
   HHAPIAuditService,
-  HHAPIEstimationService,
   HHAPIOnRampService,
   HHAPISettingsService,
   HHAPISwapService,
@@ -60,7 +59,6 @@ export type ServiceList = {
   swapService?: HHAPISwapService;
   auditService?: HHAPIAuditService;
   settingsService?: HHAPISettingsService;
-  estimationService?: HHAPIEstimationService;
   onRampService?: HHAPIOnRampService;
 };
 

@@ -5,7 +5,6 @@ import Core, {
   HHAPISettingsService,
   HHAPIAuditService,
   HHAPISwapService,
-  HHAPIEstimationService,
   HHAPIApprovalService,
   HHAPIOnRampService,
   HHError,
@@ -41,7 +40,6 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
   readonly #swapService: HHAPISwapService;
   readonly #auditService: HHAPIAuditService;
   readonly #settingsService: HHAPISettingsService;
-  readonly #estimationService: HHAPIEstimationService;
   readonly #onRampService: HHAPIOnRampService;
   protected readonly logger: Logger;
   #isInitialized: boolean = false;
@@ -61,7 +59,6 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
     this.#swapService = new HHAPISwapService(ASSET_SERVICE_BASE_URL);
     this.#auditService = new HHAPIAuditService(CORE_SERVICE_BASE_URL);
     this.#settingsService = new HHAPISettingsService(CORE_SERVICE_BASE_URL);
-    this.#estimationService = new HHAPIEstimationService(ASSET_SERVICE_BASE_URL);
     this.#onRampService = new HHAPIOnRampService(CORE_SERVICE_BASE_URL);
 
     this.logger = options.logger === true ? createDefaultLogger() : options.logger || (() => {});
@@ -93,7 +90,6 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
         approvalService: this.#approvalService,
         assetService: this.#assetService,
         swapService: this.#swapService,
-        estimationService: this.#estimationService,
       },
       apiKey: this.options.apiKey,
     });
