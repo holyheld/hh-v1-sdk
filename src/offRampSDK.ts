@@ -426,7 +426,6 @@ export default class OffRampSDK {
         swapTargetPrice,
         transferData,
         tagHash,
-        {},
         {
           onTransactionHash: (hash: string) => {
             config?.onHashGenerate?.(hash);
