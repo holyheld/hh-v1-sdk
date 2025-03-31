@@ -70,7 +70,10 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
       proxyBaseURL: CORE_SERVICE_BASE_URL,
       authorizer,
     });
-    this.#assetService = new HHAPIAssetsService({ baseURL: ASSET_SERVICE_BASE_URL, authorizer });
+    this.#assetService = new HHAPIAssetsService({
+      baseURL: ASSET_SERVICE_BASE_URL,
+      authorizer: getAuthorizer(options.apiKey, { 'X-Api-Client-Type': CLIENT_TYPE }),
+    });
     this.#tagService = new HHAPITagService({ baseURL: CORE_SERVICE_BASE_URL, authorizer });
     this.#swapService = new HHAPISwapService({ baseURL: ASSET_SERVICE_BASE_URL, authorizer });
     this.#auditService = new HHAPIAuditService({ baseURL: CORE_SERVICE_BASE_URL, authorizer });

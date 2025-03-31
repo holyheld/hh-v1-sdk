@@ -3,7 +3,7 @@ import Core, {
   type AuthorizerHeaders,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 
-export const getAuthorizer = (apiKey: string): Authorizer => {
+export const getAuthorizer = (apiKey: string, headers: AuthorizerHeaders = {}): Authorizer => {
   return {
     getAccountUid() {
       return '';
@@ -12,7 +12,7 @@ export const getAuthorizer = (apiKey: string): Authorizer => {
       return Core.getExternalAuthHeaders(apiKey);
     },
     getPublicHeaders(): AuthorizerHeaders {
-      return {};
+      return headers;
     },
   };
 };
