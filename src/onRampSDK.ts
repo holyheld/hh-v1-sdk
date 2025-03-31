@@ -81,7 +81,6 @@ export default class OnRampSDK {
       const response = await this.#swapService.convertTokenToEURForOnRampExternal({
         token,
         tokenAmount: amount,
-        apiKey: this.options.apiKey,
       });
 
       return response.fiatAmount;
@@ -110,7 +109,6 @@ export default class OnRampSDK {
       const response = await this.#swapService.convertEURToTokenForOnRampExternal({
         token,
         fiatAmount: amount,
-        apiKey: this.options.apiKey,
       });
 
       return response.tokenAmount;
@@ -141,7 +139,6 @@ export default class OnRampSDK {
         token,
         amountEUR: fiatAmount,
         beneficiaryAddress: walletAddress as Address,
-        apiKey: this.options.apiKey,
       });
 
       return response;
@@ -199,7 +196,6 @@ export default class OnRampSDK {
         address: walletAddress as Address,
         token: token,
         fiatAmount: fiatAmount,
-        apiKey: this.options.apiKey,
       });
 
       return {
@@ -260,7 +256,6 @@ export default class OnRampSDK {
       try {
         const response = await this.#onRampService.requestStatus({
           requestUid: requestUid,
-          apiKey: this.options.apiKey,
         });
 
         const result: WatchOnRampResult = { success: false };

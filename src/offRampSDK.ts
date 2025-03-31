@@ -90,7 +90,7 @@ export default class OffRampSDK {
     this.#common.assertInitialized();
 
     try {
-      return await this.#tagService.getTagDataForTopUpExternal(tag, this.options.apiKey);
+      return await this.#tagService.getTagDataForTopUpExternal(tag);
     } catch (error) {
       if (error instanceof HHError) {
         throw new HolyheldSDKError(
@@ -137,7 +137,6 @@ export default class OffRampSDK {
         topupProxyAddress,
         topupProxyAddress,
         network,
-        this.options.apiKey,
       );
     } catch (error) {
       if (error instanceof HHError) {
@@ -174,7 +173,6 @@ export default class OffRampSDK {
         topupProxyAddress,
         topupProxyAddress,
         network,
-        this.options.apiKey,
       );
     } catch (error) {
       if (error instanceof HHError) {
@@ -225,7 +223,6 @@ export default class OffRampSDK {
         this.#assetService.getFullTokenDataWithPriceExternal(
           networkInfo.baseAsset.address,
           network,
-          this.options.apiKey,
         ),
         this.convertTokenToEUR(
           networkInfo.baseAsset.address,
@@ -233,10 +230,9 @@ export default class OffRampSDK {
           amount,
           network,
         ),
-        this.#assetService.getTokenPricesExternal(
-          [{ address: swapTarget.address, network: swapTarget.network }],
-          this.options.apiKey,
-        ),
+        this.#assetService.getTokenPricesExternal([
+          { address: swapTarget.address, network: swapTarget.network },
+        ]),
       ]);
 
       if (swapTargetPrices.length !== 1) {
@@ -317,7 +313,7 @@ export default class OffRampSDK {
         );
       }
 
-      const tagHash = await this.#tagService.getTagTopUpCodeExternal(tag, this.options.apiKey);
+      const tagHash = await this.#tagService.getTagTopUpCodeExternal(tag);
 
       if (config === undefined) {
         config = {};
@@ -326,7 +322,6 @@ export default class OffRampSDK {
       const inputAsset = await this.#assetService.getFullTokenDataWithPriceExternal(
         tokenAddress as Address,
         tokenNetwork,
-        this.options.apiKey,
       );
 
       const convertData = await this.convertTokenToEUR(
@@ -384,10 +379,9 @@ export default class OffRampSDK {
       if (!isSwapTarget && !isEURSettlementToken) {
         const swapTarget = Core.getSwapTargetForTopUp(tokenNetwork);
 
-        const swapTargetPrices = await this.#assetService.getTokenPricesExternal(
-          [{ address: swapTarget.address, network: swapTarget.network }],
-          this.options.apiKey,
-        );
+        const swapTargetPrices = await this.#assetService.getTokenPricesExternal([
+          { address: swapTarget.address, network: swapTarget.network },
+        ]);
 
         if (swapTargetPrices.length !== 1) {
           throw new HHError('Failed to get token price');

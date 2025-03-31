@@ -30,7 +30,7 @@
     "viem": "^2.22.23"
   },
   "devDependencies": {
-    "@holyheld/web-app-shared": "2.11.20",
+    "@holyheld/web-app-shared": "^3.0.3",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",

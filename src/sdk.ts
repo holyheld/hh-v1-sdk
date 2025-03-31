@@ -20,11 +20,17 @@ import type {
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import type { Logger } from './logger';
 import type { HolyheldSDKCommon } from './types';
-import { CORE_SERVICE_BASE_URL, ASSET_SERVICE_BASE_URL, API_VIEW_BASE_URL } from './constants';
+import {
+  CORE_SERVICE_BASE_URL,
+  ASSET_SERVICE_BASE_URL,
+  API_VIEW_BASE_URL,
+  CLIENT_TYPE,
+} from './constants';
 import { LogLevel, createDefaultLogger } from './logger';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
 import OnRampSDK from './onRampSDK';
 import OffRampSDK from './offRampSDK';
+import { getAuthorizer } from './helpers';
 
 export interface HolyheldSDKOptions {
   apiKey: string;
@@ -56,14 +62,23 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
   public readonly offRamp: OffRampSDK;
 
   constructor(protected readonly options: HolyheldSDKOptions) {
+    const authorizer = getAuthorizer(options.apiKey);
+
     this.#permitService = new PermitOnChainService();
-    this.#approvalService = new HHAPIApprovalService(API_VIEW_BASE_URL, '');
-    this.#assetService = new HHAPIAssetsService(ASSET_SERVICE_BASE_URL, 'sdk');
-    this.#tagService = new HHAPITagService(CORE_SERVICE_BASE_URL);
-    this.#swapService = new HHAPISwapService(ASSET_SERVICE_BASE_URL);
-    this.#auditService = new HHAPIAuditService(CORE_SERVICE_BASE_URL);
-    this.#settingsService = new HHAPISettingsService(CORE_SERVICE_BASE_URL);
-    this.#onRampService = new HHAPIOnRampService(CORE_SERVICE_BASE_URL);
+    this.#approvalService = new HHAPIApprovalService({
+      baseURL: API_VIEW_BASE_URL,
+      proxyBaseURL: CORE_SERVICE_BASE_URL,
+      authorizer,
+    });
+    this.#assetService = new HHAPIAssetsService({ baseURL: ASSET_SERVICE_BASE_URL, authorizer });
+    this.#tagService = new HHAPITagService({ baseURL: CORE_SERVICE_BASE_URL, authorizer });
+    this.#swapService = new HHAPISwapService({ baseURL: ASSET_SERVICE_BASE_URL, authorizer });
+    this.#auditService = new HHAPIAuditService({ baseURL: CORE_SERVICE_BASE_URL, authorizer });
+    this.#settingsService = new HHAPISettingsService({
+      baseURL: CORE_SERVICE_BASE_URL,
+      authorizer,
+    });
+    this.#onRampService = new HHAPIOnRampService({ baseURL: CORE_SERVICE_BASE_URL, authorizer });
 
     this.logger = options.logger === true ? createDefaultLogger() : options.logger || (() => {});
 
@@ -101,10 +116,7 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
 
   public async init(): Promise<void> {
     try {
-      const config = await this.#settingsService.getClientConfigExternal(
-        'sdk',
-        this.options.apiKey,
-      );
+      const config = await this.#settingsService.getClientConfigExternal(CLIENT_TYPE);
       Core.setConfig(config.references.networks);
       this.#isInitialized = true;
     } catch (error) {
@@ -154,7 +166,7 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
     this.assertInitialized();
 
     try {
-      return await this.#settingsService.getServerSettingsExternal(this.options.apiKey);
+      return await this.#settingsService.getServerSettingsExternal();
     } catch (error) {
       if (error instanceof HHError) {
         throw new HolyheldSDKError(
@@ -172,7 +184,7 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
     this.assertInitialized();
 
     try {
-      return await this.#tagService.validateAddressExternal(address, this.options.apiKey);
+      return await this.#tagService.validateAddressExternal(address);
     } catch (error) {
       if (error instanceof HHError) {
         throw new HolyheldSDKError(
@@ -192,7 +204,6 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
     try {
       const { tokens } = await this.#assetService.getMultiChainWalletTokensExternal(
         address as Address,
-        this.options.apiKey,
       );
       const availableNetworks = Core.getAvailableNetworks();
       return { tokens: tokens.filter((item) => availableNetworks.includes(item.network)) };
@@ -210,7 +221,7 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
   }
 
   public async getWalletList(type: ClientType): Promise<WalletList> {
-    const config = await this.#settingsService.getClientConfigExternal(type, this.options.apiKey);
+    const config = await this.#settingsService.getClientConfigExternal(type);
     return config.wallets;
   }
 
@@ -228,7 +239,6 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
       await this.#auditService.sendAuditEventExternal(
         params.data,
         params.address,
-        this.options.apiKey,
         params.operationId,
       );
     } catch (error) {

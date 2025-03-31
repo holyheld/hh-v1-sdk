@@ -181,10 +181,10 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.56.0.tgz#ef20350fec605a7f7035a01764731b2de0f3782b"
   integrity sha512-gMsVel9D7f2HLkBma9VbtzZRehRogVRfbr++f06nL2vnCGCNlzOD+/MUov/F4p8myyAHspEhVobgjpX64q5m6A==
 
-"@holyheld/web-app-shared@2.11.20":
-  version "2.11.20"
-  resolved "https://npm.pkg.github.com/download/@holyheld/web-app-shared/2.11.20/3dc4c396ac6fed994740aa2e7dec67d98d664088#3dc4c396ac6fed994740aa2e7dec67d98d664088"
-  integrity sha512-NOtN8kEBivNZ10jQxw4X03TynS1q5ueN0US0/PgE/2az3c/sBMjKI37vURaNGzFrSEuvh967pr+mQu1SDS6Kbw==
+"@holyheld/web-app-shared@^3.0.3":
+  version "3.0.3"
+  resolved "https://npm.pkg.github.com/download/@holyheld/web-app-shared/3.0.3/b60f87e346ba76367ac236282eb04868e5ca062a#b60f87e346ba76367ac236282eb04868e5ca062a"
+  integrity sha512-3NNcsfKqEQeSbB3gtOletRMOE3dTFbQ3YKtpBOAG0B640Kl6eoSKM6cES6GbNizLkRxaLWbwoOTKhicpG5Wklg==
   dependencies:
     dayjs "^1.11.4"
     qs "^6.11.0"
@@ -1518,10 +1518,10 @@ optionator@^0.9.3:
     prelude-ls "^1.2.1"
     type-check "^0.4.0"
 
-ox@0.6.7:
-  version "0.6.7"
-  resolved "https://registry.yarnpkg.com/ox/-/ox-0.6.7.tgz#afd53f2ecef68b8526660e9d29dee6e6b599a832"
-  integrity sha512-17Gk/eFsFRAZ80p5eKqv89a57uXjd3NgIf1CaXojATPBuujVc/fQSVhBeAU9JCRB+k7J50WQAyWTxK19T9GgbA==
+ox@0.6.9:
+  version "0.6.9"
+  resolved "https://registry.yarnpkg.com/ox/-/ox-0.6.9.tgz#da1ee04fa10de30c8d04c15bfb80fe58b1f554bd"
+  integrity sha512-wi5ShvzE4eOcTwQVsIPdFr+8ycyX+5le/96iAJutaZAvCes1J0+RvpEPg5QDPDiaR0XQQAvZVl7AwqQcINuUug==
   dependencies:
     "@adraffy/ens-normalize" "^1.10.1"
     "@noble/curves" "^1.6.0"
@@ -1911,10 +1911,10 @@ uri-js@^4.2.2:
   dependencies:
     punycode "^2.1.0"
 
-viem@^2.21.57:
-  version "2.22.17"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-2.22.17.tgz#71cb5793d898e7850d440653b0043803c2d00c8d"
-  integrity sha512-eqNhlPGgRLR29XEVUT2uuaoEyMiaQZEKx63xT1py9OYsE+ZwlVgjnfrqbXad7Flg2iJ0Bs5Hh7o0FfRWUJGHvg==
+viem@^2.22.23:
+  version "2.24.2"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-2.24.2.tgz#68aac43c35e8d73587bbdab2c547579dd60ebb80"
+  integrity sha512-lUGoTHhMYlR4ktQiOrbTPmYvrMn3jKUdn2PSmB9QLICxnsQJxMkSCeGRoJFq7hi7K6PCMQgAyLMR/9J1key5cg==
   dependencies:
     "@noble/curves" "1.8.1"
     "@noble/hashes" "1.7.1"
@@ -1922,8 +1922,8 @@ viem@^2.21.57:
     "@scure/bip39" "1.5.4"
     abitype "1.0.8"
     isows "1.0.6"
-    ox "0.6.7"
-    ws "8.18.0"
+    ox "0.6.9"
+    ws "8.18.1"
 
 which@^2.0.1:
   version "2.0.2"
@@ -1946,10 +1946,10 @@ wrappy@1:
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==
 
-ws@8.18.0:
-  version "8.18.0"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-8.18.0.tgz#0d7505a6eafe2b0e712d232b42279f53bc289bbc"
-  integrity sha512-8VbfWfHLbbwu3+N6OKsOMpBdT4kXPDDB9cJk2bJ6mh9ucxdlnNvH1e+roYkKmN9Nxw2yjz7VzeO9oOz2zJ04Pw==
+ws@8.18.1:
+  version "8.18.1"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.18.1.tgz#ea131d3784e1dfdff91adb0a4a116b127515e3cb"
+  integrity sha512-RKW2aJZMXeMxVpnZ6bck+RswznaxmzdULiBr6KY7XkTnW8uvt0iT9H5DkHUChXrc+uurzwa0rVI16n/Xzjdz1w==
 
 yallist@^4.0.0:
   version "4.0.0"
