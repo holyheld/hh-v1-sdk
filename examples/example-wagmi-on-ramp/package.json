@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "@holyheld/sdk": "latest",
-    "@wagmi/connectors": "^4.1.14",
-    "@wagmi/core": "^2.6.5",
-    "viem": "^2.7.8"
+    "@wagmi/connectors": "^5.7.3",
+    "@wagmi/core": "^2.16.3",
+    "viem": "^2.22.23"
   }
 }
