@@ -1,9 +1,10 @@
 import './index.css';
 
-import Web3 from 'web3';
-import { createPublicClient, createWalletClient, custom, http } from 'viem';
-import * as chains from 'viem/chains';
-import HolyheldSDK from '../../src'; // TODO!
+import { Connection, clusterApiUrl } from '@solana/web3.js';
+import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
+
+import HolyheldSDK, { createSolanaWalletClientFromAdapter } from '../../src'; // TODO!
+
 import {
   getSpinnerHTML,
   getSettingsHTML,
@@ -22,7 +23,7 @@ const selectTokenButton = document.querySelector('#select-token');
 const setAmountButton = document.querySelector('#set-amount');
 const submitButton = document.querySelector('#submit');
 
-let web3;
+let walletAdapter;
 let address;
 let sdk;
 let settings;
@@ -35,19 +36,18 @@ let holytag;
 
 // 0. Connect wallet
 connectButton.addEventListener('click', async () => {
-  if (!window.ethereum) {
-    alert('Enable injected provider, for example MetaMask.');
+  walletAdapter = new PhantomWalletAdapter();
+  if (!walletAdapter.readyState) {
+    alert('Enable injected Phantom.');
     return;
   }
 
   connectButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 
-  web3 = new Web3(window.ethereum);
+  await walletAdapter.connect();
 
-  const accounts = await web3.currentProvider.request({ method: 'eth_requestAccounts' });
-
-  address = accounts[0];
+  address = walletAdapter.publicKey.toString();
 
   initializeButton.removeAttribute('hidden');
   parentElement.innerHTML = '';
@@ -118,12 +118,12 @@ selectHolytagButton.addEventListener('click', async () => {
   parentElement.innerHTML = '';
 });
 
-// 4. Get tokens on connected wallet address (across supported chains)
+// 4. Get tokens on connected wallet address
 getTokensButton.addEventListener('click', async () => {
   getTokensButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 
-  const { tokens } = await sdk.evm.getWalletBalances(address);
+  const { tokens } = await sdk.solana.getWalletBalances(address);
 
   allTokens = tokens;
 
@@ -134,7 +134,7 @@ getTokensButton.addEventListener('click', async () => {
         acc === '',
         current.address,
         current.network,
-        sdk.evm.getNetwork(current.network).displayedName,
+        sdk.solana.getNetwork(current.network).displayedName,
         current.name,
         current.balance,
         current.symbol,
@@ -146,7 +146,7 @@ getTokensButton.addEventListener('click', async () => {
   parentElement.innerHTML = html;
 });
 
-// 5. Select token (and chain) to be used for sending
+// 5. Select token to be used for sending
 selectTokenButton.addEventListener('click', () => {
   const selectedRadio = parentElement.querySelector('input:checked');
   const [address, network] = selectedRadio.value.split(',');
@@ -158,7 +158,7 @@ selectTokenButton.addEventListener('click', () => {
   parentElement.innerHTML = getTokenInfoHTML(
     selectedToken.name,
     selectedToken.address,
-    sdk.evm.getNetwork(selectedToken.network).displayedName,
+    sdk.solana.getNetwork(selectedToken.network).displayedName,
     selectedToken.balance,
     selectedToken.symbol,
   );
@@ -188,12 +188,13 @@ setAmountButton.addEventListener('click', async () => {
   setAmountButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 
-  const response = await sdk.evm.offRamp.convertTokenToEUR({
+  const response = await sdk.solana.offRamp.convertTokenToEUR({
+    walletAddress: address,
     tokenAddress: selectedToken.address,
     tokenDecimals: selectedToken.decimals,
     amount: String(amount),
     network: selectedToken.network,
-});
+  });
 
   amountInEUR = response.EURAmount;
 
@@ -206,7 +207,7 @@ setAmountButton.addEventListener('click', async () => {
     parentElement.innerHTML = getTokenInfoHTML(
       selectedToken.name,
       selectedToken.address,
-      sdk.evm.getNetwork(selectedToken.network).displayedName,
+      sdk.solana.getNetwork(selectedToken.network).displayedName,
       selectedToken.balance,
       selectedToken.symbol,
     );
@@ -228,7 +229,7 @@ setAmountButton.addEventListener('click', async () => {
   parentElement.innerHTML = getDataHTML(
     selectedToken.name,
     selectedToken.address,
-    sdk.evm.getNetwork(selectedToken.network).displayedName,
+    sdk.solana.getNetwork(selectedToken.network).displayedName,
     selectedToken.symbol,
     amount,
     amountInEUR,
@@ -237,91 +238,33 @@ setAmountButton.addEventListener('click', async () => {
   submitButton.removeAttribute('hidden');
 });
 
-// 7. Submit sending of token to recipient's debit card (this could require more than one
-//    wallet interaction, e.g. sign permit and then send a transaction
+// 7. Submit sending of token to recipient's debit card
 submitButton.addEventListener('click', async () => {
-  const chainId = Number(await web3.eth.getChainId());
-  const tokenNetworkId = sdk.evm.getNetworkChainId(selectedToken.network);
-
   submitButton.setAttribute('hidden', '');
   parentElement.innerHTML = `
-    ${getSpinnerHTML()}
-    <dl></dl>
+      ${getSpinnerHTML()}
+      <dl></dl>
   `;
 
   const dlElement = parentElement.querySelector('dl');
 
-  // switch to the correct chain (network) in the wallet
-  if (chainId !== tokenNetworkId) {
-    try {
-      try {
-        await web3.currentProvider.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: Web3.utils.toHex(tokenNetworkId) }],
-        });
-      } catch (error) {
-        if (error instanceof Object && error.code === 4902) {
-          const networkInfo = sdk.evm.getNetwork(selectedToken.network);
-          await web3.currentProvider.request({
-            method: 'wallet_addEthereumChain',
-            params: [
-              {
-                chainId: Web3.utils.toHex(tokenNetworkId),
-                chainName: networkInfo.name,
-                rpcUrls: networkInfo.rpcUrls,
-                nativeCurrency: {
-                  name: networkInfo.baseAsset.name,
-                  symbol: networkInfo.baseAsset.symbol,
-                  decimals: networkInfo.baseAsset.decimals,
-                },
-                blockExplorerUrls: [networkInfo.explorerURL],
-              },
-            ],
-          });
-          await web3.currentProvider.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: Web3.utils.toHex(tokenNetworkId) }],
-          });
-        } else {
-          throw error;
-        }
-      }
-    } catch (error) {
-      parentElement.removeChild(parentElement.querySelector('img'));
-      dlElement.innerHTML = `
-        ${dlElement.innerHTML}
-        <dt>Result:</dt>
-        <dd>failed</dd>
-      `;
-      throw error;
-    }
-  }
+  const networkInfo = sdk.solana.getNetwork(selectedToken.network);
 
-  const chain = Object.values(chains).find((item) => item.id === tokenNetworkId);
-
-  const publicClient = createPublicClient({
-    chain,
-    transport: http(),
-  });
-
-  const walletClient = createWalletClient({
-    chain,
-    transport: custom(web3.currentProvider),
-    account: address,
+  const connection = new Connection(networkInfo.httpRpcURL, {
+    commitment: 'confirmed',
+    wsEndpoint: networkInfo.wsRpcURL ?? clusterApiUrl(networkInfo.cluster, true)
   });
 
   try {
-    await sdk.evm.offRamp.topup({
-      publicClient,
-      walletClient,
+    await sdk.solana.offRamp.topup({
+      connection,
+      walletClient: createSolanaWalletClientFromAdapter(walletAdapter, connection),
       walletAddress: address,
       tokenAddress: selectedToken.address,
       tokenNetwork: selectedToken.network,
       tokenAmount: String(amount),
       transferData,
       holytag,
-      supportsSignTypedDataV4: true,
-      supportsRawTransactionsSigning: true,
       eventConfig: {
         onHashGenerate: (hash) => {
           dlElement.innerHTML = `

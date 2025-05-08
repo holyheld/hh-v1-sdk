@@ -1,89 +1,98 @@
-import type { Address } from 'viem';
 import Core, {
-  HHAPIAssetsService,
-  HHAPITagService,
-  HHAPISettingsService,
-  HHAPIAuditService,
-  HHAPISwapService,
-  HHAPIApprovalService,
-  HHAPIOnRampService,
+  HHAPIAssetsServiceExternal,
+  HHAPITxTagServiceExternal,
+  HHAPITagServiceExternal,
+  HHAPISettingsServiceExternal,
+  HHAPIAuditServiceExternal,
+  HHAPISwapServiceExternal,
+  HHAPIApprovalServiceExternal,
+  HHAPIOnRampServiceExternal,
+  HHAPINonceServiceExternal,
   HHError,
   PermitOnChainService,
-  Network,
-  type Token,
+  type ServerExternalSettings,
 } from '@holyheld/web-app-shared/sdklib/bundle';
-import type {
-  ServerExternalSettings,
-  WalletList,
-  ClientType,
-  WalletToken,
-} from '@holyheld/web-app-shared/sdklib/bundle';
-import type { Logger } from './logger';
-import type { HolyheldSDKCommon } from './types';
 import {
   CORE_SERVICE_BASE_URL,
   ASSET_SERVICE_BASE_URL,
   API_VIEW_BASE_URL,
   CLIENT_TYPE,
 } from './constants';
-import { LogLevel, createDefaultLogger } from './logger';
+import { LogLevel, createDefaultLogger, type Logger } from './logger';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
-import OnRampSDK from './onRampSDK';
-import OffRampSDK from './offRampSDK';
 import { getAuthorizer } from './helpers';
+import SdkEVM from './evm/sdkEVM';
+import SdkSolana from './solana/sdkSolana';
+import type {
+  HolyheldSDKInterface,
+  HolyheldSDKOptions,
+  TagInfo,
+  ValidateAddressResult,
+} from './sdk.types';
 
-export interface HolyheldSDKOptions {
-  apiKey: string;
-  logger?: Logger | boolean;
-}
-
-export type ValidateAddressResult = {
-  isTopupAllowed: boolean;
-  isOnRampAllowed: boolean;
-};
-
-export type WalletBalances = {
-  tokens: WalletToken[];
-};
-
-export default class HolyheldSDK implements HolyheldSDKCommon {
+export default class HolyheldSDK implements HolyheldSDKInterface {
   readonly #permitService: PermitOnChainService;
-  readonly #approvalService: HHAPIApprovalService;
-  readonly #assetService: HHAPIAssetsService;
-  readonly #tagService: HHAPITagService;
-  readonly #swapService: HHAPISwapService;
-  readonly #auditService: HHAPIAuditService;
-  readonly #settingsService: HHAPISettingsService;
-  readonly #onRampService: HHAPIOnRampService;
-  protected readonly logger: Logger;
-  #isInitialized: boolean = false;
+  readonly #approvalService: HHAPIApprovalServiceExternal;
+  readonly #assetService: HHAPIAssetsServiceExternal;
+  readonly #txTagService: HHAPITxTagServiceExternal;
+  readonly #tagService: HHAPITagServiceExternal;
+  readonly #swapService: HHAPISwapServiceExternal;
+  readonly #auditService: HHAPIAuditServiceExternal;
+  readonly #settingsService: HHAPISettingsServiceExternal;
+  readonly #onRampService: HHAPIOnRampServiceExternal;
+  readonly #nonceService: HHAPINonceServiceExternal;
 
-  public readonly onRamp: OnRampSDK;
-  public readonly offRamp: OffRampSDK;
+  readonly #logger: Logger;
+
+  readonly evm: SdkEVM;
+  readonly solana: SdkSolana;
+
+  #isInitialized: boolean = false;
 
   constructor(protected readonly options: HolyheldSDKOptions) {
     const authorizer = getAuthorizer(options.apiKey);
 
     this.#permitService = new PermitOnChainService();
-    this.#approvalService = new HHAPIApprovalService({
+    this.#approvalService = new HHAPIApprovalServiceExternal({
       baseURL: API_VIEW_BASE_URL,
       proxyBaseURL: CORE_SERVICE_BASE_URL,
       authorizer,
     });
-    this.#assetService = new HHAPIAssetsService({
+    this.#assetService = new HHAPIAssetsServiceExternal({
       baseURL: ASSET_SERVICE_BASE_URL,
       authorizer: getAuthorizer(options.apiKey, { 'X-Api-Client-Type': CLIENT_TYPE }),
     });
-    this.#tagService = new HHAPITagService({ baseURL: CORE_SERVICE_BASE_URL, authorizer });
-    this.#swapService = new HHAPISwapService({ baseURL: ASSET_SERVICE_BASE_URL, authorizer });
-    this.#auditService = new HHAPIAuditService({ baseURL: CORE_SERVICE_BASE_URL, authorizer });
-    this.#settingsService = new HHAPISettingsService({
+    this.#txTagService = new HHAPITxTagServiceExternal({
+      baseURL: API_VIEW_BASE_URL,
+      coreBaseURL: CORE_SERVICE_BASE_URL,
+      authorizer,
+    });
+    this.#tagService = new HHAPITagServiceExternal({
       baseURL: CORE_SERVICE_BASE_URL,
       authorizer,
     });
-    this.#onRampService = new HHAPIOnRampService({ baseURL: CORE_SERVICE_BASE_URL, authorizer });
+    this.#swapService = new HHAPISwapServiceExternal({
+      baseURL: ASSET_SERVICE_BASE_URL,
+      authorizer,
+    });
+    this.#auditService = new HHAPIAuditServiceExternal({
+      baseURL: CORE_SERVICE_BASE_URL,
+      authorizer,
+    });
+    this.#settingsService = new HHAPISettingsServiceExternal({
+      baseURL: CORE_SERVICE_BASE_URL,
+      authorizer,
+    });
+    this.#onRampService = new HHAPIOnRampServiceExternal({
+      baseURL: CORE_SERVICE_BASE_URL,
+      authorizer,
+    });
+    this.#nonceService = new HHAPINonceServiceExternal({
+      baseURL: CORE_SERVICE_BASE_URL,
+      authorizer,
+    });
 
-    this.logger = options.logger === true ? createDefaultLogger() : options.logger || (() => {});
+    this.#logger = options.logger === true ? createDefaultLogger() : options.logger || (() => {});
 
     Core.setExecutor({
       addSentryBreadcrumb: ({ level, message, data }) => {
@@ -91,36 +100,39 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
           return;
         }
         const lvl = Object.values(LogLevel).includes(level as LogLevel) ? level : LogLevel.Warning;
-        this.logger(lvl as LogLevel, message, data);
+        this.#logger(lvl as LogLevel, message, data);
       },
     });
 
-    this.onRamp = new OnRampSDK({
-      commonSDK: this,
+    this.evm = new SdkEVM({
+      common: this,
       services: {
         onRampService: this.#onRampService,
         swapService: this.#swapService,
-      },
-      apiKey: this.options.apiKey,
-    });
-
-    this.offRamp = new OffRampSDK({
-      commonSDK: this,
-      services: {
         permitService: this.#permitService,
-        tagService: this.#tagService,
+        txTagService: this.#txTagService,
         approvalService: this.#approvalService,
         assetService: this.#assetService,
-        swapService: this.#swapService,
+        nonceService: this.#nonceService,
       },
-      apiKey: this.options.apiKey,
+    });
+
+    this.solana = new SdkSolana({
+      common: this,
+      services: {
+        swapService: this.#swapService,
+        txTagService: this.#txTagService,
+        approvalService: this.#approvalService,
+        assetService: this.#assetService,
+      },
     });
   }
 
-  public async init(): Promise<void> {
+  async init(): Promise<void> {
     try {
-      const config = await this.#settingsService.getClientConfigExternal(CLIENT_TYPE);
-      Core.setConfig(config.references.networks);
+      const config = await this.#settingsService.getClientConfig({ clientType: CLIENT_TYPE });
+      Core.setConfig(config.evmNetworks);
+      Core.setSolanaConfig(config.solanaNetwork);
       this.#isInitialized = true;
     } catch (error) {
       if (error instanceof HHError) {
@@ -141,35 +153,11 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
     }
   }
 
-  public getAllAvailableNetworks(): Network[] {
-    this.assertInitialized();
-
-    return Core.getAvailableNetworks();
-  }
-
-  public getNetwork(network: Network) {
-    this.assertInitialized();
-
-    return Core.getNetwork(network);
-  }
-
-  public getNetworkChainId(network: Network) {
-    this.assertInitialized();
-
-    return Core.getChainId(network);
-  }
-
-  public getNetworkByChainId(chainId: number) {
-    this.assertInitialized();
-
-    return Core.getNetworkByChainId(chainId);
-  }
-
-  public async getServerSettings(): Promise<ServerExternalSettings> {
+  async getServerSettings(): Promise<ServerExternalSettings> {
     this.assertInitialized();
 
     try {
-      return await this.#settingsService.getServerSettingsExternal();
+      return await this.#settingsService.getServerSettings();
     } catch (error) {
       if (error instanceof HHError) {
         throw new HolyheldSDKError(
@@ -183,11 +171,34 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
     }
   }
 
-  public async validateAddress(address: string): Promise<ValidateAddressResult> {
+  async getTagInfo(holytag: string): Promise<TagInfo> {
     this.assertInitialized();
 
     try {
-      return await this.#tagService.validateAddressExternal(address);
+      const data = await this.#tagService.getTagPublicDataForTopUp({ tag: holytag });
+      return {
+        found: data.found,
+        avatarSrc: data.avatarSrc ?? undefined,
+        tag: data.tag ?? undefined,
+      };
+    } catch (error) {
+      if (error instanceof HHError) {
+        throw new HolyheldSDKError(
+          HolyheldSDKErrorCode.FailedTagInfo,
+          'Failed to get tag information for top up',
+          error,
+        );
+      }
+
+      throw error;
+    }
+  }
+
+  async validateAddress(address: string): Promise<ValidateAddressResult> {
+    this.assertInitialized();
+
+    try {
+      return await this.#tagService.validateAddress({ address });
     } catch (error) {
       if (error instanceof HHError) {
         throw new HolyheldSDKError(
@@ -201,51 +212,15 @@ export default class HolyheldSDK implements HolyheldSDKCommon {
     }
   }
 
-  public async getWalletBalances(address: string): Promise<WalletBalances> {
-    this.assertInitialized();
-
-    try {
-      const { tokens } = await this.#assetService.getMultiChainWalletTokensExternal(
-        address as Address,
-      );
-      const availableNetworks = Core.getAvailableNetworks();
-      return { tokens: tokens.filter((item) => availableNetworks.includes(item.network)) };
-    } catch (error) {
-      if (error instanceof HHError) {
-        throw new HolyheldSDKError(
-          HolyheldSDKErrorCode.FailedWalletBalances,
-          'Failed to get wallet balances',
-          error,
-        );
-      }
-
-      throw error;
-    }
-  }
-
-  public async getWalletList(type: ClientType): Promise<WalletList> {
-    const config = await this.#settingsService.getClientConfigExternal(type);
-    return config.wallets;
-  }
-
-  public async getTokenByAddressAndNetwork(address: Address, network: Network): Promise<Token> {
-    return await this.#assetService.getTokenData(address, network);
-  }
-
   async sendAudit(params: {
     data: Record<string, unknown>;
-    address: `0x${string}`;
-    apiKey: string;
+    address: string;
     operationId?: string | undefined;
   }): Promise<void> {
     try {
-      await this.#auditService.sendAuditEventExternal(
-        params.data,
-        params.address,
-        params.operationId,
-      );
+      await this.#auditService.sendAuditEvent(params.data, params.address, params.operationId);
     } catch (error) {
-      this.logger(LogLevel.Warning, 'Failed to send audit event');
+      this.#logger(LogLevel.Warning, 'Failed to send audit event');
     }
   }
 }

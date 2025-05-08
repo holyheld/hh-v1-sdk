@@ -5,17 +5,21 @@ export enum LogLevel {
   Debug = 'debug',
 }
 
-export type Logger = (
-  level: LogLevel,
-  message: string,
-  data?: {
-    [key: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
-  },
-) => void;
+type LoggerData = {
+  [key: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+};
+
+export type Logger = (level: LogLevel, message: string, data?: LoggerData) => void;
 
 export function createDefaultLogger(): Logger {
   return (level, message, data) => {
     const lvl = level === LogLevel.Warning ? 'warn' : level;
-    console[lvl](`Holyheld SDK: ${level}:`, message, data);
+    const args = [`Holyheld SDK: ${level}:`, message];
+
+    if (data) {
+      console[lvl](...args, data);
+    } else {
+      console[lvl](...args);
+    }
   };
 }

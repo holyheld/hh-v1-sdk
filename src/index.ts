@@ -1,21 +1,33 @@
-export { LogLevel } from './logger';
-export type { Logger } from './logger';
+export { LogLevel, type Logger } from './logger';
 export { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
-export { Network } from '@holyheld/web-app-shared/sdklib/bundle';
-export type {
-  TransferData,
-  Token,
-  NetworkInfo,
-  WalletToken,
-  ServerExternalSettings,
+export { createSolanaWalletClientFromAdapter } from './helpers';
+export {
+  Network,
+  SolanaNetwork,
+  type TransferDataEVM,
+  type TransferDataSolana,
+  type TokenEVM,
+  type NetworkInfoEVM,
+  type NetworkInfoSolana,
+  type ServerExternalSettings,
+  type WithBalance,
+  type WithGroupId,
+  type WithPermitData,
+  type WithPrice,
+  type WalletClientSolana,
 } from '@holyheld/web-app-shared/sdklib/bundle';
-export { TopUpStep } from './offRampSDK';
-export type { TopUpCallbackConfig, ConvertTopUpData } from './offRampSDK';
-export type {
-  RequestOnRampResult,
-  EstimateOnRampResult,
-  WatchOnRampRequestIdOptions,
-  WatchOnRampResult,
-} from './onRampSDK';
-export type { HolyheldSDKOptions, ValidateAddressResult, WalletBalances } from './sdk';
+export { type ConvertTopUpDataEVM } from './evm/offRamp/sdkEVMOffRamp.types';
+export { type ConvertTopUpDataSolana } from './solana/offRamp/sdkSolanaOffRamp.types';
+export type { RequestOnRampEVMResult } from './evm/onRamp/sdkEVMOnRamp.types';
+export {
+  type HolyheldSDKOptions,
+  type ValidateAddressResult,
+  type WalletBalancesEVM,
+  type WalletTokenEVM,
+  type EstimateOnRampResult,
+  type WatchOnRampRequestIdOptions,
+  type WatchOnRampResult,
+  TopUpStep,
+  type TopUpCallbackConfig,
+} from './sdk.types';
 export { default } from './sdk';

@@ -8,7 +8,8 @@ const packageName = 'HolyheldSDK';
 
 const common = {
   input: 'src/index.ts',
-  external: (id) => !/^[./]/.test(id) && !id.includes('@holyheld'),
+  external: (id) =>
+    !/^[./]/.test(id) && !id.includes('@holyheld') && !id.includes('@solana-developers/helpers'),
   plugins: [resolve({ browser: true })],
   output: {
     name: packageName,
