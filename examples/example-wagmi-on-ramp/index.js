@@ -170,7 +170,7 @@ submitButton.addEventListener('click', async () => {
     ${getSpinnerHTML()}`;
 
     const result = await sdk.evm.onRamp.watchRequestId(requestResult.requestUid);
-    if (result) {
+    if (result.success) {
       parentElement.innerHTML = getMessageHTML(`Request success`);
     } else {
       parentElement.innerHTML = getErrorMessageHTML(`Request rejected`);

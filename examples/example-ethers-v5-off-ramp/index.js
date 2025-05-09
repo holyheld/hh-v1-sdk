@@ -188,6 +188,7 @@ setAmountButton.addEventListener('click', async () => {
   parentElement.innerHTML = getSpinnerHTML();
 
   const response = await sdk.evm.offRamp.convertTokenToEUR({
+    walletAddress: address,
     tokenAddress: selectedToken.address,
     tokenDecimals: selectedToken.decimals,
     amount: String(amount),

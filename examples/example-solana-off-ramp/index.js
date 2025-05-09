@@ -37,7 +37,7 @@ let holytag;
 // 0. Connect wallet
 connectButton.addEventListener('click', async () => {
   walletAdapter = new PhantomWalletAdapter();
-  if (!walletAdapter.readyState) {
+  if (walletAdapter.readyState !== 'Installed') {
     alert('Enable injected Phantom.');
     return;
   }

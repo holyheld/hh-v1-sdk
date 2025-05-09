@@ -75,6 +75,7 @@ export default class SdkEVMOffRamp {
   }
 
   async convertTokenToEUR(params: {
+    walletAddress: string;
     tokenAddress: string;
     tokenDecimals: number;
     amount: string;
@@ -96,7 +97,7 @@ export default class SdkEVMOffRamp {
         params.tokenAddress as Address,
         params.tokenDecimals,
         params.amount,
-        topupProxyAddress,
+        params.walletAddress as Address,
         topupProxyAddress,
         params.network,
       );
@@ -114,6 +115,7 @@ export default class SdkEVMOffRamp {
   }
 
   async convertEURToToken(params: {
+    walletAddress: string;
     tokenAddress: string;
     tokenDecimals: number;
     amount: string;
@@ -135,7 +137,7 @@ export default class SdkEVMOffRamp {
         params.tokenAddress as Address,
         params.tokenDecimals,
         params.amount,
-        topupProxyAddress,
+        params.walletAddress as Address,
         topupProxyAddress,
         params.network,
       );
@@ -198,6 +200,7 @@ export default class SdkEVMOffRamp {
           network: swapTarget.network,
         }),
         this.convertTokenToEUR({
+          walletAddress: params.walletAddress,
           tokenAddress: networkInfo.baseAsset.address,
           tokenDecimals: networkInfo.baseAsset.decimals,
           amount: params.amount,
@@ -290,6 +293,7 @@ export default class SdkEVMOffRamp {
       });
 
       const convertData = await this.convertTokenToEUR({
+        walletAddress: params.walletAddress,
         tokenAddress: inputAsset.address,
         tokenDecimals: inputAsset.decimals,
         amount: params.tokenAmount,

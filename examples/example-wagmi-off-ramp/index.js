@@ -227,7 +227,11 @@ setAmountButton.addEventListener('click', async () => {
   setAmountButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 
+  const tokenNetworkId = sdk.evm.getNetworkChainId(selectedToken.network);
+  const walletClient = await getWalletClient(config, { chainId: tokenNetworkId });
+
   const response = await sdk.evm.offRamp.convertTokenToEUR({
+    walletAddress: walletClient.account.address,
     tokenAddress: selectedToken.address,
     tokenDecimals: selectedToken.decimals,
     amount: String(amount),
