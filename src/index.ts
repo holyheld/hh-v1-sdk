@@ -4,6 +4,7 @@ export { createSolanaWalletClientFromAdapter } from './helpers';
 export {
   Network,
   SolanaNetwork,
+  NetworkKind,
   type TransferDataEVM,
   type TransferDataSolana,
   type TokenEVM,

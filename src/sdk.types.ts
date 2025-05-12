@@ -16,6 +16,7 @@ import {
   type WithGroupId,
   type WithPermitData,
   type WithPrice,
+  type WithPriceInEUR,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import type { Logger } from './logger';
 
@@ -42,7 +43,9 @@ export type ValidateAddressResult = {
   isOnRampAllowed: boolean;
 };
 
-export type WalletTokenEVM = WithGroupId<WithBalance<WithPrice<WithPermitData<TokenEVM>>>>;
+export type WalletTokenEVM = WithPriceInEUR<
+  WithGroupId<WithBalance<WithPrice<WithPermitData<TokenEVM>>>>
+>;
 
 export type WalletTokenSolana = WithGroupId<WithBalance<WithPrice<TokenSolana>>>;
 

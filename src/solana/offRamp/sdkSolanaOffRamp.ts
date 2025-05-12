@@ -131,8 +131,8 @@ export default class SdkSolanaOffRamp {
     tokenAddress: string;
     tokenNetwork: SolanaNetwork;
     tokenAmount: string;
-    transferData: TransferDataSolana | undefined;
     holytag: string;
+    transferData?: TransferDataSolana;
     eventConfig?: TopUpCallbackConfig;
     operationId?: string;
   }): Promise<ExecuteFlowSolana<BaseTopUpFlowSolana>> {
@@ -274,8 +274,8 @@ export default class SdkSolanaOffRamp {
     tokenAddress: string;
     tokenNetwork: SolanaNetwork;
     tokenAmount: string;
-    transferData: TransferDataSolana | undefined;
     holytag: string;
+    transferData?: TransferDataSolana;
   }): Promise<string> {
     this.#common.assertInitialized();
 
