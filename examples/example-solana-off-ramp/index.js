@@ -125,8 +125,6 @@ getTokensButton.addEventListener('click', async () => {
 
   const { tokens } = await sdk.solana.getWalletBalances(address);
 
-  console.log(tokens);
-
   allTokens = tokens;
 
   const html = allTokens.reduce((acc, current) => {
