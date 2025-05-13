@@ -3,7 +3,7 @@ import './index.css';
 import { ethers } from 'ethers';
 import { createPublicClient, createWalletClient, custom, http } from 'viem';
 import * as chains from 'viem/chains';
-import HolyheldSDK from '../../src'; // TODO!
+import HolyheldSDK from '@holyheld/sdk';
 import {
   getSpinnerHTML,
   getSettingsHTML,

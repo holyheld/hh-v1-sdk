@@ -25,7 +25,7 @@ import {
   manta
 } from '@wagmi/core/chains';
 import { injected } from '@wagmi/connectors';
-import HolyheldSDK from '../../src'; // TODO!
+import HolyheldSDK from '@holyheld/sdk';
 import {
   getSpinnerHTML,
   getSettingsHTML,

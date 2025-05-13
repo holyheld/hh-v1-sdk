@@ -17,7 +17,7 @@ import {
   manta
 } from '@wagmi/core/chains';
 import { injected } from '@wagmi/connectors';
-import HolyheldSDK, { HolyheldSDKError, HolyheldSDKErrorCode, Network } from '../../src'; // TODO!
+import HolyheldSDK, { HolyheldSDKError, HolyheldSDKErrorCode, Network } from '@holyheld/sdk';
 import {
   getSpinnerHTML,
   getTokenInfoHTML,

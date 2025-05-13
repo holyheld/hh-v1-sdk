@@ -3,7 +3,7 @@ import './index.css';
 import { Connection, clusterApiUrl } from '@solana/web3.js';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 
-import HolyheldSDK, { createSolanaWalletClientFromAdapter } from '../../dist/index.es'; // TODO!
+import HolyheldSDK, { createSolanaWalletClientFromAdapter } from '@holyheld/sdk';
 
 import {
   getSpinnerHTML,
