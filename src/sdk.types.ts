@@ -47,7 +47,7 @@ export type WalletTokenEVM = WithPriceInEUR<
   WithGroupId<WithBalance<WithPrice<WithPermitData<TokenEVM>>>>
 >;
 
-export type WalletTokenSolana = WithGroupId<WithBalance<WithPrice<TokenSolana>>>;
+export type WalletTokenSolana = WithPriceInEUR<WithGroupId<WithBalance<WithPrice<TokenSolana>>>>;
 
 export type WalletBalancesEVM = {
   tokens: WalletTokenEVM[];

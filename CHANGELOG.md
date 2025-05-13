@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2025-05-14
+
+### Features
+
+- Added support for the Solana network (currently available for off-ramp only)
+
+### BREAKING CHANGES
+
+- SDK structure has changed: network-specific functionality is now accessed via sdk.evm and sdk.solana namespaces (e.g. sdk.evm.offRamp, sdk.solana.offRamp). Each level in the hierarchy (e.g. sdk, sdk.evm) may expose shared methods relevant to all submodules
+- One method was renamed: `offRamp.getTagInfoForTopUp` → `getTagInfo`
+- Some methods now accept a single configuration object instead of multiple positional arguments: `offRamp.convertTokenToEUR`, `offRamp.convertEURToToken`, `offRamp.getTopUpEstimation`, `offRamp.topup`, `onRamp.convertTokenToEUR`, `onRamp.convertEURToToken`, `onRamp.getOnRampEstimation`, `onRamp.requestOnRamp`
+- The return structure of the method `evm.getWalletBalances` has changed
+- Some TypeScript types were renamed for consistency with the new SDK structure: `RequestOnRampResult` → `RequestOnRampEVMResult`, `WalletBalances` → `WalletBalancesEVM`, `WalletToken` → `WalletTokenEVM`, `ConvertTopUpData` → `ConvertTopUpDataEVM`, `TransferData` → `TransferDataEVM`, `NetworkInfo` → `NetworkInfoEVM`
+- The SDK now requires a Node.js Buffer polyfill
+
+See the updated [documentation](https://holyheld.com/documentation/introduction) for details.
+
 ## [3.2.5] - 2025-03-31
 
 ### Features
@@ -72,7 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### BREAKING CHANGES
 
-- The methods `getTagInfoForTopUp`, `convertTokenToEUR`, `convertEURToToken`, and `topup` are now invoked via the `offRamp` object for the off-ramp flow. For example: `holyheldSDK.offRamp.getTagInfoForTopUp('TESTSDK')`
+- The methods `getTagInfoForTopUp`, `convertTokenToEUR`, `convertEURToToken`, and `topup` are now invoked via the `offRamp` object for the off-ramp flow. For example: `holyheldSDK.offRamp.getTagInfoForTopUp('SDKTEST')`
 
 ## [2.1.2] - 2024-09-06
 

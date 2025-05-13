@@ -3,7 +3,7 @@ import './index.css';
 import { Connection, clusterApiUrl } from '@solana/web3.js';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 
-import HolyheldSDK, { createSolanaWalletClientFromAdapter } from '../../src'; // TODO!
+import HolyheldSDK, { createSolanaWalletClientFromAdapter } from '../../dist/index.es'; // TODO!
 
 import {
   getSpinnerHTML,
@@ -124,6 +124,8 @@ getTokensButton.addEventListener('click', async () => {
   parentElement.innerHTML = getSpinnerHTML();
 
   const { tokens } = await sdk.solana.getWalletBalances(address);
+
+  console.log(tokens);
 
   allTokens = tokens;
 

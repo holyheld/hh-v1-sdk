@@ -8,6 +8,7 @@ export {
   type TransferDataEVM,
   type TransferDataSolana,
   type TokenEVM,
+  type TokenSolana,
   type NetworkInfoEVM,
   type NetworkInfoSolana,
   type ServerExternalSettings,
@@ -23,12 +24,15 @@ export type { RequestOnRampEVMResult } from './evm/onRamp/sdkEVMOnRamp.types';
 export {
   type HolyheldSDKOptions,
   type ValidateAddressResult,
+  type TagInfo,
   type WalletBalancesEVM,
+  type WalletBalancesSolana,
   type WalletTokenEVM,
+  type WalletTokenSolana,
   type EstimateOnRampResult,
   type WatchOnRampRequestIdOptions,
   type WatchOnRampResult,
-  TopUpStep,
   type TopUpCallbackConfig,
+  TopUpStep,
 } from './sdk.types';
 export { default } from './sdk';

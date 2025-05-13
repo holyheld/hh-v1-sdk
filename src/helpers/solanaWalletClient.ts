@@ -1,7 +1,7 @@
 import type { Adapter } from '@solana/wallet-adapter-base';
-import { Connection, SendOptions, VersionedTransaction } from '@solana/web3.js';
+import { Connection, type SendOptions, VersionedTransaction } from '@solana/web3.js';
 import bs58 from 'bs58';
-import { HHError, WalletClientSolana } from '@holyheld/web-app-shared/sdklib/bundle';
+import { HHError, type WalletClientSolana } from '@holyheld/web-app-shared/sdklib/bundle';
 
 export function createSolanaWalletClientFromAdapter(
   adapter: Adapter,
