@@ -1,31 +1,10 @@
 import './index.css';
 
-import {
-  connect,
-  createConfig,
-  http,
-  switchChain,
-  getAccount,
-  getPublicClient,
-  getWalletClient,
-} from '@wagmi/core';
-import {
-  arbitrum,
-  avalanche,
-  base,
-  gnosis,
-  mainnet,
-  optimism,
-  polygon,
-  polygonZkEvm,
-  zksync,
-  blast,
-  mode,
-  bsc,
-  manta
-} from '@wagmi/core/chains';
-import { injected } from '@wagmi/connectors';
-import HolyheldSDK from '@holyheld/sdk';
+import { Connection, clusterApiUrl } from '@solana/web3.js';
+import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
+
+import HolyheldSDK, { createSolanaWalletClientFromAdapter } from '@holyheld/sdk';
+
 import {
   getSpinnerHTML,
   getSettingsHTML,
@@ -44,7 +23,8 @@ const selectTokenButton = document.querySelector('#select-token');
 const setAmountButton = document.querySelector('#set-amount');
 const submitButton = document.querySelector('#submit');
 
-let config;
+let walletAdapter;
+let address;
 let sdk;
 let settings;
 let allTokens;
@@ -56,35 +36,18 @@ let holytag;
 
 // 0. Connect wallet
 connectButton.addEventListener('click', async () => {
-  if (!window.ethereum) {
-    alert('Enable injected provider, for example MetaMask.');
+  walletAdapter = new PhantomWalletAdapter();
+  if (walletAdapter.readyState !== 'Installed') {
+    alert('Enable injected Phantom.');
     return;
   }
 
   connectButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 
-  config = createConfig({
-    chains: [mainnet, polygon, optimism, polygonZkEvm, gnosis, avalanche, arbitrum, zksync, base, blast, mode, bsc, manta],
-    connectors: [injected()],
-    transports: {
-      [mainnet.id]: http(),
-      [polygon.id]: http(),
-      [optimism.id]: http(),
-      [polygonZkEvm.id]: http(),
-      [gnosis.id]: http(),
-      [avalanche.id]: http(),
-      [arbitrum.id]: http(),
-      [zksync.id]: http(),
-      [base.id]: http(),
-      [blast.id]: http(),
-      [mode.id]: http(),
-      [bsc.id]: http(),
-      [manta.id]: http(),
-    },
-  });
+  await walletAdapter.connect();
 
-  await connect(config, { connector: injected() });
+  address = walletAdapter.publicKey.toString();
 
   initializeButton.removeAttribute('hidden');
   parentElement.innerHTML = '';
@@ -155,14 +118,12 @@ selectHolytagButton.addEventListener('click', async () => {
   parentElement.innerHTML = '';
 });
 
-// 4. Get tokens on connected wallet address (across supported chains)
+// 4. Get tokens on connected wallet address
 getTokensButton.addEventListener('click', async () => {
   getTokensButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 
-  const walletClient = await getWalletClient(config);
-
-  const { tokens } = await sdk.evm.getWalletBalances(walletClient.account.address);
+  const { tokens } = await sdk.solana.getWalletBalances(address);
 
   allTokens = tokens;
 
@@ -173,7 +134,7 @@ getTokensButton.addEventListener('click', async () => {
         acc === '',
         current.address,
         current.network,
-        sdk.evm.getNetwork(current.network).displayedName,
+        sdk.solana.getNetwork(current.network).displayedName,
         current.name,
         current.balance,
         current.symbol,
@@ -185,7 +146,7 @@ getTokensButton.addEventListener('click', async () => {
   parentElement.innerHTML = html;
 });
 
-// 5. Select token (and chain) to be used for sending
+// 5. Select token to be used for sending
 selectTokenButton.addEventListener('click', () => {
   const selectedRadio = parentElement.querySelector('input:checked');
   const [address, network] = selectedRadio.value.split(',');
@@ -197,7 +158,7 @@ selectTokenButton.addEventListener('click', () => {
   parentElement.innerHTML = getTokenInfoHTML(
     selectedToken.name,
     selectedToken.address,
-    sdk.evm.getNetwork(selectedToken.network).displayedName,
+    sdk.solana.getNetwork(selectedToken.network).displayedName,
     selectedToken.balance,
     selectedToken.symbol,
   );
@@ -227,16 +188,13 @@ setAmountButton.addEventListener('click', async () => {
   setAmountButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 
-  const tokenNetworkId = sdk.evm.getNetworkChainId(selectedToken.network);
-  const walletClient = await getWalletClient(config, { chainId: tokenNetworkId });
-
-  const response = await sdk.evm.offRamp.convertTokenToEUR({
-    walletAddress: walletClient.account.address,
+  const response = await sdk.solana.offRamp.convertTokenToEUR({
+    walletAddress: address,
     tokenAddress: selectedToken.address,
     tokenDecimals: selectedToken.decimals,
     amount: String(amount),
     network: selectedToken.network,
-});
+  });
 
   amountInEUR = response.EURAmount;
 
@@ -249,7 +207,7 @@ setAmountButton.addEventListener('click', async () => {
     parentElement.innerHTML = getTokenInfoHTML(
       selectedToken.name,
       selectedToken.address,
-      sdk.evm.getNetwork(selectedToken.network).displayedName,
+      sdk.solana.getNetwork(selectedToken.network).displayedName,
       selectedToken.balance,
       selectedToken.symbol,
     );
@@ -271,7 +229,7 @@ setAmountButton.addEventListener('click', async () => {
   parentElement.innerHTML = getDataHTML(
     selectedToken.name,
     selectedToken.address,
-    sdk.evm.getNetwork(selectedToken.network).displayedName,
+    sdk.solana.getNetwork(selectedToken.network).displayedName,
     selectedToken.symbol,
     amount,
     amountInEUR,
@@ -280,12 +238,8 @@ setAmountButton.addEventListener('click', async () => {
   submitButton.removeAttribute('hidden');
 });
 
-// 7. Submit sending of token to recipient's debit card (this could require more than one
-//    wallet interaction, e.g. sign permit and then send a transaction
+// 7. Submit sending of token to recipient's debit card
 submitButton.addEventListener('click', async () => {
-  const { chainId } = getAccount(config);
-  const tokenNetworkId = sdk.evm.getNetworkChainId(selectedToken.network);
-
   submitButton.setAttribute('hidden', '');
   parentElement.innerHTML = `
       ${getSpinnerHTML()}
@@ -294,37 +248,23 @@ submitButton.addEventListener('click', async () => {
 
   const dlElement = parentElement.querySelector('dl');
 
-  // switch to the correct chain (network) in the wallet
-  if (chainId !== tokenNetworkId) {
-    try {
-      await switchChain(config, { chainId: tokenNetworkId });
-    } catch (error) {
-      parentElement.removeChild(parentElement.querySelector('img'));
-      dlElement.innerHTML = `
-        ${dlElement.innerHTML}
-        <dt>Result:</dt>
-        <dd>failed</dd>
-      `;
-      throw error;
-    }
-  }
+  const networkInfo = sdk.solana.getNetwork(selectedToken.network);
 
-  const publicClient = getPublicClient(config, { chainId: tokenNetworkId });
-
-  const walletClient = await getWalletClient(config, { chainId: tokenNetworkId });
+  const connection = new Connection(networkInfo.httpRpcURL, {
+    commitment: 'confirmed',
+    wsEndpoint: networkInfo.wsRpcURL ?? clusterApiUrl(networkInfo.cluster, true)
+  });
 
   try {
-    await sdk.evm.offRamp.topup({
-      publicClient,
-      walletClient,
-      walletAddress: walletClient.account.address,
+    await sdk.solana.offRamp.topup({
+      connection,
+      walletClient: createSolanaWalletClientFromAdapter(walletAdapter, connection),
+      walletAddress: address,
       tokenAddress: selectedToken.address,
       tokenNetwork: selectedToken.network,
       tokenAmount: String(amount),
       transferData,
       holytag,
-      supportsSignTypedDataV4: true,
-      supportsRawTransactionsSigning: true,
       eventConfig: {
         onHashGenerate: (hash) => {
           dlElement.innerHTML = `

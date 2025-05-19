@@ -1,86 +1,65 @@
 import BigNumber from 'bignumber.js';
 import Core, {
   ExpectedError,
-  HHAPIOnRampService,
-  HHAPISwapService,
+  HHAPIOnRampServiceExternal,
+  HHAPISwapServiceExternal,
   HHError,
   Network,
   UnexpectedError,
-  type Token,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import type { Address } from 'viem';
-import type { HolyheldSDKCommon, RequiredServiceList } from './types';
-import { createPromise } from './helpers';
-import { HolyheldSDKError, HolyheldSDKErrorCode } from './errors';
+import { createPromise } from '../../helpers';
+import { HolyheldSDKError, HolyheldSDKErrorCode } from '../../errors';
+import type {
+  HolyheldSDKInterface,
+  EstimateOnRampResult,
+  WatchOnRampRequestIdOptions,
+  WatchOnRampResult,
+} from '../../sdk.types';
+import type { SdkEVMInterface } from '../sdkEVM.types';
+import type { RequestOnRampEVMResult, SdkEVMOnRampOptions } from './sdkEVMOnRamp.types';
 
 const STATUS_CHECK_INTERVAL = 2_000;
 
-export interface HolyheldOnRampSDKOptions {
-  commonSDK: HolyheldSDKCommon;
-  services: RequiredServiceList<'onRampService' | 'swapService'>;
-  apiKey: string;
-}
+export default class SdkEVMOnRamp {
+  readonly #onRampService: HHAPIOnRampServiceExternal;
+  readonly #swapService: HHAPISwapServiceExternal;
 
-export type EstimateOnRampResult = {
-  expectedAmount: string;
-  feeAmount: string;
-};
+  readonly #common: HolyheldSDKInterface;
+  readonly #commonEVM: SdkEVMInterface;
 
-export type RequestOnRampResult = {
-  requestUid: string;
-  chainId: number;
-  token: Token;
-  amountEUR: string;
-  amountToken: string;
-  feeEUR: string;
-  beneficiaryAddress: Address;
-};
-
-export type WatchOnRampResult = {
-  success: boolean;
-  hash?: string;
-};
-
-export type WatchOnRampRequestIdOptions = {
-  timeout?: number;
-  waitForTransactionHash?: boolean;
-};
-
-export default class OnRampSDK {
-  readonly #onRampService: HHAPIOnRampService;
-  readonly #swapService: HHAPISwapService;
-
-  readonly #common: HolyheldSDKCommon;
-
-  constructor(protected readonly options: HolyheldOnRampSDKOptions) {
+  constructor(protected readonly options: SdkEVMOnRampOptions) {
     this.#onRampService = options.services.onRampService;
     this.#swapService = options.services.swapService;
 
-    this.#common = options.commonSDK;
+    this.#common = options.common;
+    this.#commonEVM = options.commonEVM;
   }
 
-  public getAvailableNetworks(): Network[] {
-    return this.#common
-      .getAllAvailableNetworks()
+  getAvailableNetworks(): Network[] {
+    this.#common.assertInitialized();
+
+    return this.#commonEVM
+      .getAvailableNetworks()
       .filter((network) => Core.getSwapSourceForOnRamp(network) !== undefined);
   }
 
-  public async convertTokenToEUR(
-    tokenAddress: string,
-    tokenNetwork: Network,
-    amount: string,
-  ): Promise<string> {
+  async convertTokenToEUR(params: {
+    tokenAddress: string;
+    tokenNetwork: Network;
+    amount: string;
+  }): Promise<string> {
     this.#common.assertInitialized();
 
     try {
-      const token = await this.#common.getTokenByAddressAndNetwork(
-        tokenAddress as Address,
-        tokenNetwork,
+      const token = await this.#commonEVM.getTokenByAddressAndNetwork(
+        params.tokenAddress as Address,
+        params.tokenNetwork,
       );
 
-      const response = await this.#swapService.convertTokenToEURForOnRampExternal({
+      const response = await this.#swapService.convertTokenToEURForOnRamp({
         token,
-        tokenAmount: amount,
+        tokenAmount: params.amount,
       });
 
       return response.fiatAmount;
@@ -93,22 +72,22 @@ export default class OnRampSDK {
     }
   }
 
-  public async convertEURToToken(
-    tokenAddress: string,
-    tokenNetwork: Network,
-    amount: string,
-  ): Promise<string> {
+  async convertEURToToken(params: {
+    tokenAddress: string;
+    tokenNetwork: Network;
+    amount: string;
+  }): Promise<string> {
     this.#common.assertInitialized();
 
     try {
-      const token = await this.#common.getTokenByAddressAndNetwork(
-        tokenAddress as Address,
-        tokenNetwork,
+      const token = await this.#commonEVM.getTokenByAddressAndNetwork(
+        params.tokenAddress as Address,
+        params.tokenNetwork,
       );
 
-      const response = await this.#swapService.convertEURToTokenForOnRampExternal({
+      const response = await this.#swapService.convertEURToTokenForOnRamp({
         token,
-        fiatAmount: amount,
+        fiatAmount: params.amount,
       });
 
       return response.tokenAmount;
@@ -121,24 +100,24 @@ export default class OnRampSDK {
     }
   }
 
-  public async getOnRampEstimation(
-    walletAddress: string,
-    tokenAddress: string,
-    tokenNetwork: Network,
-    fiatAmount: string,
-  ): Promise<EstimateOnRampResult> {
+  async getOnRampEstimation(params: {
+    walletAddress: string;
+    tokenAddress: string;
+    tokenNetwork: Network;
+    EURAmount: string;
+  }): Promise<EstimateOnRampResult> {
     this.#common.assertInitialized();
 
     try {
-      const token = await this.#common.getTokenByAddressAndNetwork(
-        tokenAddress as Address,
-        tokenNetwork,
+      const token = await this.#commonEVM.getTokenByAddressAndNetwork(
+        params.tokenAddress as Address,
+        params.tokenNetwork,
       );
 
-      const response = await this.#onRampService.estimateExternal({
+      const response = await this.#onRampService.estimate({
         token,
-        amountEUR: fiatAmount,
-        beneficiaryAddress: walletAddress as Address,
+        amountEUR: params.EURAmount,
+        beneficiaryAddress: params.walletAddress as Address,
       });
 
       return response;
@@ -151,51 +130,55 @@ export default class OnRampSDK {
     }
   }
 
-  public async requestOnRamp(
-    walletAddress: string,
-    tokenAddress: string,
-    tokenNetwork: Network,
-    fiatAmount: string,
-  ): Promise<RequestOnRampResult> {
+  async requestOnRamp(params: {
+    walletAddress: string;
+    tokenAddress: string;
+    tokenNetwork: Network;
+    EURAmount: string;
+  }): Promise<RequestOnRampEVMResult> {
     this.#common.assertInitialized();
+
+    const operationId = `EVMOnRamp_${Math.random()}`;
 
     this.#common.sendAudit({
       data: {
-        tokenAddress,
-        tokenNetwork,
-        fiatAmount,
-        walletAddress,
+        tokenAddress: params.tokenAddress,
+        tokenNetwork: params.tokenNetwork,
+        fiatAmount: params.EURAmount,
+        walletAddress: params.walletAddress,
       },
-      address: walletAddress as Address,
-      apiKey: this.options.apiKey,
+      address: params.walletAddress as Address,
+      operationId,
     });
 
     try {
       const settings = await this.#common.getServerSettings();
 
-      if (new BigNumber(fiatAmount).lt(settings.external.minOnRampAmountInEUR)) {
+      if (new BigNumber(params.EURAmount).lt(settings.external.minOnRampAmountInEUR)) {
         throw new HolyheldSDKError(
           HolyheldSDKErrorCode.InvalidOnRampAmount,
           `Minimum allowed amount is ${settings.external.minOnRampAmountInEUR} EUR`,
         );
       }
 
-      if (new BigNumber(fiatAmount).gt(new BigNumber(settings.external.maxOnRampAmountInEUR))) {
+      if (
+        new BigNumber(params.EURAmount).gt(new BigNumber(settings.external.maxOnRampAmountInEUR))
+      ) {
         throw new HolyheldSDKError(
           HolyheldSDKErrorCode.InvalidOnRampAmount,
           `Maximum allowed amount is ${settings.external.maxOnRampAmountInEUR} EUR`,
         );
       }
 
-      const token = await this.#common.getTokenByAddressAndNetwork(
-        tokenAddress as Address,
-        tokenNetwork,
+      const token = await this.#commonEVM.getTokenByAddressAndNetwork(
+        params.tokenAddress as Address,
+        params.tokenNetwork,
       );
 
       const response = await this.#onRampService.requestExecute({
-        address: walletAddress as Address,
+        address: params.walletAddress as Address,
         token: token,
-        fiatAmount: fiatAmount,
+        fiatAmount: params.EURAmount,
       });
 
       return {
@@ -232,7 +215,7 @@ export default class OnRampSDK {
     }
   }
 
-  public async watchRequestId(
+  async watchRequestId(
     requestUid: string,
     options: WatchOnRampRequestIdOptions = {},
   ): Promise<WatchOnRampResult> {
@@ -255,7 +238,7 @@ export default class OnRampSDK {
     const interval = setInterval(async () => {
       try {
         const response = await this.#onRampService.requestStatus({
-          requestUid: requestUid,
+          requestUid,
         });
 
         const result: WatchOnRampResult = { success: false };

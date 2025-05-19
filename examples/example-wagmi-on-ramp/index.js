@@ -111,7 +111,7 @@ getSettingsButton.addEventListener('click', async () => {
   }
 
   // also loading token info. You can use other tokens
-  selectedToken = await sdk.getTokenByAddressAndNetwork(
+  selectedToken = await sdk.evm.getTokenByAddressAndNetwork(
     '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
     Network.arbitrum,
   );
@@ -120,7 +120,7 @@ getSettingsButton.addEventListener('click', async () => {
   parentElement.innerHTML = getTokenInfoHTML(
     selectedToken.name,
     selectedToken.address,
-    sdk.getNetwork(selectedToken.network).displayedName,
+    sdk.evm.getNetwork(selectedToken.network).displayedName,
   );
 });
 
@@ -140,7 +140,7 @@ setAmountButton.addEventListener('click', async () => {
   parentElement.innerHTML = getDataHTML(
     selectedToken.name,
     selectedToken.address,
-    sdk.getNetwork(selectedToken.network).displayedName,
+    sdk.evm.getNetwork(selectedToken.network).displayedName,
     amountInEUR.toString(),
   );
   submitButton.removeAttribute('hidden');
@@ -153,24 +153,24 @@ submitButton.addEventListener('click', async () => {
   submitButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 
-  const tokenNetworkId = sdk.getNetworkChainId(selectedToken.network);
+  const tokenNetworkId = sdk.evm.getNetworkChainId(selectedToken.network);
 
   const walletClient = await getWalletClient(config, { chainId: tokenNetworkId });
 
   try {
-    const requestResult = await sdk.onRamp.requestOnRamp(
-      walletClient.account.address,
-      selectedToken.address,
-      selectedToken.network,
-      amountInEUR.toString(),
-    );
+    const requestResult = await sdk.evm.onRamp.requestOnRamp({
+      walletAddress: walletClient.account.address,
+      tokenAddress: selectedToken.address,
+      tokenNetwork: selectedToken.network,
+      EURAmount: amountInEUR.toString(),
+    });
     parentElement.innerHTML = `
     ${getMessageHTML(`Request id is: ${requestResult.requestUid}`)}
     <br>
     ${getSpinnerHTML()}`;
 
-    const result = await sdk.onRamp.watchRequestId(requestResult.requestUid);
-    if (result) {
+    const result = await sdk.evm.onRamp.watchRequestId(requestResult.requestUid);
+    if (result.success) {
       parentElement.innerHTML = getMessageHTML(`Request success`);
     } else {
       parentElement.innerHTML = getErrorMessageHTML(`Request rejected`);

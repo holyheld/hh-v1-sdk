@@ -100,7 +100,7 @@ selectHolytagButton.addEventListener('click', async () => {
   selectHolytagButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 
-  const response = await sdk.offRamp.getTagInfoForTopUp(holytag);
+  const response = await sdk.getTagInfo(holytag);
 
   if (!response.found) {
     alert('$holytag is not found.');
@@ -122,7 +122,7 @@ getTokensButton.addEventListener('click', async () => {
   getTokensButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 
-  const { tokens } = await sdk.getWalletBalances(address);
+  const { tokens } = await sdk.evm.getWalletBalances(address);
 
   allTokens = tokens;
 
@@ -133,7 +133,7 @@ getTokensButton.addEventListener('click', async () => {
         acc === '',
         current.address,
         current.network,
-        sdk.getNetwork(current.network).displayedName,
+        sdk.evm.getNetwork(current.network).displayedName,
         current.name,
         current.balance,
         current.symbol,
@@ -157,7 +157,7 @@ selectTokenButton.addEventListener('click', () => {
   parentElement.innerHTML = getTokenInfoHTML(
     selectedToken.name,
     selectedToken.address,
-    sdk.getNetwork(selectedToken.network).displayedName,
+    sdk.evm.getNetwork(selectedToken.network).displayedName,
     selectedToken.balance,
     selectedToken.symbol,
   );
@@ -187,12 +187,13 @@ setAmountButton.addEventListener('click', async () => {
   setAmountButton.setAttribute('hidden', '');
   parentElement.innerHTML = getSpinnerHTML();
 
-  const response = await sdk.offRamp.convertTokenToEUR(
-    selectedToken.address,
-    selectedToken.decimals,
-    String(amount),
-    selectedToken.network,
-  );
+  const response = await sdk.evm.offRamp.convertTokenToEUR({
+    walletAddress: address,
+    tokenAddress: selectedToken.address,
+    tokenDecimals: selectedToken.decimals,
+    amount: String(amount),
+    network: selectedToken.network,
+  });
 
   amountInEUR = response.EURAmount;
 
@@ -205,7 +206,7 @@ setAmountButton.addEventListener('click', async () => {
     parentElement.innerHTML = getTokenInfoHTML(
       selectedToken.name,
       selectedToken.address,
-      sdk.getNetwork(selectedToken.network).displayedName,
+      sdk.evm.getNetwork(selectedToken.network).displayedName,
       selectedToken.balance,
       selectedToken.symbol,
     );
@@ -227,7 +228,7 @@ setAmountButton.addEventListener('click', async () => {
   parentElement.innerHTML = getDataHTML(
     selectedToken.name,
     selectedToken.address,
-    sdk.getNetwork(selectedToken.network).displayedName,
+    sdk.evm.getNetwork(selectedToken.network).displayedName,
     selectedToken.symbol,
     amount,
     amountInEUR,
@@ -240,7 +241,7 @@ setAmountButton.addEventListener('click', async () => {
 //    wallet interaction, e.g. sign permit and then send a transaction
 submitButton.addEventListener('click', async () => {
   const { chainId } = await provider.getNetwork();
-  const tokenNetworkId = sdk.getNetworkChainId(selectedToken.network);
+  const tokenNetworkId = sdk.evm.getNetworkChainId(selectedToken.network);
 
   submitButton.setAttribute('hidden', '');
   parentElement.innerHTML = `
@@ -260,7 +261,7 @@ submitButton.addEventListener('click', async () => {
         });
       } catch (error) {
         if (error instanceof Object && error.code === 4902) {
-          const networkInfo = sdk.getNetwork(selectedToken.network);
+          const networkInfo = sdk.evm.getNetwork(selectedToken.network);
           await provider.provider.request({
             method: 'wallet_addEthereumChain',
             params: [
@@ -310,17 +311,18 @@ submitButton.addEventListener('click', async () => {
   });
 
   try {
-    await sdk.offRamp.topup(
+    await sdk.evm.offRamp.topup({
       publicClient,
       walletClient,
-      address,
-      selectedToken.address,
-      selectedToken.network,
-      String(amount),
+      walletAddress: address,
+      tokenAddress: selectedToken.address,
+      tokenNetwork: selectedToken.network,
+      tokenAmount: String(amount),
       transferData,
       holytag,
-      true,
-      {
+      supportsSignTypedDataV4: true,
+      supportsRawTransactionsSigning: true,
+      eventConfig: {
         onHashGenerate: (hash) => {
           dlElement.innerHTML = `
             ${dlElement.innerHTML}
@@ -341,7 +343,7 @@ submitButton.addEventListener('click', async () => {
           }
         },
       },
-    );
+    });
     dlElement.innerHTML = `
       ${dlElement.innerHTML}
       <dt>Result:</dt>
