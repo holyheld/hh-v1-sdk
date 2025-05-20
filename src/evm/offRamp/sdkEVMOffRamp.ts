@@ -63,7 +63,7 @@ export default class SdkEVMOffRamp {
     this.#commonEVM = options.commonEVM;
   }
 
-  getAvailableEVMNetworks(): Network[] {
+  getAvailableNetworks(): Network[] {
     this.#common.assertInitialized();
 
     return this.#commonEVM.getAvailableNetworks().filter((network) => {
