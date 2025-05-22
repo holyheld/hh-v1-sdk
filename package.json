@@ -1,6 +1,6 @@
 {
   "name": "@holyheld/sdk",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
@@ -35,7 +35,7 @@
     "viem": "^2.28.4"
   },
   "devDependencies": {
-    "@holyheld/web-app-shared": "4.0.82",
+    "@holyheld/web-app-shared": "4.0.85",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@solana-developers/helpers": "2.8.0",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
