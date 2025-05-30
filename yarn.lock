@@ -239,10 +239,10 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.57.1.tgz#de633db3ec2ef6a3c89e2f19038063e8a122e2c2"
   integrity sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==
 
-"@holyheld/web-app-shared@4.0.85":
-  version "4.0.85"
-  resolved "https://npm.pkg.github.com/download/@holyheld/web-app-shared/4.0.85/0ec7eb24e1ed3905b44d995dc11a5cda110d9ce2#0ec7eb24e1ed3905b44d995dc11a5cda110d9ce2"
-  integrity sha512-d00gQ10cmX9cKuInM10DI6hZKPN538z4s4VxpZoUYyARy72ZJ/LesfTwr2YY+Um90PeUQWkPYsK3sSTmawAsrA==
+"@holyheld/web-app-shared@4.0.87":
+  version "4.0.87"
+  resolved "https://npm.pkg.github.com/download/@holyheld/web-app-shared/4.0.87/84c6bc97b10ee24d2b47e298003d1ad120972b57#84c6bc97b10ee24d2b47e298003d1ad120972b57"
+  integrity sha512-OW5wECgZ//ZpVlkiwhbazf5xjySxVWDuqWYpbTAUA67aDIFOGJcKAi28oWV4bRWhtgPPK1BCzZuOaeCmzmiCxA==
   dependencies:
     "@coral-xyz/anchor" "^0.31.0"
     "@solana-developers/helpers" "^2.8.0"
