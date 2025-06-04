@@ -97,7 +97,7 @@ export default class SdkEVMOffRamp {
         params.tokenAddress as Address,
         params.tokenDecimals,
         params.amount,
-        params.walletAddress as Address,
+        topupProxyAddress,
         topupProxyAddress,
         params.network,
       );
@@ -137,7 +137,7 @@ export default class SdkEVMOffRamp {
         params.tokenAddress as Address,
         params.tokenDecimals,
         params.amount,
-        params.walletAddress as Address,
+        topupProxyAddress,
         topupProxyAddress,
         params.network,
       );
