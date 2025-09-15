@@ -6,7 +6,7 @@ export interface SdkSolanaOffRampOptions {
   common: HolyheldSDKInterface;
   commonSolana: SdkSolanaInterface;
   services: RequiredServiceList<
-    'txTagService' | 'approvalService' | 'assetService' | 'swapService'
+    'txTagService' | 'approvalService' | 'assetService' | 'swapService' | 'tagService'
   >;
 }
 
