@@ -578,6 +578,12 @@ export default class SdkSolanaOffRamp {
       operationId,
     });
 
+    const info = await this.#tagService.validateAddress({ address: params.walletAddress });
+
+    if (!info.isTopupAllowed) {
+      throw new HolyheldSDKError(HolyheldSDKErrorCode.FailedTopUp, 'topup not allowed');
+    }
+
     try {
       const service = new CardTopUpOnChainServiceSolana({
         priorityFeeGetter: this.#assetService,
