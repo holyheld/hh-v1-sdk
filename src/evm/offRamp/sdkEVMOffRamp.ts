@@ -511,7 +511,7 @@ export default class SdkEVMOffRamp {
       const info = await this.#tagService.validateAddress({ address: params.walletAddress });
 
       if (!info.isTopupAllowed) {
-        throw new HolyheldSDKError(HolyheldSDKErrorCode.FailedTopUp, 'topup not allowed');
+        throw new HolyheldSDKError(HolyheldSDKErrorCode.FailedTopUp, 'Top up not allowed');
       }
 
       const inputAsset = await this.#assetService.getFullTokenDataWithPrice({

@@ -14,4 +14,3 @@
 *.webp binary
 *.tgz binary
 *.glb binary
-/public/media/*.env binary
