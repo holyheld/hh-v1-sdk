@@ -8,7 +8,7 @@ import type { HolyheldSDKInterface, RequiredServiceList, WalletBalancesSolana } 
 export interface SdkSolanaOptions {
   common: HolyheldSDKInterface;
   services: RequiredServiceList<
-    'approvalService' | 'assetService' | 'swapService' | 'txTagService'
+    'approvalService' | 'assetService' | 'swapService' | 'txTagService' | 'tagService'
   >;
 }
 

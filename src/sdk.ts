@@ -107,6 +107,7 @@ export default class HolyheldSDK implements HolyheldSDKInterface {
     this.evm = new SdkEVM({
       common: this,
       services: {
+        tagService: this.#tagService,
         onRampService: this.#onRampService,
         swapService: this.#swapService,
         permitService: this.#permitService,
@@ -120,6 +121,7 @@ export default class HolyheldSDK implements HolyheldSDKInterface {
     this.solana = new SdkSolana({
       common: this,
       services: {
+        tagService: this.#tagService,
         swapService: this.#swapService,
         txTagService: this.#txTagService,
         approvalService: this.#approvalService,

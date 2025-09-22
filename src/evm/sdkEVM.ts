@@ -1,4 +1,5 @@
 import type {
+  HHAPITagServiceExternal,
   NetworkInfoEVM,
   TokenEVM,
   WithPermitData,
@@ -29,6 +30,7 @@ export default class SdkEVM implements SdkEVMInterface {
   readonly #swapService: HHAPISwapServiceExternal;
   readonly #onRampService: HHAPIOnRampServiceExternal;
   readonly #nonceService: HHAPINonceServiceExternal;
+  readonly #tagService: HHAPITagServiceExternal;
 
   readonly #common: HolyheldSDKInterface;
 
@@ -43,6 +45,7 @@ export default class SdkEVM implements SdkEVMInterface {
     this.#txTagService = options.services.txTagService;
     this.#onRampService = options.services.onRampService;
     this.#nonceService = options.services.nonceService;
+    this.#tagService = options.services.tagService;
 
     this.#common = options.common;
 
@@ -61,6 +64,7 @@ export default class SdkEVM implements SdkEVMInterface {
       services: {
         permitService: this.#permitService,
         txTagService: this.#txTagService,
+        tagService: this.#tagService,
         approvalService: this.#approvalService,
         assetService: this.#assetService,
         swapService: this.#swapService,

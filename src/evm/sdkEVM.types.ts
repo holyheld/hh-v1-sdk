@@ -15,6 +15,7 @@ export interface SdkEVMOptions {
     | 'swapService'
     | 'onRampService'
     | 'nonceService'
+    | 'tagService'
   >;
 }
 

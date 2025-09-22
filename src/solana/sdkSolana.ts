@@ -8,6 +8,7 @@ import Core, {
   NetworkKind,
   type NetworkInfoSolana,
   type TokenSolana,
+  HHAPITagServiceExternal,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from '../errors';
 import type { HolyheldSDKInterface, WalletBalancesSolana, WalletTokenSolana } from '../sdk.types';
@@ -19,6 +20,7 @@ export default class SdkSolana implements SdkSolanaInterface {
   readonly #assetService: HHAPIAssetsServiceExternal;
   readonly #swapService: HHAPISwapServiceExternal;
   readonly #txTagService: HHAPITxTagServiceExternal;
+  readonly #tagService: HHAPITagServiceExternal;
 
   readonly #common: HolyheldSDKInterface;
 
@@ -29,6 +31,7 @@ export default class SdkSolana implements SdkSolanaInterface {
     this.#assetService = options.services.assetService;
     this.#swapService = options.services.swapService;
     this.#txTagService = options.services.txTagService;
+    this.#tagService = options.services.tagService;
 
     this.#common = options.common;
 
@@ -36,6 +39,7 @@ export default class SdkSolana implements SdkSolanaInterface {
       common: this.#common,
       commonSolana: this,
       services: {
+        tagService: this.#tagService,
         txTagService: this.#txTagService,
         approvalService: this.#approvalService,
         assetService: this.#assetService,

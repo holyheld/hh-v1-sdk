@@ -9,6 +9,7 @@ import {
   type WalletClient,
 } from 'viem';
 import type {
+  HHAPITagServiceExternal,
   TokenEVM,
   TransferDataEVM,
   WithPermitData,
@@ -47,6 +48,7 @@ export default class SdkEVMOffRamp {
   readonly #assetService: HHAPIAssetsServiceExternal;
   readonly #swapService: HHAPISwapServiceExternal;
   readonly #nonceService: HHAPINonceServiceExternal;
+  readonly #tagService: HHAPITagServiceExternal;
 
   readonly #common: HolyheldSDKInterface;
   readonly #commonEVM: SdkEVMInterface;
@@ -57,6 +59,7 @@ export default class SdkEVMOffRamp {
     this.#assetService = options.services.assetService;
     this.#swapService = options.services.swapService;
     this.#txTagService = options.services.txTagService;
+    this.#tagService = options.services.tagService;
     this.#nonceService = options.services.nonceService;
 
     this.#common = options.common;
@@ -393,6 +396,225 @@ export default class SdkEVMOffRamp {
         swapTargetPrice,
         transferData,
         tagHash,
+        {
+          onTransactionHash: (hash: string) => {
+            params.eventConfig?.onHashGenerate?.(hash);
+          },
+          eventBus: {
+            emit: (payload) => {
+              if (payload.state === TransactionState.Pending) {
+                let value: TopUpStep;
+
+                switch (payload.type) {
+                  case TransactionStep.Confirm:
+                    value = TopUpStep.Confirming;
+                    break;
+                  case TransactionStep.Approve:
+                    value = TopUpStep.Approving;
+                    break;
+                  default:
+                    value = TopUpStep.Sending;
+                    break;
+                }
+
+                params.eventConfig?.onStepChange?.(value);
+              }
+            },
+          },
+          onCallData: async (payload) => {
+            this.#common.sendAudit({
+              data: payload,
+              address: params.walletAddress as Address,
+              operationId,
+            });
+          },
+        },
+      );
+    } catch (error) {
+      if (error instanceof HolyheldSDKError) {
+        throw error;
+      }
+
+      if (error instanceof ExpectedError && error.getCode() === 'userRejectSign') {
+        throw new HolyheldSDKError(
+          HolyheldSDKErrorCode.UserRejectedSignature,
+          'User rejected the signature request',
+          error,
+        );
+      }
+
+      if (error instanceof ExpectedError && error.getCode() === 'userRejectTransaction') {
+        throw new HolyheldSDKError(
+          HolyheldSDKErrorCode.UserRejectedTransaction,
+          'User rejected the transaction',
+          error,
+        );
+      }
+
+      if (error instanceof HHError) {
+        throw new HolyheldSDKError(
+          HolyheldSDKErrorCode.FailedTopUp,
+          `Top up failed${error instanceof UnexpectedError ? ` with code ${error.getCode()}` : ''}`,
+          error,
+        );
+      }
+
+      throw error;
+    }
+  }
+
+  async topupSelf(params: {
+    publicClient: PublicClient<Transport, Chain>;
+    walletClient: WalletClient;
+    walletAddress: string;
+    tokenAddress: string;
+    tokenNetwork: Network;
+    tokenAmount: string;
+    transferData: TransferDataEVM | undefined;
+    supportsSignTypedDataV4?: boolean;
+    supportsRawTransactionsSigning?: boolean;
+    eventConfig?: TopUpCallbackConfig;
+  }): Promise<void> {
+    this.#common.assertInitialized();
+
+    const operationId = `EVMOffRamp_${Math.random()}`;
+
+    this.#common.sendAudit({
+      data: {
+        transferData: params.transferData,
+        tokenAmount: params.tokenAmount,
+        tokenAddress: params.tokenAddress,
+        network: params.tokenNetwork,
+      },
+      address: params.walletAddress as Address,
+      operationId,
+    });
+
+    try {
+      const chainId = await params.walletClient.getChainId();
+      const walletNetwork = Core.getNetworkByChainId(chainId);
+
+      if (walletNetwork === undefined) {
+        throw new HolyheldSDKError(
+          HolyheldSDKErrorCode.UnsupportedNetwork,
+          `Unsupported chain id: ${chainId}`,
+        );
+      }
+
+      if (walletNetwork.network !== params.tokenNetwork) {
+        throw new HolyheldSDKError(
+          HolyheldSDKErrorCode.UnexpectedWalletNetwork,
+          'Wallet network must match the token network',
+        );
+      }
+
+      const info = await this.#tagService.validateAddress({ address: params.walletAddress });
+
+      if (!info.isTopupAllowed) {
+        throw new HolyheldSDKError(HolyheldSDKErrorCode.FailedTopUp, 'Top up not allowed');
+      }
+
+      const inputAsset = await this.#assetService.getFullTokenDataWithPrice({
+        address: params.tokenAddress as Address,
+        network: params.tokenNetwork,
+      });
+
+      const convertData = await this.convertTokenToEUR({
+        walletAddress: params.walletAddress,
+        tokenAddress: inputAsset.address,
+        tokenDecimals: inputAsset.decimals,
+        amount: params.tokenAmount,
+        network: params.tokenNetwork,
+      });
+
+      const settings = await this.#common.getServerSettings();
+
+      if (
+        new BigNumber(convertData.EURAmount).lt(
+          new BigNumber(settings.external.minTopUpAmountInEUR).multipliedBy(new BigNumber(0.99)),
+        )
+      ) {
+        throw new HolyheldSDKError(
+          HolyheldSDKErrorCode.InvalidTopUpAmount,
+          `Minimum allowed amount is ${settings.external.minTopUpAmountInEUR} EUR`,
+        );
+      }
+
+      const maxTopUpAmountInEUR = settings.external.maxTopUpAmountInEUR;
+
+      if (
+        new BigNumber(convertData.EURAmount).gt(
+          new BigNumber(maxTopUpAmountInEUR).multipliedBy(new BigNumber(1.01)),
+        )
+      ) {
+        throw new HolyheldSDKError(
+          HolyheldSDKErrorCode.InvalidTopUpAmount,
+          `Maximum allowed amount is ${maxTopUpAmountInEUR} EUR`,
+        );
+      }
+
+      let swapTargetPrice = '0';
+      let transferData: TransferDataEVM | undefined = params.transferData;
+
+      const isSwapTarget = Core.isSwapTargetForTopUp(
+        params.tokenAddress as Address,
+        params.tokenNetwork,
+      );
+      const isSettlementToken = Core.isSettlementTokenForTopUp(
+        params.tokenAddress as Address,
+        params.tokenNetwork,
+      );
+      const isEURSettlementToken =
+        isSettlementToken &&
+        (Core.getSettlementTokensForTopUp(params.tokenNetwork).find((st) =>
+          Core.sameAddress(st.address, params.tokenAddress),
+        )?.isEURStableCoin ??
+          false);
+
+      if (!isSwapTarget && !isEURSettlementToken) {
+        const swapTarget = Core.getSwapTargetForTopUp(params.tokenNetwork);
+
+        swapTargetPrice = (
+          await this.#assetService.getFullTokenDataWithPrice({
+            address: swapTarget.address,
+            network: swapTarget.network,
+          })
+        ).priceUSD;
+
+        if (transferData === undefined) {
+          transferData = convertData.transferData;
+        }
+      } else {
+        transferData = undefined;
+      }
+
+      const walletInfo = createWalletInfoAdapter(
+        params.walletAddress as Address,
+        params.publicClient,
+        this.#nonceService,
+        !!params.supportsSignTypedDataV4,
+        !!params.supportsRawTransactionsSigning,
+      );
+
+      const permit2Service = new Permit2OnChainService(walletInfo);
+
+      const topupService = new CardTopUpOnChainService({
+        approvalChecker: this.#approvalService,
+        addressChecker: this.#approvalService,
+        permitService: this.#permitService,
+        permit2Service,
+        walletInfo,
+      });
+
+      await topupService.topUpCompound(
+        params.walletAddress as Address,
+        params.publicClient,
+        createWalletClientAdapter(params.walletClient),
+        inputAsset as WithPrice<WithPermitData<TokenEVM>>,
+        params.tokenAmount,
+        swapTargetPrice,
+        transferData,
+        pad('0x0', { dir: 'left', size: 32 }),
         {
           onTransactionHash: (hash: string) => {
             params.eventConfig?.onHashGenerate?.(hash);

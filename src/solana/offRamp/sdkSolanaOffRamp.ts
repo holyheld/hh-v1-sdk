@@ -1,5 +1,5 @@
 import type { Connection } from '@solana/web3.js';
-import { parseUnits } from 'viem';
+import { pad, parseUnits } from 'viem';
 import BigNumber from 'bignumber.js';
 import Core, {
   HHAPIApprovalServiceExternal,
@@ -18,6 +18,7 @@ import Core, {
   WalletClientSolana,
   ExpectedError,
   UnexpectedError,
+  HHAPITagServiceExternal,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 
 import { HolyheldSDKError, HolyheldSDKErrorCode } from '../../errors';
@@ -31,6 +32,7 @@ export default class SdkSolanaOffRamp {
   readonly #approvalService: HHAPIApprovalServiceExternal;
   readonly #assetService: HHAPIAssetsServiceExternal;
   readonly #swapService: HHAPISwapServiceExternal;
+  readonly #tagService: HHAPITagServiceExternal;
 
   readonly #common: HolyheldSDKInterface;
   readonly #commonSolana: SdkSolanaInterface;
@@ -40,6 +42,7 @@ export default class SdkSolanaOffRamp {
     this.#assetService = options.services.assetService;
     this.#swapService = options.services.swapService;
     this.#txTagService = options.services.txTagService;
+    this.#tagService = options.services.tagService;
 
     this.#common = options.common;
     this.#commonSolana = options.commonSolana;
@@ -131,7 +134,7 @@ export default class SdkSolanaOffRamp {
     tokenAddress: string;
     tokenNetwork: SolanaNetwork;
     tokenAmount: string;
-    holytag: string;
+    holytag?: string;
     transferData?: TransferDataSolana;
     eventConfig?: TopUpCallbackConfig;
     operationId?: string;
@@ -156,7 +159,8 @@ export default class SdkSolanaOffRamp {
 
     const settings = await this.#common.getServerSettings();
 
-    const isTestHolytag = params.holytag.toLowerCase() === TEST_HOLYTAG.toLowerCase();
+    const isTestHolytag =
+      params.holytag !== undefined && params.holytag.toLowerCase() === TEST_HOLYTAG.toLowerCase();
 
     if (
       !isTestHolytag &&
@@ -219,7 +223,12 @@ export default class SdkSolanaOffRamp {
       transferData = undefined;
     }
 
-    const receiverHash = await this.#txTagService.getTagTopUpCode({ tag: params.holytag });
+    const receiverHash =
+      params.holytag !== undefined
+        ? await this.#txTagService.getTagTopUpCode({
+            tag: params.holytag,
+          })
+        : pad('0x0', { dir: 'left', size: 32 });
 
     const flowData = await service.buildTopUp({
       connection: params.connection,
@@ -274,7 +283,7 @@ export default class SdkSolanaOffRamp {
     tokenAddress: string;
     tokenNetwork: SolanaNetwork;
     tokenAmount: string;
-    holytag: string;
+    holytag?: string;
     transferData?: TransferDataSolana;
   }): Promise<string> {
     this.#common.assertInitialized();
@@ -346,6 +355,109 @@ export default class SdkSolanaOffRamp {
         tokenAmount: params.tokenAmount,
         transferData: params.transferData,
         holytag: params.holytag,
+        eventConfig: params.eventConfig,
+        operationId,
+      });
+
+      this.#common.sendAudit({
+        data: {
+          ...flowData,
+          eventConfig: undefined,
+          amountInLamports: `${flowData.amountInLamports}`,
+          estimation: {
+            baseFees: `${flowData.estimation.baseFees}`,
+            priorityFees: `${flowData.estimation.priorityFees}`,
+            totalFee: `${flowData.estimation.totalFee}`,
+          },
+        },
+        address: params.walletAddress,
+        operationId,
+      });
+
+      return service.executeTopUp({
+        flowData,
+        connection: params.connection,
+        senderAddress: params.walletAddress,
+        walletClient: params.walletClient,
+      });
+    } catch (error) {
+      if (error instanceof HolyheldSDKError) {
+        throw error;
+      }
+
+      if (error instanceof ExpectedError && error.getCode() === 'userRejectSign') {
+        throw new HolyheldSDKError(
+          HolyheldSDKErrorCode.UserRejectedSignature,
+          'User rejected the signature request',
+          error,
+        );
+      }
+
+      if (error instanceof ExpectedError && error.getCode() === 'userRejectTransaction') {
+        throw new HolyheldSDKError(
+          HolyheldSDKErrorCode.UserRejectedTransaction,
+          'User rejected the transaction',
+          error,
+        );
+      }
+
+      if (error instanceof HHError) {
+        throw new HolyheldSDKError(
+          HolyheldSDKErrorCode.FailedTopUp,
+          `Top up failed${error instanceof UnexpectedError ? ` with code ${error.getCode()}` : ''}`,
+          error,
+        );
+      }
+
+      throw error;
+    }
+  }
+
+  async topupSelf(params: {
+    connection: Connection;
+    walletClient: WalletClientSolana;
+    walletAddress: string;
+    tokenAddress: string;
+    tokenNetwork: SolanaNetwork;
+    tokenAmount: string;
+    transferData: TransferDataSolana | undefined;
+    eventConfig?: TopUpCallbackConfig;
+  }): Promise<string> {
+    this.#common.assertInitialized();
+
+    const operationId = `solanaOffRamp_${Math.random()}`;
+
+    this.#common.sendAudit({
+      data: {
+        walletAddress: params.walletAddress,
+        tokenAddress: params.tokenAddress,
+        tokenNetwork: params.tokenNetwork,
+        tokenAmount: params.tokenAmount,
+        transferData: params.transferData,
+      },
+      address: params.walletAddress,
+      operationId,
+    });
+
+    const info = await this.#tagService.validateAddress({ address: params.walletAddress });
+
+    if (!info.isTopupAllowed) {
+      throw new HolyheldSDKError(HolyheldSDKErrorCode.FailedTopUp, 'Top up not allowed');
+    }
+
+    try {
+      const service = new CardTopUpOnChainServiceSolana({
+        priorityFeeGetter: this.#assetService,
+        addressChecker: this.#approvalService,
+      });
+
+      const flowData = await this.#estimate({
+        connection: params.connection,
+        walletAddress: params.walletAddress,
+        tokenAddress: params.tokenAddress,
+        tokenNetwork: params.tokenNetwork,
+        tokenAmount: params.tokenAmount,
+        transferData: params.transferData,
         eventConfig: params.eventConfig,
         operationId,
       });

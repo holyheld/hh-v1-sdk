@@ -7,6 +7,7 @@ export interface SdkEVMOffRampOptions {
   commonEVM: SdkEVMInterface;
   services: RequiredServiceList<
     | 'txTagService'
+    | 'tagService'
     | 'permitService'
     | 'approvalService'
     | 'assetService'
