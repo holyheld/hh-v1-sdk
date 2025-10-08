@@ -6,8 +6,8 @@ import Core, {
   HHError,
   Network,
   UnexpectedError,
+  type EVMAddress,
 } from '@holyheld/web-app-shared/sdklib/bundle';
-import type { Address } from 'viem';
 import { createPromise } from '../../helpers';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from '../../errors';
 import type {
@@ -53,7 +53,7 @@ export default class SdkEVMOnRamp {
 
     try {
       const token = await this.#commonEVM.getTokenByAddressAndNetwork(
-        params.tokenAddress as Address,
+        params.tokenAddress as EVMAddress,
         params.tokenNetwork,
       );
 
@@ -81,7 +81,7 @@ export default class SdkEVMOnRamp {
 
     try {
       const token = await this.#commonEVM.getTokenByAddressAndNetwork(
-        params.tokenAddress as Address,
+        params.tokenAddress as EVMAddress,
         params.tokenNetwork,
       );
 
@@ -110,14 +110,14 @@ export default class SdkEVMOnRamp {
 
     try {
       const token = await this.#commonEVM.getTokenByAddressAndNetwork(
-        params.tokenAddress as Address,
+        params.tokenAddress as EVMAddress,
         params.tokenNetwork,
       );
 
       const response = await this.#onRampService.estimate({
         token,
         amountEUR: params.EURAmount,
-        beneficiaryAddress: params.walletAddress as Address,
+        beneficiaryAddress: params.walletAddress as EVMAddress,
       });
 
       return response;
@@ -147,7 +147,7 @@ export default class SdkEVMOnRamp {
         fiatAmount: params.EURAmount,
         walletAddress: params.walletAddress,
       },
-      address: params.walletAddress as Address,
+      address: params.walletAddress as EVMAddress,
       operationId,
     });
 
@@ -171,12 +171,12 @@ export default class SdkEVMOnRamp {
       }
 
       const token = await this.#commonEVM.getTokenByAddressAndNetwork(
-        params.tokenAddress as Address,
+        params.tokenAddress as EVMAddress,
         params.tokenNetwork,
       );
 
       const response = await this.#onRampService.requestExecute({
-        address: params.walletAddress as Address,
+        address: params.walletAddress as EVMAddress,
         token: token,
         fiatAmount: params.EURAmount,
       });

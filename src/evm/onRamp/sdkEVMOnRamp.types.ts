@@ -1,7 +1,6 @@
-import { TokenEVM } from '@holyheld/web-app-shared/sdklib/bundle';
+import type { EVMAddress, TokenEVM } from '@holyheld/web-app-shared/sdklib/bundle';
 import { HolyheldSDKInterface, RequiredServiceList } from '../../sdk.types';
 import { SdkEVMInterface } from '../sdkEVM.types';
-import { Address } from 'viem';
 
 export interface SdkEVMOnRampOptions {
   common: HolyheldSDKInterface;
@@ -16,5 +15,5 @@ export type RequestOnRampEVMResult = {
   amountEUR: string;
   amountToken: string;
   feeEUR: string;
-  beneficiaryAddress: Address;
+  beneficiaryAddress: EVMAddress;
 };

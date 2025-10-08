@@ -19,6 +19,8 @@ import Core, {
   ExpectedError,
   UnexpectedError,
   HHAPITagServiceExternal,
+  type SolanaAddress,
+  NetworkKind,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 
 import { HolyheldSDKError, HolyheldSDKErrorCode } from '../../errors';
@@ -145,7 +147,8 @@ export default class SdkSolanaOffRamp {
     });
 
     const token = (await this.#assetService.getFullTokenDataWithPrice({
-      address: params.tokenAddress,
+      address: params.tokenAddress as SolanaAddress,
+      networkKind: NetworkKind.Solana,
       network: params.tokenNetwork,
     })) as WithPrice<TokenSolana>;
 
@@ -194,9 +197,12 @@ export default class SdkSolanaOffRamp {
     let swapTargetPriceUSD = '0';
     let transferData: TransferDataSolana | undefined = params.transferData;
 
-    const isSwapTarget = Core.isSwapTargetForTopUpSolana(params.tokenAddress, params.tokenNetwork);
+    const isSwapTarget = Core.isSwapTargetForTopUpSolana(
+      params.tokenAddress as SolanaAddress,
+      params.tokenNetwork,
+    );
     const isSettlementToken = Core.isSettlementTokenForTopUpSolana(
-      params.tokenAddress,
+      params.tokenAddress as SolanaAddress,
       params.tokenNetwork,
     );
     const isEURSettlementToken =
@@ -212,6 +218,7 @@ export default class SdkSolanaOffRamp {
       swapTargetPriceUSD = (
         await this.#assetService.getFullTokenDataWithPrice({
           address: swapTarget.address,
+          networkKind: NetworkKind.Solana,
           network: swapTarget.network,
         })
       ).priceUSD;
@@ -265,14 +272,14 @@ export default class SdkSolanaOffRamp {
           },
         },
       },
-      senderAddress: params.walletAddress,
+      senderAddress: params.walletAddress as SolanaAddress,
     });
 
     params.eventConfig?.onStepChange?.(TopUpStep.Confirming);
 
     return service.estimateTopUp({
       connection: params.connection,
-      senderAddress: params.walletAddress,
+      senderAddress: params.walletAddress as SolanaAddress,
       flowData,
     });
   }
@@ -377,7 +384,7 @@ export default class SdkSolanaOffRamp {
       return service.executeTopUp({
         flowData,
         connection: params.connection,
-        senderAddress: params.walletAddress,
+        senderAddress: params.walletAddress as SolanaAddress,
         walletClient: params.walletClient,
       });
     } catch (error) {
@@ -439,7 +446,9 @@ export default class SdkSolanaOffRamp {
       operationId,
     });
 
-    const info = await this.#tagService.validateAddress({ address: params.walletAddress });
+    const info = await this.#tagService.validateAddress({
+      address: params.walletAddress as SolanaAddress,
+    });
 
     if (!info.isTopupAllowed) {
       throw new HolyheldSDKError(HolyheldSDKErrorCode.FailedTopUp, 'Top up not allowed');
@@ -480,7 +489,7 @@ export default class SdkSolanaOffRamp {
       return service.executeTopUp({
         flowData,
         connection: params.connection,
-        senderAddress: params.walletAddress,
+        senderAddress: params.walletAddress as SolanaAddress,
         walletClient: params.walletClient,
       });
     } catch (error) {

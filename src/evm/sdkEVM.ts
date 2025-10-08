@@ -1,4 +1,5 @@
 import type {
+  EVMAddress,
   HHAPITagServiceExternal,
   NetworkInfoEVM,
   TokenEVM,
@@ -108,7 +109,7 @@ export default class SdkEVM implements SdkEVMInterface {
 
     try {
       const { tokens } = await this.#assetService.getMultiChainWalletTokens({
-        address,
+        address: address as EVMAddress,
         networkKind: NetworkKind.EVM,
       });
       const availableNetworks = this.getAvailableNetworks();
@@ -132,7 +133,7 @@ export default class SdkEVM implements SdkEVMInterface {
 
   async getTokenByAddressAndNetwork(address: string, network: Network): Promise<TokenEVM> {
     return (await this.#assetService.getTokenData({
-      address,
+      address: address as EVMAddress,
       network,
     })) as WithPermitData<TokenEVM>;
   }

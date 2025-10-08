@@ -11,6 +11,8 @@ import Core, {
   HHError,
   PermitOnChainService,
   type ServerExternalSettings,
+  type EVMAddress,
+  type SolanaAddress,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import {
   CORE_SERVICE_BASE_URL,
@@ -133,7 +135,7 @@ export default class HolyheldSDK implements HolyheldSDKInterface {
   async init(): Promise<void> {
     try {
       const config = await this.#settingsService.getClientConfig({ clientType: CLIENT_TYPE });
-      Core.setConfig(config.evmNetworks);
+      Core.setEVMConfig(config.evmNetworks);
       Core.setSolanaConfig(config.solanaNetwork);
       this.#isInitialized = true;
     } catch (error) {
@@ -200,7 +202,9 @@ export default class HolyheldSDK implements HolyheldSDKInterface {
     this.assertInitialized();
 
     try {
-      return await this.#tagService.validateAddress({ address });
+      return await this.#tagService.validateAddress({
+        address: address as EVMAddress | SolanaAddress,
+      });
     } catch (error) {
       if (error instanceof HHError) {
         throw new HolyheldSDKError(
@@ -220,7 +224,11 @@ export default class HolyheldSDK implements HolyheldSDKInterface {
     operationId?: string | undefined;
   }): Promise<void> {
     try {
-      await this.#auditService.sendAuditEvent(params.data, params.address, params.operationId);
+      await this.#auditService.sendAuditEvent(
+        params.data,
+        params.address as EVMAddress | SolanaAddress,
+        params.operationId,
+      );
     } catch (error) {
       this.#logger(LogLevel.Warning, 'Failed to send audit event');
     }
