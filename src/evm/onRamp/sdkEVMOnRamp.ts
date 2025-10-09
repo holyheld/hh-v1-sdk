@@ -6,7 +6,6 @@ import Core, {
   HHError,
   Network,
   UnexpectedError,
-  type EVMAddress,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import { createPromise } from '../../helpers';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from '../../errors';
@@ -53,7 +52,7 @@ export default class SdkEVMOnRamp {
 
     try {
       const token = await this.#commonEVM.getTokenByAddressAndNetwork(
-        params.tokenAddress as EVMAddress,
+        Core.toEVMAddress(params.tokenAddress),
         params.tokenNetwork,
       );
 
@@ -81,7 +80,7 @@ export default class SdkEVMOnRamp {
 
     try {
       const token = await this.#commonEVM.getTokenByAddressAndNetwork(
-        params.tokenAddress as EVMAddress,
+        Core.toEVMAddress(params.tokenAddress),
         params.tokenNetwork,
       );
 
@@ -110,14 +109,14 @@ export default class SdkEVMOnRamp {
 
     try {
       const token = await this.#commonEVM.getTokenByAddressAndNetwork(
-        params.tokenAddress as EVMAddress,
+        Core.toEVMAddress(params.tokenAddress),
         params.tokenNetwork,
       );
 
       const response = await this.#onRampService.estimate({
         token,
         amountEUR: params.EURAmount,
-        beneficiaryAddress: params.walletAddress as EVMAddress,
+        beneficiaryAddress: Core.toEVMAddress(params.walletAddress),
       });
 
       return response;
@@ -147,7 +146,7 @@ export default class SdkEVMOnRamp {
         fiatAmount: params.EURAmount,
         walletAddress: params.walletAddress,
       },
-      address: params.walletAddress as EVMAddress,
+      address: Core.toEVMAddress(params.walletAddress),
       operationId,
     });
 
@@ -171,12 +170,12 @@ export default class SdkEVMOnRamp {
       }
 
       const token = await this.#commonEVM.getTokenByAddressAndNetwork(
-        params.tokenAddress as EVMAddress,
+        Core.toEVMAddress(params.tokenAddress),
         params.tokenNetwork,
       );
 
       const response = await this.#onRampService.requestExecute({
-        address: params.walletAddress as EVMAddress,
+        address: Core.toEVMAddress(params.walletAddress),
         token: token,
         fiatAmount: params.EURAmount,
       });

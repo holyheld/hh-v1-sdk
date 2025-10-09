@@ -201,9 +201,17 @@ export default class HolyheldSDK implements HolyheldSDKInterface {
   async validateAddress(address: string): Promise<ValidateAddressResult> {
     this.assertInitialized();
 
+    let processedAddress = address;
+
+    if (Core.isEVMAddress(address)) {
+      processedAddress = Core.toEVMAddress(address);
+    } else if (Core.isSolanaAddress(address)) {
+      processedAddress = Core.toSolanaAddress(address);
+    }
+
     try {
       return await this.#tagService.validateAddress({
-        address: address as EVMAddress | SolanaAddress,
+        address: processedAddress as EVMAddress | SolanaAddress,
       });
     } catch (error) {
       if (error instanceof HHError) {
@@ -223,10 +231,18 @@ export default class HolyheldSDK implements HolyheldSDKInterface {
     address: string;
     operationId?: string | undefined;
   }): Promise<void> {
+    let processedAddress = params.address;
+
+    if (Core.isEVMAddress(params.address)) {
+      processedAddress = Core.toEVMAddress(params.address);
+    } else if (Core.isSolanaAddress(params.address)) {
+      processedAddress = Core.toSolanaAddress(params.address);
+    }
+
     try {
       await this.#auditService.sendAuditEvent(
         params.data,
-        params.address as EVMAddress | SolanaAddress,
+        processedAddress as EVMAddress | SolanaAddress,
         params.operationId,
       );
     } catch (error) {

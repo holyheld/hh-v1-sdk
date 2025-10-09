@@ -8,7 +8,6 @@ import {
   type WalletClient,
 } from 'viem';
 import type {
-  EVMAddress,
   HHAPITagServiceExternal,
   TokenEVM,
   TransferDataEVM,
@@ -98,7 +97,7 @@ export default class SdkEVMOffRamp {
       return await this.#swapService.convertTokenToEURForTopUp(
         swapTarget.address,
         swapTarget.decimals,
-        params.tokenAddress as EVMAddress,
+        Core.toEVMAddress(params.tokenAddress),
         params.tokenDecimals,
         params.amount,
         topupProxyAddress,
@@ -138,7 +137,7 @@ export default class SdkEVMOffRamp {
       return await this.#swapService.convertEURToTokenForTopUp(
         swapTarget.address,
         swapTarget.decimals,
-        params.tokenAddress as EVMAddress,
+        Core.toEVMAddress(params.tokenAddress),
         params.tokenDecimals,
         params.amount,
         topupProxyAddress,
@@ -176,7 +175,7 @@ export default class SdkEVMOffRamp {
       }
 
       const walletInfo = createWalletInfoAdapter(
-        params.walletAddress as EVMAddress,
+        Core.toEVMAddress(params.walletAddress),
         params.publicClient,
         this.#nonceService,
         !!params.supportsSignTypedDataV4,
@@ -216,7 +215,7 @@ export default class SdkEVMOffRamp {
 
       const allowanceFlow = await topupService.getAllowanceFlow({
         publicClient: params.publicClient,
-        senderAddress: params.walletAddress as EVMAddress,
+        senderAddress: Core.toEVMAddress(params.walletAddress),
         flowData: {
           flowType: 'topUp',
           amountInWei: parseUnits(params.amount, networkInfo.baseAsset.decimals),
@@ -269,7 +268,7 @@ export default class SdkEVMOffRamp {
         tokenAddress: params.tokenAddress,
         network: params.tokenNetwork,
       },
-      address: params.walletAddress as EVMAddress,
+      address: Core.toEVMAddress(params.walletAddress),
       operationId,
     });
 
@@ -294,7 +293,7 @@ export default class SdkEVMOffRamp {
       const tagHash = await this.#txTagService.getTagTopUpCode({ tag: params.holytag });
 
       const inputAsset = await this.#assetService.getFullTokenDataWithPrice({
-        address: params.tokenAddress as EVMAddress,
+        address: Core.toEVMAddress(params.tokenAddress),
         networkKind: NetworkKind.EVM,
         network: params.tokenNetwork,
       });
@@ -342,11 +341,11 @@ export default class SdkEVMOffRamp {
       let transferData: TransferDataEVM | undefined = params.transferData;
 
       const isSwapTarget = Core.isSwapTargetForTopUp(
-        params.tokenAddress as EVMAddress,
+        Core.toEVMAddress(params.tokenAddress),
         params.tokenNetwork,
       );
       const isSettlementToken = Core.isSettlementTokenForTopUp(
-        params.tokenAddress as EVMAddress,
+        Core.toEVMAddress(params.tokenAddress),
         params.tokenNetwork,
       );
       const isEURSettlementToken =
@@ -375,7 +374,7 @@ export default class SdkEVMOffRamp {
       }
 
       const walletInfo = createWalletInfoAdapter(
-        params.walletAddress as EVMAddress,
+        Core.toEVMAddress(params.walletAddress),
         params.publicClient,
         this.#nonceService,
         !!params.supportsSignTypedDataV4,
@@ -393,7 +392,7 @@ export default class SdkEVMOffRamp {
       });
 
       await topupService.topUpCompound(
-        params.walletAddress as EVMAddress,
+        Core.toEVMAddress(params.walletAddress),
         params.publicClient,
         createWalletClientAdapter(params.walletClient),
         inputAsset as WithPrice<WithPermitData<TokenEVM>>,
@@ -429,7 +428,7 @@ export default class SdkEVMOffRamp {
           onCallData: async (payload) => {
             this.#common.sendAudit({
               data: payload,
-              address: params.walletAddress as EVMAddress,
+              address: Core.toEVMAddress(params.walletAddress),
               operationId,
             });
           },
@@ -491,7 +490,7 @@ export default class SdkEVMOffRamp {
         tokenAddress: params.tokenAddress,
         network: params.tokenNetwork,
       },
-      address: params.walletAddress as EVMAddress,
+      address: Core.toEVMAddress(params.walletAddress),
       operationId,
     });
 
@@ -514,7 +513,7 @@ export default class SdkEVMOffRamp {
       }
 
       const info = await this.#tagService.validateAddress({
-        address: params.walletAddress as EVMAddress,
+        address: Core.toEVMAddress(params.walletAddress),
       });
 
       if (!info.isTopupAllowed) {
@@ -522,7 +521,7 @@ export default class SdkEVMOffRamp {
       }
 
       const inputAsset = await this.#assetService.getFullTokenDataWithPrice({
-        address: params.tokenAddress as EVMAddress,
+        address: Core.toEVMAddress(params.tokenAddress),
         networkKind: NetworkKind.EVM,
         network: params.tokenNetwork,
       });
@@ -565,11 +564,11 @@ export default class SdkEVMOffRamp {
       let transferData: TransferDataEVM | undefined = params.transferData;
 
       const isSwapTarget = Core.isSwapTargetForTopUp(
-        params.tokenAddress as EVMAddress,
+        Core.toEVMAddress(params.tokenAddress),
         params.tokenNetwork,
       );
       const isSettlementToken = Core.isSettlementTokenForTopUp(
-        params.tokenAddress as EVMAddress,
+        Core.toEVMAddress(params.tokenAddress),
         params.tokenNetwork,
       );
       const isEURSettlementToken =
@@ -598,7 +597,7 @@ export default class SdkEVMOffRamp {
       }
 
       const walletInfo = createWalletInfoAdapter(
-        params.walletAddress as EVMAddress,
+        Core.toEVMAddress(params.walletAddress),
         params.publicClient,
         this.#nonceService,
         !!params.supportsSignTypedDataV4,
@@ -616,7 +615,7 @@ export default class SdkEVMOffRamp {
       });
 
       await topupService.topUpCompound(
-        params.walletAddress as EVMAddress,
+        Core.toEVMAddress(params.walletAddress),
         params.publicClient,
         createWalletClientAdapter(params.walletClient),
         inputAsset as WithPrice<WithPermitData<TokenEVM>>,
@@ -652,7 +651,7 @@ export default class SdkEVMOffRamp {
           onCallData: async (payload) => {
             this.#common.sendAudit({
               data: payload,
-              address: params.walletAddress as EVMAddress,
+              address: Core.toEVMAddress(params.walletAddress),
               operationId,
             });
           },

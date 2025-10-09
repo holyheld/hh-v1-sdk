@@ -19,7 +19,6 @@ import Core, {
   ExpectedError,
   UnexpectedError,
   HHAPITagServiceExternal,
-  type SolanaAddress,
   NetworkKind,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 
@@ -147,7 +146,7 @@ export default class SdkSolanaOffRamp {
     });
 
     const token = (await this.#assetService.getFullTokenDataWithPrice({
-      address: params.tokenAddress as SolanaAddress,
+      address: Core.toSolanaAddress(params.tokenAddress),
       networkKind: NetworkKind.Solana,
       network: params.tokenNetwork,
     })) as WithPrice<TokenSolana>;
@@ -198,11 +197,11 @@ export default class SdkSolanaOffRamp {
     let transferData: TransferDataSolana | undefined = params.transferData;
 
     const isSwapTarget = Core.isSwapTargetForTopUpSolana(
-      params.tokenAddress as SolanaAddress,
+      Core.toSolanaAddress(params.tokenAddress),
       params.tokenNetwork,
     );
     const isSettlementToken = Core.isSettlementTokenForTopUpSolana(
-      params.tokenAddress as SolanaAddress,
+      Core.toSolanaAddress(params.tokenAddress),
       params.tokenNetwork,
     );
     const isEURSettlementToken =
@@ -272,14 +271,14 @@ export default class SdkSolanaOffRamp {
           },
         },
       },
-      senderAddress: params.walletAddress as SolanaAddress,
+      senderAddress: Core.toSolanaAddress(params.walletAddress),
     });
 
     params.eventConfig?.onStepChange?.(TopUpStep.Confirming);
 
     return service.estimateTopUp({
       connection: params.connection,
-      senderAddress: params.walletAddress as SolanaAddress,
+      senderAddress: Core.toSolanaAddress(params.walletAddress),
       flowData,
     });
   }
@@ -384,7 +383,7 @@ export default class SdkSolanaOffRamp {
       return service.executeTopUp({
         flowData,
         connection: params.connection,
-        senderAddress: params.walletAddress as SolanaAddress,
+        senderAddress: Core.toSolanaAddress(params.walletAddress),
         walletClient: params.walletClient,
       });
     } catch (error) {
@@ -447,7 +446,7 @@ export default class SdkSolanaOffRamp {
     });
 
     const info = await this.#tagService.validateAddress({
-      address: params.walletAddress as SolanaAddress,
+      address: Core.toSolanaAddress(params.walletAddress),
     });
 
     if (!info.isTopupAllowed) {
@@ -489,7 +488,7 @@ export default class SdkSolanaOffRamp {
       return service.executeTopUp({
         flowData,
         connection: params.connection,
-        senderAddress: params.walletAddress as SolanaAddress,
+        senderAddress: Core.toSolanaAddress(params.walletAddress),
         walletClient: params.walletClient,
       });
     } catch (error) {
