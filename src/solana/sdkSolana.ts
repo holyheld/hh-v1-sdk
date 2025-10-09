@@ -3,12 +3,12 @@ import Core, {
   HHAPIAssetsServiceExternal,
   HHAPISwapServiceExternal,
   HHAPITxTagServiceExternal,
+  HHAPITagServiceExternal,
   HHError,
   SolanaNetwork,
   NetworkKind,
   type NetworkInfoSolana,
   type TokenSolana,
-  HHAPITagServiceExternal,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from '../errors';
 import type { HolyheldSDKInterface, WalletBalancesSolana, WalletTokenSolana } from '../sdk.types';
@@ -71,7 +71,7 @@ export default class SdkSolana implements SdkSolanaInterface {
 
     try {
       const { tokens } = await this.#assetService.getMultiChainWalletTokens({
-        address,
+        address: Core.toSolanaAddress(address),
         networkKind: NetworkKind.Solana,
       });
       const availableNetworks = this.getAvailableNetworks();
@@ -95,7 +95,7 @@ export default class SdkSolana implements SdkSolanaInterface {
 
   async getTokenByAddressAndNetwork(address: string, network: SolanaNetwork): Promise<TokenSolana> {
     return (await this.#assetService.getTokenData({
-      address,
+      address: Core.toSolanaAddress(address),
       network,
     })) as TokenSolana;
   }

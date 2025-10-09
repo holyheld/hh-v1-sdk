@@ -1,13 +1,13 @@
 import {
   HHAPINonceServiceExternal,
   isContract,
+  type EVMAddress,
   type PublicClientWithHoistedChain,
   type WalletInfoAdapter,
 } from '@holyheld/web-app-shared/sdklib/bundle';
-import type { Address } from 'viem';
 
 export function createWalletInfoAdapter(
-  address: Address,
+  address: EVMAddress,
   publicClient: PublicClientWithHoistedChain,
   nonceService: HHAPINonceServiceExternal,
   _supportsSignTypedDataV4: boolean,

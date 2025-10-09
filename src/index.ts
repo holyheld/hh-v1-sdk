@@ -5,6 +5,8 @@ export {
   Network,
   SolanaNetwork,
   NetworkKind,
+  type EVMAddress,
+  type SolanaAddress,
   type TransferDataEVM,
   type TransferDataSolana,
   type TokenEVM,

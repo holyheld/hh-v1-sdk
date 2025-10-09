@@ -11,6 +11,8 @@ import Core, {
   HHError,
   PermitOnChainService,
   type ServerExternalSettings,
+  type EVMAddress,
+  type SolanaAddress,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import {
   CORE_SERVICE_BASE_URL,
@@ -133,7 +135,7 @@ export default class HolyheldSDK implements HolyheldSDKInterface {
   async init(): Promise<void> {
     try {
       const config = await this.#settingsService.getClientConfig({ clientType: CLIENT_TYPE });
-      Core.setConfig(config.evmNetworks);
+      Core.setEVMConfig(config.evmNetworks);
       Core.setSolanaConfig(config.solanaNetwork);
       this.#isInitialized = true;
     } catch (error) {
@@ -199,8 +201,18 @@ export default class HolyheldSDK implements HolyheldSDKInterface {
   async validateAddress(address: string): Promise<ValidateAddressResult> {
     this.assertInitialized();
 
+    let processedAddress = address;
+
+    if (Core.isEVMAddress(address)) {
+      processedAddress = Core.toEVMAddress(address);
+    } else if (Core.isSolanaAddress(address)) {
+      processedAddress = Core.toSolanaAddress(address);
+    }
+
     try {
-      return await this.#tagService.validateAddress({ address });
+      return await this.#tagService.validateAddress({
+        address: processedAddress as EVMAddress | SolanaAddress,
+      });
     } catch (error) {
       if (error instanceof HHError) {
         throw new HolyheldSDKError(
@@ -219,8 +231,20 @@ export default class HolyheldSDK implements HolyheldSDKInterface {
     address: string;
     operationId?: string | undefined;
   }): Promise<void> {
+    let processedAddress = params.address;
+
+    if (Core.isEVMAddress(params.address)) {
+      processedAddress = Core.toEVMAddress(params.address);
+    } else if (Core.isSolanaAddress(params.address)) {
+      processedAddress = Core.toSolanaAddress(params.address);
+    }
+
     try {
-      await this.#auditService.sendAuditEvent(params.data, params.address, params.operationId);
+      await this.#auditService.sendAuditEvent(
+        params.data,
+        processedAddress as EVMAddress | SolanaAddress,
+        params.operationId,
+      );
     } catch (error) {
       this.#logger(LogLevel.Warning, 'Failed to send audit event');
     }
