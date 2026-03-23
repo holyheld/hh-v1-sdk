@@ -7,7 +7,6 @@ import Core, {
   HHAPISwapServiceExternal,
   HHAPITxTagServiceExternal,
   CardTopUpOnChainServiceSolana,
-  isDefaultAddress,
   HHError,
   type BaseTopUpFlowSolana,
   type ExecuteFlowSolana,
@@ -54,9 +53,8 @@ export default class SdkSolanaOffRamp {
 
     return this.#commonSolana.getAvailableNetworks().filter((n) => {
       return !(
-        isDefaultAddress(Core.getSolanaNetworkAddress(n, 'TOP_UP_PROGRAM_ADDRESS')) ||
-        isDefaultAddress(Core.getSolanaNetworkAddress(n, 'TOP_UP_TREASURY_ADDRESS')) ||
-        isDefaultAddress(Core.getSolanaNetworkAddress(n, 'TRANSFER_PROXY_ADDRESS'))
+        Core.isDefaultAddress(Core.getSolanaNetworkAddress(n, 'TOP_UP_PROGRAM_ADDRESS')) ||
+        Core.isDefaultAddress(Core.getSolanaNetworkAddress(n, 'TRANSFER_PROXY_ADDRESS'))
       );
     });
   }
