@@ -256,7 +256,7 @@ export default class SdkEVMOffRamp {
     supportsSignTypedDataV4?: boolean;
     supportsRawTransactionsSigning?: boolean;
     eventConfig?: TopUpCallbackConfig;
-  }): Promise<void> {
+  }): Promise<string> {
     this.#common.assertInitialized();
 
     const operationId = `EVMOffRamp_${Math.random()}`;
@@ -391,7 +391,7 @@ export default class SdkEVMOffRamp {
         walletInfo,
       });
 
-      await topupService.topUpCompound(
+      return topupService.topUpCompound(
         Core.toEVMAddress(params.walletAddress),
         params.publicClient,
         createWalletClientAdapter(params.walletClient),
@@ -478,7 +478,7 @@ export default class SdkEVMOffRamp {
     supportsSignTypedDataV4?: boolean;
     supportsRawTransactionsSigning?: boolean;
     eventConfig?: TopUpCallbackConfig;
-  }): Promise<void> {
+  }): Promise<string> {
     this.#common.assertInitialized();
 
     const operationId = `EVMOffRamp_${Math.random()}`;
@@ -614,7 +614,7 @@ export default class SdkEVMOffRamp {
         walletInfo,
       });
 
-      await topupService.topUpCompound(
+      return topupService.topUpCompound(
         Core.toEVMAddress(params.walletAddress),
         params.publicClient,
         createWalletClientAdapter(params.walletClient),
