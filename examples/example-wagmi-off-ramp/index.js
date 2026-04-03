@@ -22,7 +22,7 @@ import {
   blast,
   mode,
   bsc,
-  manta
+  manta,
 } from '@wagmi/core/chains';
 import { injected } from '@wagmi/connectors';
 import HolyheldSDK from '@holyheld/sdk';
@@ -65,7 +65,21 @@ connectButton.addEventListener('click', async () => {
   parentElement.innerHTML = getSpinnerHTML();
 
   config = createConfig({
-    chains: [mainnet, polygon, optimism, polygonZkEvm, gnosis, avalanche, arbitrum, zksync, base, blast, mode, bsc, manta],
+    chains: [
+      mainnet,
+      polygon,
+      optimism,
+      polygonZkEvm,
+      gnosis,
+      avalanche,
+      arbitrum,
+      zksync,
+      base,
+      blast,
+      mode,
+      bsc,
+      manta,
+    ],
     connectors: [injected()],
     transports: {
       [mainnet.id]: http(),
@@ -236,7 +250,7 @@ setAmountButton.addEventListener('click', async () => {
     tokenDecimals: selectedToken.decimals,
     amount: String(amount),
     network: selectedToken.network,
-});
+  });
 
   amountInEUR = response.EURAmount;
 

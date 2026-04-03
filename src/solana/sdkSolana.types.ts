@@ -2,7 +2,7 @@ import {
   SolanaNetwork,
   type TokenSolana,
   type NetworkInfoSolana,
-} from '@holyheld/web-app-shared/sdklib/bundle';
+} from '@holyheld/web-app-shared/sdklib';
 import type { HolyheldSDKInterface, RequiredServiceList, WalletBalancesSolana } from '../sdk.types';
 
 export interface SdkSolanaOptions {

@@ -19,7 +19,7 @@ import Core, {
   UnexpectedError,
   HHAPITagServiceExternal,
   NetworkKind,
-} from '@holyheld/web-app-shared/sdklib/bundle';
+} from '@holyheld/web-app-shared/sdklib';
 
 import { HolyheldSDKError, HolyheldSDKErrorCode } from '../../errors';
 import { EURO_LIMIT_FOR_TEST_HOLYTAG, TEST_HOLYTAG } from '../../constants';

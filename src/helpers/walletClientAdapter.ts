@@ -3,8 +3,8 @@ import type {
   WalletClientAdapter,
   WalletClientExecutor,
   WalletClientWithHoistedAccount,
-} from '@holyheld/web-app-shared/sdklib/bundle';
-import { HHError } from '@holyheld/web-app-shared/sdklib/bundle';
+} from '@holyheld/web-app-shared/sdklib';
+import { HHError } from '@holyheld/web-app-shared/sdklib';
 
 export const createWalletClientAdapter = (client: WalletClient | null): WalletClientAdapter => {
   return {

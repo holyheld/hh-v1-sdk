@@ -19,7 +19,7 @@ export {
   type WithPermitData,
   type WithPrice,
   type WalletClientSolana,
-} from '@holyheld/web-app-shared/sdklib/bundle';
+} from '@holyheld/web-app-shared/sdklib';
 export { type ConvertTopUpDataEVM } from './evm/offRamp/sdkEVMOffRamp.types';
 export { type ConvertTopUpDataSolana } from './solana/offRamp/sdkSolanaOffRamp.types';
 export type { RequestOnRampEVMResult } from './evm/onRamp/sdkEVMOnRamp.types';

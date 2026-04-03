@@ -6,7 +6,7 @@ import Core, {
   HHError,
   Network,
   UnexpectedError,
-} from '@holyheld/web-app-shared/sdklib/bundle';
+} from '@holyheld/web-app-shared/sdklib';
 import { createPromise } from '../../helpers';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from '../../errors';
 import type {

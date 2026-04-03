@@ -9,7 +9,7 @@ import Core, {
   NetworkKind,
   type NetworkInfoSolana,
   type TokenSolana,
-} from '@holyheld/web-app-shared/sdklib/bundle';
+} from '@holyheld/web-app-shared/sdklib';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from '../errors';
 import type { HolyheldSDKInterface, WalletBalancesSolana, WalletTokenSolana } from '../sdk.types';
 import type { SdkSolanaInterface, SdkSolanaOptions } from './sdkSolana.types';

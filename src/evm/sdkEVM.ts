@@ -3,7 +3,7 @@ import type {
   NetworkInfoEVM,
   TokenEVM,
   WithPermitData,
-} from '@holyheld/web-app-shared/sdklib/bundle';
+} from '@holyheld/web-app-shared/sdklib';
 import Core, {
   HHAPIOnRampServiceExternal,
   HHAPIApprovalServiceExternal,
@@ -15,7 +15,7 @@ import Core, {
   Network,
   NetworkKind,
   PermitOnChainService,
-} from '@holyheld/web-app-shared/sdklib/bundle';
+} from '@holyheld/web-app-shared/sdklib';
 import { HolyheldSDKError, HolyheldSDKErrorCode } from '../errors';
 import SdkEVMOffRamp from './offRamp/sdkEVMOffRamp';
 import SdkEVMOnRamp from './onRamp/sdkEVMOnRamp';

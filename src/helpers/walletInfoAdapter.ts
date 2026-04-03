@@ -5,7 +5,7 @@ import SDK, {
   type EVMAddress,
   type PublicClientWithHoistedChain,
   type WalletInfoAdapter,
-} from '@holyheld/web-app-shared/sdklib/bundle';
+} from '@holyheld/web-app-shared/sdklib';
 
 export function createWalletInfoAdapter(
   address: EVMAddress,

@@ -1,7 +1,4 @@
-import Core, {
-  type Authorizer,
-  type AuthorizerHeaders,
-} from '@holyheld/web-app-shared/sdklib/bundle';
+import Core, { type Authorizer, type AuthorizerHeaders } from '@holyheld/web-app-shared/sdklib';
 
 export const getAuthorizer = (apiKey: string, headers: AuthorizerHeaders = {}): Authorizer => {
   return {
