@@ -30,7 +30,6 @@ import Core, {
   TransactionState,
   TransactionStep,
   UnexpectedError,
-  isDefaultAddress,
   NetworkKind,
 } from '@holyheld/web-app-shared/sdklib/bundle';
 import type { HolyheldSDKInterface } from '../../sdk.types';
@@ -71,8 +70,8 @@ export default class SdkEVMOffRamp {
 
     return this.#commonEVM.getAvailableNetworks().filter((network) => {
       return (
-        !isDefaultAddress(Core.getEVMNetworkAddress(network, 'TOP_UP_PROXY_ADDRESS')) &&
-        !isDefaultAddress(Core.getEVMNetworkAddress(network, 'TOP_UP_EXCHANGE_PROXY_ADDRESS'))
+        !Core.isDefaultAddress(Core.getEVMNetworkAddress(network, 'TOP_UP_PROXY_ADDRESS')) &&
+        !Core.isDefaultAddress(Core.getEVMNetworkAddress(network, 'TOP_UP_EXCHANGE_PROXY_ADDRESS'))
       );
     });
   }
@@ -223,6 +222,10 @@ export default class SdkEVMOffRamp {
           transferData: convertData.transferData,
           swapTargetPriceUSD: swapTargetPrice.priceUSD,
           receiverHash: pad('0x0', { dir: 'left', size: 32 }),
+          meta: {
+            amount: convertData.tokenAmount,
+            amountEUR: convertData.EURAmount,
+          },
         },
       });
 
