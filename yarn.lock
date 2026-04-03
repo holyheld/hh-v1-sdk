@@ -251,10 +251,10 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.57.1.tgz#de633db3ec2ef6a3c89e2f19038063e8a122e2c2"
   integrity sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==
 
-"@holyheld/web-app-shared@4.3.19":
-  version "4.3.19"
-  resolved "https://npm.pkg.github.com/download/@holyheld/web-app-shared/4.3.19/28ef55de42620454af82a7b80fed4c36cefbde36#28ef55de42620454af82a7b80fed4c36cefbde36"
-  integrity sha512-x6UsGyyFQTRej4hkYiWwiIYp+3Is0GUfLeVaIL8cJ5UrDqhacf7MYHj53RMDO9iAKdIMFjO9rQ/6WLanB0iYqw==
+"@holyheld/web-app-shared@4.3.21":
+  version "4.3.21"
+  resolved "https://npm.pkg.github.com/download/@holyheld/web-app-shared/4.3.21/9685d60d6f3b20f4b2dd29b352632b3e7d9a856e#9685d60d6f3b20f4b2dd29b352632b3e7d9a856e"
+  integrity sha512-SsHOkzkhNwdmrmGvtR02Jlqz7Rq4kP0hYJEGz3FXQ+8fK0AFmfJiebnTqb0rLpNcS3zWBeY6vdDCX/zAXZ9LmQ==
   dependencies:
     "@coral-xyz/anchor" "^0.31.0"
     "@morpho-org/blue-sdk" "5.2.2"
@@ -270,7 +270,6 @@
     qs "^6.11.0"
     starknet "^6.24.1"
     tronweb "^6.1.1"
-    viem "2.37.4"
 
 "@humanwhocodes/config-array@^0.13.0":
   version "0.13.0"
@@ -986,20 +985,10 @@ abi-wan-kanabi@^2.2.3, abi-wan-kanabi@^2.2.4:
     fs-extra "^10.0.0"
     yargs "^17.7.2"
 
-abitype@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/abitype/-/abitype-1.1.0.tgz#510c5b3f92901877977af5e864841f443bf55406"
-  integrity sha512-6Vh4HcRxNMLA0puzPjM5GBgT4aAcFGKZzSgAXvuZ27shJP6NEpielTuqbBmZILR5/xd0PizkBGy5hReKz9jl5A==
-
 abitype@1.2.3, abitype@^1.2.3:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/abitype/-/abitype-1.2.3.tgz#bec3e09dea97d99ef6c719140bee663a329ad1f4"
   integrity sha512-Ofer5QUnuUdTFsBRwARMoWKOH1ND5ehwYhJ3OJ/BQO+StkwQjHw0XyVh4vDttzHB7QOFhPHa/o413PJ82gU/Tg==
-
-abitype@^1.0.9:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/abitype/-/abitype-1.1.1.tgz#b50ed400f8bfca5452eb4033445c309d3e1117c8"
-  integrity sha512-Loe5/6tAgsBukY95eGaPSDmQHIjRZYQq8PB1MpsNccDIK8WiV+Uw6WzaIXipvaxTEL2yEB0OpEaQv3gs8pkS9Q==
 
 acorn-jsx@^5.3.2:
   version "5.3.2"
@@ -2538,20 +2527,6 @@ ox@0.14.7:
     abitype "^1.2.3"
     eventemitter3 "5.0.1"
 
-ox@0.9.3:
-  version "0.9.3"
-  resolved "https://registry.yarnpkg.com/ox/-/ox-0.9.3.tgz#92cc1008dcd913e919364fd4175c860b3eeb18db"
-  integrity sha512-KzyJP+fPV4uhuuqrTZyok4DC7vFzi7HLUFiUNEmpbyh59htKWkOC98IONC1zgXJPbHAhQgqs6B0Z6StCGhmQvg==
-  dependencies:
-    "@adraffy/ens-normalize" "^1.11.0"
-    "@noble/ciphers" "^1.3.0"
-    "@noble/curves" "1.9.1"
-    "@noble/hashes" "^1.8.0"
-    "@scure/bip32" "^1.7.0"
-    "@scure/bip39" "^1.6.0"
-    abitype "^1.0.9"
-    eventemitter3 "5.0.1"
-
 p-limit@^3.0.2:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/p-limit/-/p-limit-3.1.0.tgz#e1daccbe78d0d1388ca18c64fea38e3e57e3706b"
@@ -3233,20 +3208,6 @@ validator@13.15.23:
   version "13.15.23"
   resolved "https://registry.yarnpkg.com/validator/-/validator-13.15.23.tgz#59a874f84e4594588e3409ab1edbe64e96d0c62d"
   integrity sha512-4yoz1kEWqUjzi5zsPbAS/903QXSYp0UOtHsPpp7p9rHAw/W+dkInskAE386Fat3oKRROwO98d9ZB0G4cObgUyw==
-
-viem@2.37.4:
-  version "2.37.4"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-2.37.4.tgz#94c9e837b4a7ef6f7b6c033487a12625534bd8bc"
-  integrity sha512-1ig5O6l1wJmaw3yrSrUimjRLQEZon2ymTqSDjdntu6Bry1/tLC2GClXeS3SiCzrifpLxzfCLQWDITYVTBA10KA==
-  dependencies:
-    "@noble/curves" "1.9.1"
-    "@noble/hashes" "1.8.0"
-    "@scure/bip32" "1.7.0"
-    "@scure/bip39" "1.6.0"
-    abitype "1.1.0"
-    isows "1.0.7"
-    ox "0.9.3"
-    ws "8.18.3"
 
 viem@^2.37.4:
   version "2.47.6"
