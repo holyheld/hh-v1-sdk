@@ -9,7 +9,10 @@ const packageName = 'HolyheldSDK';
 const common = {
   input: 'src/index.ts',
   external: (id) =>
-    !/^[./]/.test(id) && !id.includes('@holyheld') && !id.includes('@solana-developers/helpers'),
+    !/^[./]/.test(id) &&
+    !id.includes('@holyheld') &&
+    !id.includes('@solana-developers/helpers') &&
+    !id.includes('@coral-xyz/anchor'),
   plugins: [resolve({ browser: true })],
   output: {
     name: packageName,
@@ -29,7 +32,7 @@ export default [
   {
     ...common,
     output: {
-      file: `${dirName}/${fileName}.es.js`,
+      file: `${dirName}/${fileName}.js`,
       format: 'es',
       ...common.output,
     },
@@ -39,7 +42,7 @@ export default [
     ...common,
     output: {
       ...common.output,
-      file: `${dirName}/${fileName}.cjs.js`,
+      file: `${dirName}/${fileName}.cjs`,
       format: 'cjs',
     },
     plugins: [...common.plugins, esbuildPlugin],

@@ -13,7 +13,7 @@ import Core, {
   type ServerExternalSettings,
   type EVMAddress,
   type SolanaAddress,
-} from '@holyheld/web-app-shared/sdklib/bundle';
+} from '@holyheld/web-app-shared/sdklib';
 import {
   CORE_SERVICE_BASE_URL,
   ASSET_SERVICE_BASE_URL,

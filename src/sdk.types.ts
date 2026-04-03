@@ -17,7 +17,7 @@ import {
   type WithPermitData,
   type WithPrice,
   type WithPriceInEUR,
-} from '@holyheld/web-app-shared/sdklib/bundle';
+} from '@holyheld/web-app-shared/sdklib';
 import type { Logger } from './logger';
 
 export type ServiceList = {

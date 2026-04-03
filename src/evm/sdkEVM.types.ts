@@ -1,8 +1,4 @@
-import {
-  Network,
-  type NetworkInfoEVM,
-  type TokenEVM,
-} from '@holyheld/web-app-shared/sdklib/bundle';
+import { Network, type NetworkInfoEVM, type TokenEVM } from '@holyheld/web-app-shared/sdklib';
 import type { HolyheldSDKInterface, RequiredServiceList, WalletBalancesEVM } from '../sdk.types';
 
 export interface SdkEVMOptions {

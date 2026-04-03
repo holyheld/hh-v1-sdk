@@ -194,7 +194,7 @@ setAmountButton.addEventListener('click', async () => {
     tokenDecimals: selectedToken.decimals,
     amount: String(amount),
     network: selectedToken.network,
-});
+  });
 
   amountInEUR = response.EURAmount;
 

@@ -1,4 +1,4 @@
-import type { TransferDataSolana } from '@holyheld/web-app-shared/sdklib/bundle';
+import type { TransferDataSolana } from '@holyheld/web-app-shared/sdklib';
 import type { HolyheldSDKInterface, RequiredServiceList } from '../../sdk.types';
 import type { SdkSolanaInterface } from '../sdkSolana.types';
 

@@ -1,4 +1,4 @@
-import type { EVMAddress, TokenEVM } from '@holyheld/web-app-shared/sdklib/bundle';
+import type { EVMAddress, TokenEVM } from '@holyheld/web-app-shared/sdklib';
 import { HolyheldSDKInterface, RequiredServiceList } from '../../sdk.types';
 import { SdkEVMInterface } from '../sdkEVM.types';
 

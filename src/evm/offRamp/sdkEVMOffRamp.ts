@@ -13,7 +13,7 @@ import type {
   TransferDataEVM,
   WithPermitData,
   WithPrice,
-} from '@holyheld/web-app-shared/sdklib/bundle';
+} from '@holyheld/web-app-shared/sdklib';
 import Core, {
   CardTopUpOnChainService,
   CardTopUpOnChainServiceV2,
@@ -31,7 +31,7 @@ import Core, {
   TransactionStep,
   UnexpectedError,
   NetworkKind,
-} from '@holyheld/web-app-shared/sdklib/bundle';
+} from '@holyheld/web-app-shared/sdklib';
 import type { HolyheldSDKInterface } from '../../sdk.types';
 import { EURO_LIMIT_FOR_TEST_HOLYTAG, TEST_HOLYTAG } from '../../constants';
 import { createWalletClientAdapter, createWalletInfoAdapter } from '../../helpers';

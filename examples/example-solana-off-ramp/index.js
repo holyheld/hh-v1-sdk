@@ -252,7 +252,7 @@ submitButton.addEventListener('click', async () => {
 
   const connection = new Connection(networkInfo.httpRpcURL, {
     commitment: 'confirmed',
-    wsEndpoint: networkInfo.wsRpcURL ?? clusterApiUrl(networkInfo.cluster, true)
+    wsEndpoint: networkInfo.wsRpcURL ?? clusterApiUrl(networkInfo.cluster, true),
   });
 
   try {

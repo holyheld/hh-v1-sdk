@@ -14,7 +14,7 @@ import {
   blast,
   mode,
   bsc,
-  manta
+  manta,
 } from '@wagmi/core/chains';
 import { injected } from '@wagmi/connectors';
 import HolyheldSDK, { HolyheldSDKError, HolyheldSDKErrorCode, Network } from '@holyheld/sdk';
@@ -50,7 +50,21 @@ connectButton.addEventListener('click', async () => {
   parentElement.innerHTML = getSpinnerHTML();
 
   config = createConfig({
-    chains: [mainnet, polygon, optimism, polygonZkEvm, gnosis, avalanche, arbitrum, zksync, base, blast, mode, bsc, manta],
+    chains: [
+      mainnet,
+      polygon,
+      optimism,
+      polygonZkEvm,
+      gnosis,
+      avalanche,
+      arbitrum,
+      zksync,
+      base,
+      blast,
+      mode,
+      bsc,
+      manta,
+    ],
     connectors: [injected()],
     transports: {
       [mainnet.id]: http(),
